@@ -1,4 +1,4 @@
-use parsers::data_transfer_parsers::parse_move_register;
+use parsers::data_transfer::mov::parse_move_register;
 
 pub mod parsers;
 
@@ -12,5 +12,5 @@ pub fn disassemble_binary(filename: &str) {
 
     let instruction = "01111101";
     let (_, result) = parse_move_register(instruction).expect("Failure!");
-    println!("{filename}: {result}");
+    println!("{filename}: {:?}", result);
 }

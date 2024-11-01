@@ -1,5 +1,6 @@
 use nom::{branch::alt, bytes::complete::tag, sequence::tuple, IResult};
 
+#[derive(Debug)]
 pub enum Register {
     A = 0b111,
     B = 0b000,
@@ -10,50 +11,46 @@ pub enum Register {
     L = 0b101,
 }
 
-pub fn register_to_str (input: Register) -> &'static str {
-    match input {
-        Register::A => "a",
-        Register::B => "b",
-        Register::C => "c",
-        Register::D => "d",
-        Register::E => "e",
-        Register::H => "h",
-        Register::L => "l",
-    }
+#[derive(Debug)]
+pub enum RegisterPair {
+    BC = 0b00,
+    DE = 0b01,
+    HL = 0b10,
+    SP = 0b11,
 }
 
 pub fn parse_register_a (input: &str) -> IResult<&str, Register> {
-    let (input, _) = tuple((tag("1"), tag("1"), tag("1")))(input)?;
+    let (input, _) = tag("111")(input)?;
     Ok((input, Register::A))
 }
 
 pub fn parse_register_b (input: &str) -> IResult<&str, Register> {
-    let (input, _) = tuple((tag("0"), tag("0"), tag("0")))(input)?;
+    let (input, _) = tag("000")(input)?;
     Ok((input, Register::B))
 }
 
 pub fn parse_register_c (input: &str) -> IResult<&str, Register> {
-    let (input, _) = tuple((tag("0"), tag("0"), tag("1")))(input)?;
+    let (input, _) = tag("001")(input)?;
     Ok((input, Register::C))
 }
 
 pub fn parse_register_d (input: &str) -> IResult<&str, Register> {
-    let (input, _) = tuple((tag("0"), tag("1"), tag("0")))(input)?;
+    let (input, _) = tag("010")(input)?;
     Ok((input, Register::D))
 }
 
 pub fn parse_register_e (input: &str) -> IResult<&str, Register> {
-    let (input, _) = tuple((tag("0"), tag("1"), tag("1")))(input)?;
+    let (input, _) = tag("011")(input)?;
     Ok((input, Register::E))
 }
 
 pub fn parse_register_h (input: &str) -> IResult<&str, Register> {
-    let (input, _) = tuple((tag("1"), tag("0"), tag("0")))(input)?;
+    let (input, _) = tag("100")(input)?;
     Ok((input, Register::H))
 }
 
 pub fn parse_register_l (input: &str) -> IResult<&str, Register> {
-    let (input, _) = tuple((tag("1"), tag("0"), tag("1")))(input)?;
+    let (input, _) = tag("101")(input)?;
     Ok((input, Register::L))
 }
 
