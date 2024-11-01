@@ -1,14 +1,16 @@
-pub fn add(left: u64, right: u64) -> u64 {
-    left + right
-}
+use parsers::data_transfer_parsers::parse_move_register;
 
-#[cfg(test)]
-mod tests {
-    use super::*;
+pub mod parsers;
 
-    #[test]
-    fn it_works() {
-        let result = add(2, 2);
-        assert_eq!(result, 4);
-    }
+pub fn disassemble_binary(filename: &str) {
+    // let bytes: Vec<u8> = std::fs::read(filename).expect("File not found");
+    // let mut input: Vec<String> = Vec::new();
+    // for byte in bytes {
+    //     input.push(format!("{:08b}", byte))
+    // }
+    // print!("{:?}", input)
+
+    let instruction = "01111101";
+    let (_, result) = parse_move_register(instruction).expect("Failure!");
+    println!("{filename}: {result}");
 }
