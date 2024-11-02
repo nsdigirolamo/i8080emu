@@ -1,19 +1,35 @@
-use nom::{bytes::complete::tag, sequence::delimited, IResult};
+use nom::{bytes::complete::tag, sequence::{delimited, pair, preceded}, IResult};
 
-use crate::parsers::register_parsers::parse_register;
+use crate::parsers::{data_parsers::parse_byte, register_parsers::parse_register};
 
-use super::{MoveImmediate, MVI_OPCODE};
+use super::{MoveImmediate, MoveToMemoryImmediate};
 
 pub fn parse_move_immediate (input: &str) -> IResult<&str, MoveImmediate> {
-    let (input, r1) = delimited(
-        tag(MVI_OPCODE),
-        parse_register,
-        tag("110"),
+    let (input, (r, data)) = pair(
+        delimited(
+            tag("00"),
+            parse_register,
+            tag("110"),
+        ),
+        parse_byte
     )(input)?;
 
     let result = MoveImmediate {
-        to_register: r1,
-        from_data: 0,
+        r: r,
+        data: data,
+    };
+
+    Ok((input, result))
+}
+
+pub fn parse_move_to_memory_immediate (input: &str) -> IResult<&str, MoveToMemoryImmediate> {
+    let (input, data) = preceded(
+        tag("00110110"),
+        parse_byte,
+    )(input)?;
+
+    let result = MoveToMemoryImmediate {
+        data: data
     };
 
     Ok((input, result))

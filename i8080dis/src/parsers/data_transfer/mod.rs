@@ -4,57 +4,84 @@ use super::register_parsers::{Register, RegisterPair};
 
 pub mod mov;
 pub mod mvi;
-
-const MOV_OPCODE: &str = "01";
-const MVI_OPCODE: &str = "00";
+pub mod lxi;
+pub mod lda;
+pub mod sta;
+pub mod lhld;
+pub mod shld;
+pub mod ldax;
+pub mod stax;
+pub mod xchg;
 
 #[derive(Debug)]
 pub struct MoveRegister {
-    to_register: Register,
-    from_register: Register,
+    r1: Register,
+    r2: Register,
 }
 
 #[derive(Debug)]
 pub struct MoveFromMemory {
-    to_register: Register,
+    r: Register,
 }
 
 #[derive(Debug)]
 pub struct MoveToMemory {
-    from_register: Register,
+    r: Register,
 }
 
 #[derive(Debug)]
 pub struct MoveImmediate {
-    to_register: Register,
-    from_data: u8,
+    r: Register,
+    data: u8,
 }
 
+#[derive(Debug)]
 pub struct MoveToMemoryImmediate {
-    from_data: u8
+    data: u8,
 }
 
+#[derive(Debug)]
 pub struct LoadRegisterPairImmediate {
-    to_register_pair: RegisterPair,
-    from_data: u16
+    rp: RegisterPair,
+    low_data: u8,
+    high_data: u8,
 }
 
+#[derive(Debug)]
 pub struct LoadAccumulatorDirect {
-    from_address: u16
+    low_addr: u8,
+    high_addr: u8,
 }
 
+#[derive(Debug)]
 pub struct StoreAccumulatorDirect {
-    to_address: u16
+    low_addr: u8,
+    high_addr: u8,
 }
 
+#[derive(Debug)]
 pub struct LoadHLDirect {
-    from_address: u16
+    low_addr: u8,
+    high_addr: u8,
 }
 
+#[derive(Debug)]
 pub struct StoreHLDirect {
-    to_address: u16
+    low_addr: u8,
+    high_addr: u8,
 }
 
+#[derive(Debug)]
 pub struct LoadAccumulatorIndirect {
+    rp: RegisterPair,
+}
+
+#[derive(Debug)]
+pub struct StoreAccumulatorIndirect {
+    rp: RegisterPair,
+}
+
+#[derive(Debug)]
+pub struct ExchangeHLtoDE {
 
 }

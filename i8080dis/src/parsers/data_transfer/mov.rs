@@ -1,12 +1,12 @@
-use nom::{bytes::complete::tag, sequence::{delimited, pair, preceded, tuple}, IResult};
+use nom::{bytes::complete::tag, sequence::{delimited, pair, preceded}, IResult};
 
 use crate::parsers::register_parsers::parse_register;
 
-use super::{MoveFromMemory, MoveRegister, MoveToMemory, MOV_OPCODE};
+use super::{MoveFromMemory, MoveRegister, MoveToMemory};
 
 pub fn parse_move_register (input: &str) -> IResult<&str, MoveRegister> {
     let (input, (r1, r2)) = preceded(
-        tag(MOV_OPCODE),
+        tag("01"),
         pair(
             parse_register,
             parse_register,
@@ -14,8 +14,8 @@ pub fn parse_move_register (input: &str) -> IResult<&str, MoveRegister> {
     )(input)?;
 
     let result = MoveRegister {
-        to_register: r1,
-        from_register: r2,
+        r1: r1,
+        r2: r2,
     };
 
     Ok((input, result))
@@ -23,27 +23,26 @@ pub fn parse_move_register (input: &str) -> IResult<&str, MoveRegister> {
 
 pub fn parse_move_from_memory (input: &str) -> IResult<&str, MoveFromMemory> {
     let (input, r1) = delimited(
-        tag(MOV_OPCODE),
+        tag("01"),
         parse_register,
         tag("110"),
     )(input)?;
 
     let result = MoveFromMemory {
-        to_register: r1,
+        r: r1,
     };
 
     Ok((input, result))
 }
 
 pub fn parse_move_to_memory (input: &str) -> IResult<&str, MoveToMemory> {
-    let (input, (_, _, r1)) = tuple((
-        tag(MOV_OPCODE),
-        tag("110"),
+    let (input, r) = preceded(
+        tag("01110"),
         parse_register,
-    ))(input)?;
+    )(input)?;
 
     let result = MoveToMemory {
-        from_register: r1,
+        r: r,
     };
 
     Ok((input, result))

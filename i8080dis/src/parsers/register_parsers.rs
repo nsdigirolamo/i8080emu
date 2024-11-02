@@ -1,4 +1,4 @@
-use nom::{branch::alt, bytes::complete::tag, sequence::tuple, IResult};
+use nom::{branch::alt, bytes::complete::tag, IResult};
 
 #[derive(Debug)]
 pub enum Register {
@@ -55,7 +55,7 @@ pub fn parse_register_l (input: &str) -> IResult<&str, Register> {
 }
 
 pub fn parse_register (input: &str) -> IResult<&str, Register> {
-    Ok(alt((
+    alt((
         parse_register_a,
         parse_register_b,
         parse_register_c,
@@ -63,5 +63,34 @@ pub fn parse_register (input: &str) -> IResult<&str, Register> {
         parse_register_e,
         parse_register_h,
         parse_register_l,
-    ))(input))?
+    ))(input)
+}
+
+pub fn parse_register_pair_bc (input: &str) -> IResult<&str, RegisterPair> {
+    let (input, _) = tag("00")(input)?;
+    Ok((input, RegisterPair::BC))
+}
+
+pub fn parse_register_pair_de (input: &str) -> IResult<&str, RegisterPair> {
+    let (input, _) = tag("01")(input)?;
+    Ok((input, RegisterPair::DE))
+}
+
+pub fn parse_register_pair_hl (input: &str) -> IResult<&str, RegisterPair> {
+    let (input, _) = tag("10")(input)?;
+    Ok((input, RegisterPair::HL))
+}
+
+pub fn parse_register_pair_sp (input: &str) -> IResult<&str, RegisterPair> {
+    let (input, _) = tag("11")(input)?;
+    Ok((input, RegisterPair::SP))
+}
+
+pub fn parse_register_pair (input: &str) -> IResult<&str, RegisterPair> {
+    alt((
+        parse_register_pair_bc,
+        parse_register_pair_de,
+        parse_register_pair_hl,
+        parse_register_pair_sp,
+    ))(input)
 }
