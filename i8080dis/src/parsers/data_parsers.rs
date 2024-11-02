@@ -1,4 +1,4 @@
-use nom::{branch::alt, bytes::complete::{tag, take}, combinator::map_res, multi::count, IResult, Parser};
+use nom::{branch::alt, bytes::complete::tag, combinator::map_res, multi::count, IResult, Parser};
 
 /** Parse a single binary digit from the input. */
 pub fn parse_bit (input: &str) -> IResult<&str, &str> {

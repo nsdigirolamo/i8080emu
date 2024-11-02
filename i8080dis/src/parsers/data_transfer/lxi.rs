@@ -1,4 +1,4 @@
-use nom::{bytes::complete::tag, sequence::{delimited, preceded, tuple}, IResult};
+use nom::{bytes::complete::tag, sequence::{delimited, tuple}, IResult};
 
 use crate::parsers::{data_parsers::parse_byte, register_parsers::parse_register_pair};
 
