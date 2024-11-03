@@ -13,73 +13,73 @@ pub mod sta;
 pub mod stax;
 pub mod xchg;
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct MoveRegister {
-    r1: Register,
-    r2: Register,
+    pub r1: Register,
+    pub r2: Register,
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct MoveFromMemory {
-    r: Register,
+    pub r: Register,
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct MoveToMemory {
-    r: Register,
+    pub r: Register,
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct MoveImmediate {
-    r: Register,
-    data: u8,
+    pub r: Register,
+    pub data: u8,
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct MoveToMemoryImmediate {
-    data: u8,
+    pub data: u8,
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct LoadRegisterPairImmediate {
-    rp: RegisterPair,
-    low_data: u8,
-    high_data: u8,
+    pub rp: RegisterPair,
+    pub low_data: u8,
+    pub high_data: u8,
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct LoadAccumulatorDirect {
-    low_addr: u8,
-    high_addr: u8,
+    pub low_addr: u8,
+    pub high_addr: u8,
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct StoreAccumulatorDirect {
-    low_addr: u8,
-    high_addr: u8,
+    pub low_addr: u8,
+    pub high_addr: u8,
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct LoadHLDirect {
-    low_addr: u8,
-    high_addr: u8,
+    pub low_addr: u8,
+    pub high_addr: u8,
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct StoreHLDirect {
-    low_addr: u8,
-    high_addr: u8,
+    pub low_addr: u8,
+    pub high_addr: u8,
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct LoadAccumulatorIndirect {
-    rp: RegisterPair,
+    pub rp: RegisterPair,
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct StoreAccumulatorIndirect {
-    rp: RegisterPair,
+    pub rp: RegisterPair,
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct ExchangeHLtoDE {}
