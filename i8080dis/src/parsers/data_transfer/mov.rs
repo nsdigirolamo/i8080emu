@@ -17,9 +17,9 @@ pub fn parse_move_register(input: &str) -> IResult<&str, MoveRegister> {
 }
 
 pub fn parse_move_from_memory(input: &str) -> IResult<&str, MoveFromMemory> {
-    let (input, r1) = delimited(tag("01"), parse_register, tag("110"))(input)?;
+    let (input, r) = delimited(tag("01"), parse_register, tag("110"))(input)?;
 
-    let result = MoveFromMemory { r: r1 };
+    let result = MoveFromMemory { r };
 
     Ok((input, result))
 }
