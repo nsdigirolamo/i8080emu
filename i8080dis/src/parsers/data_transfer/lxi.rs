@@ -14,12 +14,10 @@ pub fn parse_load_register_pair_immediate(input: &str) -> IResult<&str, LoadRegi
         parse_byte,
         parse_byte,
     ))(input)?;
-
     let result = LoadRegisterPairImmediate {
         rp,
         low_data,
         high_data,
     };
-
     Ok((input, result))
 }

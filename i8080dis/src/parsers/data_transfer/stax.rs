@@ -6,8 +6,6 @@ use super::StoreAccumulatorIndirect;
 
 pub fn parse_store_accumulator_indirect(input: &str) -> IResult<&str, StoreAccumulatorIndirect> {
     let (input, rp) = delimited(tag("00"), parse_register_pair, tag("0010"))(input)?;
-
     let result = StoreAccumulatorIndirect { rp };
-
     Ok((input, result))
 }
