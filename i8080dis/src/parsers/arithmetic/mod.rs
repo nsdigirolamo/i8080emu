@@ -1,5 +1,20 @@
 use super::register_parsers::{Register, RegisterPair};
 
+pub mod aci;
+pub mod adc;
+pub mod add;
+pub mod adi;
+pub mod daa;
+pub mod dad;
+pub mod dcr;
+pub mod dcx;
+pub mod inr;
+pub mod inx;
+pub mod sbb;
+pub mod sbi;
+pub mod sub;
+pub mod sui;
+
 #[derive(Debug, PartialEq)]
 pub struct AddRegister {
     pub r: Register,
@@ -41,7 +56,7 @@ pub struct SubtractImmediate {
 
 #[derive(Debug, PartialEq)]
 pub struct SubtractRegisterWithBorrow {
-    r: Register,
+    pub r: Register,
 }
 
 #[derive(Debug, PartialEq)]
@@ -70,17 +85,17 @@ pub struct DecrementMemory {}
 
 #[derive(Debug, PartialEq)]
 pub struct IncrementRegisterPair {
-    rp: RegisterPair,
+    pub rp: RegisterPair,
 }
 
 #[derive(Debug, PartialEq)]
 pub struct DecrementRegisterPair {
-    rp: RegisterPair,
+    pub rp: RegisterPair,
 }
 
 #[derive(Debug, PartialEq)]
 pub struct AddRegisterPairToHL {
-    rp: RegisterPair,
+    pub rp: RegisterPair,
 }
 
 #[derive(Debug, PartialEq)]
