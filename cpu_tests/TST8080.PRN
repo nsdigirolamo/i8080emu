@@ -11,7 +11,7 @@
                 ;(805) 527-9321 (MODEM, CP/M-NET (TM))
                 ;(805) 527-0518 (VERBAL)
                 ;
-                ;  Updated by Mike Douglas October, 2012 
+                ;  Updated by Mike Douglas October, 2012
                 ;
                 ;	Added the following tests that were missing:
                 ;	   mov c,m
@@ -24,7 +24,7 @@
                 ;	Added display of the Microcosm welcome message
                 ;
  0100           	ORG	00100H
-                
+
                 ;
  0100 C3B201    	JMP	CPU	;JUMP TO 8080 CPU DIAGNOSTIC
                 ;
@@ -657,7 +657,7 @@
  05A7 3F        	CMC
  05A8 DCA006    	CC	CPUER	;TEST "CMC
  05AB 3EAA      	MVI	A,0AAH
- 05AD 2F        	CMA	
+ 05AD 2F        	CMA
  05AE FE55      	CPI	055H
  05B0 C4A006    	CNZ	CPUER	;TEST "CMA"
  05B3 B7        	ORA	A	;RE-SET AUXILIARY CARRY

@@ -2,7 +2,7 @@
 
 
                                 	title	'Z80 instruction set exerciser'
-                                
+
                                 ; zexlax.z80 - Z80 instruction set exerciser
                                 ; Copyright (C) 1994  Frank D. Cringle
                                 ;
@@ -23,7 +23,7 @@
                                 ;******************************************************************************
                                 ;
                                 ; Modified to exercise an 8080 by Ian Bartholomew, February 2009
-                                ; 
+                                ;
                                 ; I have made the following changes -
                                 ;
                                 ; Converted all mnemonics to 8080 and rewritten any Z80 code used
@@ -31,7 +31,7 @@
                                 ; source code listing.
                                 ;
                                 ; Removed any test descriptors that are not used.
-                                ;  
+                                ;
                                 ; Changed the macro definitions to work in M80
                                 ;
                                 ; The machine state snapshot has been changed to remove the IX/IY registers.
@@ -54,27 +54,27 @@
                                 	.8080
   0000'                         	aseg
                                 	org	100h
-                                
+
   0100    C3 0113               begin:	jmp	start
-                                
+
 'Z80 instruction set exerciser'	MACRO-80 3.44	09-Dec-81	PAGE	1-1
 
 
                                 ; machine state before test (needs to be at predictably constant address)
   0103                          msbt:	ds	14
   0111                          spbt:	ds	2
-                                
+
                                 ; For the purposes of this test program, the machine state consists of:
                                 ;	a 2 byte memory operand, followed by
                                 ;	the registers iy,ix,hl,de,bc,af,sp
                                 ; for a total of 16 bytes.
-                                
+
                                 ; The program tests instructions (or groups of similar instructions)
                                 ; by cycling through a sequence of machine states, executing the test
                                 ; instruction for each one and running a 32-bit crc over the resulting
                                 ; machine states.  At the end of the sequence the crc is compared to
                                 ; an expected value that was found empirically on a real Z80.
-                                
+
                                 ; A test case is defined by a descriptor which consists of:
                                 ;	a flag mask byte,
                                 ;	the base case,
@@ -101,20 +101,20 @@
                                 ; set of bits in the test case that are to be successively inverted.
                                 ; Thus the shift vector 'causes' a number of test cases equal to the
                                 ; number of 1 bits in it.
-                                
+
                                 ; The total number of test cases is the product of those caused by the
                                 ; counter and shift vectors and can easily become unweildy.  Each
                                 ; individual test case can take a few milliseconds to execute, due to
                                 ; the overhead of test setup and crc calculation, so test design is a
                                 ; compromise between coverage and execution time.
-                                
+
                                 ; This program is designed to detect differences between
                                 ; implementations and is not ideal for diagnosing the causes of any
                                 ; discrepancies.  However, provided a reference implementation (or
                                 ; real system) is available, a failing test case can be isolated by
                                 ; hand using a binary search of the test space.
-                                
-                                
+
+
   0113    2A 0006               start:	lhld	6
 'Z80 instruction set exerciser'	MACRO-80 3.44	09-Dec-81	PAGE	1-2
 
@@ -123,7 +123,7 @@
   0117    11 0E01               	lxi	d,msg1
   011A    0E 09                 	mvi	c,9
   011C    CD 0DF5               	call	bdos
-                                
+
   011F    21 013A               	lxi	h,tests		; first test case
   0122    7E                    loop:	mov	a,m		; end of list ?
   0123    23                    	inx	h
@@ -132,12 +132,12 @@
   0128    2B                    	dcx	h
   0129    CD 0ACE               	call	stt
   012C    C3 0122               	jmp	loop
-                                	
+
   012F    11 0E1E               done:	lxi	d,msg2
   0132    0E 09                 	mvi	c,9
   0134    CD 0DF5               	call	bdos
   0137    C3 0000               	jmp	0		; warm boot
-                                
+
   013A                          tests:
   013A    016E                  	dw	add16
   013C    01CE                  	dw	alu8i
@@ -165,7 +165,7 @@
   0168    0A0E                  	dw	rot8080
   016A    0A6E                  	dw	stabd
   016C    0000                  	dw	0
-                                
+
                                 tstr	macro	insn,memop,hliy,hlix,hl,de,bc,flags,acc,sp
                                 	local	lab
                                 lab:	db	insn
@@ -181,7 +181,7 @@
                                 	error	'missing parameter'
                                 	endif
                                 	endm
-                                
+
                                 tmsg	macro	m
                                 	local	lab
                                 lab:	db	m
@@ -192,15 +192,15 @@
                                 	endif
                                 	db	'$'
                                 	endm
-                                
+
                                 ; add hl,<bc,de,hl,sp> (19,456 cycles)
   016E    FF                    add16:	db	0ffh		; flag mask
                                 	tstr	9,0c4a5h,0c4c7h,0d226h,0a050h,058eah,08566h,0c6h,0deh,09bc9h
   016F    09              +     ..0000:	db	9
   0170                    +     	ds	..0000+4-$,0
   0173    C4A5 C4C7       +     	dw	0c4a5h,0c4c7h,0d226h,0a050h,058eah,08566h
-  0177    D226 A050       +     
-  017B    58EA 8566       +     
+  0177    D226 A050       +
+  017B    58EA 8566       +
   017F    C6              +     	db	0c6h
   0180    DE              +     	db	0deh
   0181    9BC9            +     	dw	09bc9h
@@ -208,8 +208,8 @@
   0183    30              +     ..0001:	db	030h
   0184                    +     	ds	..0001+4-$,0
   0187    0000 0000       +     	dw	0,0,0,0f821h,0,0
-  018B    0000 F821       +     
-  018F    0000 0000       +     
+  018B    0000 F821       +
+  018F    0000 0000       +
   0193    00              +     	db	0
   0194    00              +     	db	0
   0195    0000            +     	dw	0
@@ -217,20 +217,20 @@
   0197    00              +     ..0002:	db	0
   0198                    +     	ds	..0002+4-$,0
   019B    0000 0000       +     	dw	0,0,0,-1,-1,-1
-  019F    0000 FFFF       +     
-  01A3    FFFF FFFF       +     
+  019F    0000 FFFF       +
+  01A3    FFFF FFFF       +
   01A7    D7              +     	db	0d7h
   01A8    00              +     	db	0
   01A9    FFFF            +     	dw	-1
   01AB    14 47 4B A6           	db	014h, 047h, 04Bh, 0A6h			; expected crc
                                 	tmsg	'dad <b,d,h,sp>'
   01AF    64 61 64 20     +     ..0003:	db	'dad <b,d,h,sp>'
-  01B3    3C 62 2C 64     +     
-  01B7    2C 68 2C 73     +     
-  01BB    70 3E           +     
+  01B3    3C 62 2C 64     +
+  01B7    2C 68 2C 73     +
+  01BB    70 3E           +
   01BD                    +     	ds	..0003+30-$,'.'
   01CD    24              +     	db	'$'
-                                
+
                                 ; aluop a,nn (28,672 cycles)
   01CE    FF                    alu8i:	db	0ffh		; flag mask
                                 	tstr	0c6h,09140h,07e3ch,07a67h,0df6dh,05b61h,00b29h,010h,066h,085b2h
@@ -240,8 +240,8 @@
   01CF    C6              +     ..0004:	db	0c6h
   01D0                    +     	ds	..0004+4-$,0
   01D3    9140 7E3C       +     	dw	09140h,07e3ch,07a67h,0df6dh,05b61h,00b29h
-  01D7    7A67 DF6D       +     
-  01DB    5B61 0B29       +     
+  01D7    7A67 DF6D       +
+  01DB    5B61 0B29       +
   01DF    10              +     	db	010h
   01E0    66              +     	db	066h
   01E1    85B2            +     	dw	085b2h
@@ -249,8 +249,8 @@
   01E3    38              +     ..0005:	db	038h
   01E4                    +     	ds	..0005+4-$,0
   01E7    0000 0000       +     	dw	0,0,0,0,0,0
-  01EB    0000 0000       +     
-  01EF    0000 0000       +     
+  01EB    0000 0000       +
+  01EF    0000 0000       +
   01F3    00              +     	db	0
   01F4    FF              +     	db	-1
   01F5    0000            +     	dw	0
@@ -258,26 +258,26 @@
   01F7    00 FF           +     ..0006:	db	0,-1
   01F9                    +     	ds	..0006+4-$,0
   01FB    0000 0000       +     	dw	0,0,0,0,0,0
-  01FF    0000 0000       +     
-  0203    0000 0000       +     
+  01FF    0000 0000       +
+  0203    0000 0000       +
   0207    D7              +     	db	0d7h
   0208    00              +     	db	0
   0209    0000            +     	dw	0
   020B    9E 92 2F 9E           	db	09Eh, 092h, 02Fh, 09Eh			; expected crc
                                 	tmsg	'aluop nn'
   020F    61 6C 75 6F     +     ..0007:	db	'aluop nn'
-  0213    70 20 6E 6E     +     
+  0213    70 20 6E 6E     +
   0217                    +     	ds	..0007+30-$,'.'
   022D    24              +     	db	'$'
-                                
+
                                 ; aluop a,<b,c,d,e,h,l,(hl),a> (753,664 cycles)
   022E    FF                    alu8r:	db	0ffh		; flag mask
                                 	tstr	080h,0c53eh,0573ah,04c4dh,msbt,0e309h,0a666h,0d0h,03bh,0adbbh
   022F    80              +     ..0008:	db	080h
   0230                    +     	ds	..0008+4-$,0
   0233    C53E 573A       +     	dw	0c53eh,0573ah,04c4dh,msbt,0e309h,0a666h
-  0237    4C4D 0103       +     
-  023B    E309 A666       +     
+  0237    4C4D 0103       +
+  023B    E309 A666       +
   023F    D0              +     	db	0d0h
   0240    3B              +     	db	03bh
   0241    ADBB            +     	dw	0adbbh
@@ -285,8 +285,8 @@
   0243    3F              +     ..0009:	db	03fh
   0244                    +     	ds	..0009+4-$,0
   0247    0000 0000       +     	dw	0,0,0,0,0,0
-  024B    0000 0000       +     
-  024F    0000 0000       +     
+  024B    0000 0000       +
+  024F    0000 0000       +
   0253    00              +     	db	0
   0254    FF              +     	db	-1
   0255    0000            +     	dw	0
@@ -297,30 +297,30 @@
 
 
   025B    00FF 0000       +     	dw	0ffh,0,0,0,-1,-1
-  025F    0000 0000       +     
-  0263    FFFF FFFF       +     
+  025F    0000 0000       +
+  0263    FFFF FFFF       +
   0267    D7              +     	db	0d7h
   0268    00              +     	db	0
   0269    0000            +     	dw	0
   026B    CF 76 2C 86           	db	0CFh, 076h, 02Ch, 086h			; expected crc
                                 	tmsg	'aluop <b,c,d,e,h,l,m,a>'
   026F    61 6C 75 6F     +     ..000B:	db	'aluop <b,c,d,e,h,l,m,a>'
-  0273    70 20 3C 62     +     
-  0277    2C 63 2C 64     +     
-  027B    2C 65 2C 68     +     
-  027F    2C 6C 2C 6D     +     
-  0283    2C 61 3E        +     
+  0273    70 20 3C 62     +
+  0277    2C 63 2C 64     +
+  027B    2C 65 2C 68     +
+  027F    2C 6C 2C 6D     +
+  0283    2C 61 3E        +
   0286                    +     	ds	..000B+30-$,'.'
   028D    24              +     	db	'$'
-                                
+
                                 ; <daa,cpl,scf,ccf>
   028E    FF                    daa:	db	0ffh		; flag mask
                                 	tstr	027h,02141h,009fah,01d60h,0a559h,08d5bh,09079h,004h,08eh,0299dh
   028F    27              +     ..000C:	db	027h
   0290                    +     	ds	..000C+4-$,0
   0293    2141 09FA       +     	dw	02141h,009fah,01d60h,0a559h,08d5bh,09079h
-  0297    1D60 A559       +     
-  029B    8D5B 9079       +     
+  0297    1D60 A559       +
+  029B    8D5B 9079       +
   029F    04              +     	db	004h
   02A0    8E              +     	db	08eh
   02A1    299D            +     	dw	0299dh
@@ -328,8 +328,8 @@
   02A3    18              +     ..000D:	db	018h
   02A4                    +     	ds	..000D+4-$,0
   02A7    0000 0000       +     	dw	0,0,0,0,0,0
-  02AB    0000 0000       +     
-  02AF    0000 0000       +     
+  02AB    0000 0000       +
+  02AF    0000 0000       +
   02B3    D7              +     	db	0d7h
   02B4    FF              +     	db	-1
   02B5    0000            +     	dw	0
@@ -337,21 +337,21 @@
   02B7    00              +     ..000E:	db	0
   02B8                    +     	ds	..000E+4-$,0
   02BB    0000 0000       +     	dw	0,0,0,0,0,0
-  02BF    0000 0000       +     
-  02C3    0000 0000       +     
+  02BF    0000 0000       +
+  02C3    0000 0000       +
   02C7    00              +     	db	0
   02C8    00              +     	db	0
   02C9    0000            +     	dw	0
   02CB    BB 3F 03 0C           	db	0BBh, 03Fh, 003h, 00Ch			; expected crc
                                 	tmsg	'<daa,cma,stc,cmc>'
   02CF    3C 64 61 61     +     ..000F:	db	'<daa,cma,stc,cmc>'
-  02D3    2C 63 6D 61     +     
-  02D7    2C 73 74 63     +     
-  02DB    2C 63 6D 63     +     
-  02DF    3E              +     
+  02D3    2C 63 6D 61     +
+  02D7    2C 73 74 63     +
+  02DB    2C 63 6D 63     +
+  02DF    3E              +
   02E0                    +     	ds	..000F+30-$,'.'
   02ED    24              +     	db	'$'
-                                
+
 'Z80 instruction set exerciser'	MACRO-80 3.44	09-Dec-81	PAGE	1-6
 
 
@@ -361,8 +361,8 @@
   02EF    3C              +     ..0010:	db	03ch
   02F0                    +     	ds	..0010+4-$,0
   02F3    4ADF D5D8       +     	dw	04adfh,0d5d8h,0e598h,08a2bh,0a7b0h,0431bh
-  02F7    E598 8A2B       +     
-  02FB    A7B0 431B       +     
+  02F7    E598 8A2B       +
+  02FB    A7B0 431B       +
   02FF    44              +     	db	044h
   0300    5A              +     	db	05ah
   0301    D030            +     	dw	0d030h
@@ -370,8 +370,8 @@
   0303    01              +     ..0011:	db	001h
   0304                    +     	ds	..0011+4-$,0
   0307    0000 0000       +     	dw	0,0,0,0,0,0
-  030B    0000 0000       +     
-  030F    0000 0000       +     
+  030B    0000 0000       +
+  030F    0000 0000       +
   0313    00              +     	db	0
   0314    FF              +     	db	-1
   0315    0000            +     	dw	0
@@ -379,27 +379,27 @@
   0317    00              +     ..0012:	db	0
   0318                    +     	ds	..0012+4-$,0
   031B    0000 0000       +     	dw	0,0,0,0,0,0
-  031F    0000 0000       +     
-  0323    0000 0000       +     
+  031F    0000 0000       +
+  0323    0000 0000       +
   0327    D7              +     	db	0d7h
   0328    00              +     	db	0
   0329    0000            +     	dw	0
   032B    AD B6 46 0E           	db	0ADh, 0B6h, 046h, 00Eh			; expected crc
                                 	tmsg	'<inr,dcr> a'
   032F    3C 69 6E 72     +     ..0013:	db	'<inr,dcr> a'
-  0333    2C 64 63 72     +     
-  0337    3E 20 61        +     
+  0333    2C 64 63 72     +
+  0337    3E 20 61        +
   033A                    +     	ds	..0013+30-$,'.'
   034D    24              +     	db	'$'
-                                
+
                                 ; <inc,dec> b (3072 cycles)
   034E    FF                    incb:	db	0ffh		; flag mask
                                 	tstr	004h,0d623h,0432dh,07a61h,08180h,05a86h,01e85h,086h,058h,09bbbh
   034F    04              +     ..0014:	db	004h
   0350                    +     	ds	..0014+4-$,0
   0353    D623 432D       +     	dw	0d623h,0432dh,07a61h,08180h,05a86h,01e85h
-  0357    7A61 8180       +     
-  035B    5A86 1E85       +     
+  0357    7A61 8180       +
+  035B    5A86 1E85       +
   035F    86              +     	db	086h
   0360    58              +     	db	058h
   0361    9BBB            +     	dw	09bbbh
@@ -407,8 +407,8 @@
   0363    01              +     ..0015:	db	001h
   0364                    +     	ds	..0015+4-$,0
   0367    0000 0000       +     	dw	0,0,0,0,0,0ff00h
-  036B    0000 0000       +     
-  036F    0000 FF00       +     
+  036B    0000 0000       +
+  036F    0000 FF00       +
   0373    00              +     	db	0
   0374    00              +     	db	0
 'Z80 instruction set exerciser'	MACRO-80 3.44	09-Dec-81	PAGE	1-7
@@ -419,27 +419,27 @@
   0377    00              +     ..0016:	db	0
   0378                    +     	ds	..0016+4-$,0
   037B    0000 0000       +     	dw	0,0,0,0,0,0
-  037F    0000 0000       +     
-  0383    0000 0000       +     
+  037F    0000 0000       +
+  0383    0000 0000       +
   0387    D7              +     	db	0d7h
   0388    00              +     	db	0
   0389    0000            +     	dw	0
   038B    83 ED 13 45           	db	083h, 0EDh, 013h, 045h			; expected crc
                                 	tmsg	'<inr,dcr> b'
   038F    3C 69 6E 72     +     ..0017:	db	'<inr,dcr> b'
-  0393    2C 64 63 72     +     
-  0397    3E 20 62        +     
+  0393    2C 64 63 72     +
+  0397    3E 20 62        +
   039A                    +     	ds	..0017+30-$,'.'
   03AD    24              +     	db	'$'
-                                
+
                                 ; <inc,dec> bc (1536 cycles)
   03AE    FF                    incbc:	db	0ffh		; flag mask
                                 	tstr	003h,0cd97h,044abh,08dc9h,0e3e3h,011cch,0e8a4h,002h,049h,02a4dh
   03AF    03              +     ..0018:	db	003h
   03B0                    +     	ds	..0018+4-$,0
   03B3    CD97 44AB       +     	dw	0cd97h,044abh,08dc9h,0e3e3h,011cch,0e8a4h
-  03B7    8DC9 E3E3       +     
-  03BB    11CC E8A4       +     
+  03B7    8DC9 E3E3       +
+  03BB    11CC E8A4       +
   03BF    02              +     	db	002h
   03C0    49              +     	db	049h
   03C1    2A4D            +     	dw	02a4dh
@@ -447,8 +447,8 @@
   03C3    08              +     ..0019:	db	008h
   03C4                    +     	ds	..0019+4-$,0
   03C7    0000 0000       +     	dw	0,0,0,0,0,0f821h
-  03CB    0000 0000       +     
-  03CF    0000 F821       +     
+  03CB    0000 0000       +
+  03CF    0000 F821       +
   03D3    00              +     	db	0
   03D4    00              +     	db	0
   03D5    0000            +     	dw	0
@@ -456,19 +456,19 @@
   03D7    00              +     ..001A:	db	0
   03D8                    +     	ds	..001A+4-$,0
   03DB    0000 0000       +     	dw	0,0,0,0,0,0
-  03DF    0000 0000       +     
-  03E3    0000 0000       +     
+  03DF    0000 0000       +
+  03E3    0000 0000       +
   03E7    D7              +     	db	0d7h
   03E8    00              +     	db	0
   03E9    0000            +     	dw	0
   03EB    F7 92 87 CD           	db	0F7h, 092h, 087h, 0CDh			; expected crc
                                 	tmsg	'<inx,dcx> b'
   03EF    3C 69 6E 78     +     ..001B:	db	'<inx,dcx> b'
-  03F3    2C 64 63 78     +     
-  03F7    3E 20 62        +     
+  03F3    2C 64 63 78     +
+  03F7    3E 20 62        +
   03FA                    +     	ds	..001B+30-$,'.'
   040D    24              +     	db	'$'
-                                
+
                                 ; <inc,dec> c (3072 cycles)
 'Z80 instruction set exerciser'	MACRO-80 3.44	09-Dec-81	PAGE	1-8
 
@@ -478,8 +478,8 @@
   040F    0C              +     ..001C:	db	00ch
   0410                    +     	ds	..001C+4-$,0
   0413    D789 0935       +     	dw	0d789h,00935h,0055bh,09f85h,08b27h,0d208h
-  0417    055B 9F85       +     
-  041B    8B27 D208       +     
+  0417    055B 9F85       +
+  041B    8B27 D208       +
   041F    95              +     	db	095h
   0420    05              +     	db	005h
   0421    0660            +     	dw	00660h
@@ -487,8 +487,8 @@
   0423    01              +     ..001D:	db	001h
   0424                    +     	ds	..001D+4-$,0
   0427    0000 0000       +     	dw	0,0,0,0,0,0ffh
-  042B    0000 0000       +     
-  042F    0000 00FF       +     
+  042B    0000 0000       +
+  042F    0000 00FF       +
   0433    00              +     	db	0
   0434    00              +     	db	0
   0435    0000            +     	dw	0
@@ -496,27 +496,27 @@
   0437    00              +     ..001E:	db	0
   0438                    +     	ds	..001E+4-$,0
   043B    0000 0000       +     	dw	0,0,0,0,0,0
-  043F    0000 0000       +     
-  0443    0000 0000       +     
+  043F    0000 0000       +
+  0443    0000 0000       +
   0447    D7              +     	db	0d7h
   0448    00              +     	db	0
   0449    0000            +     	dw	0
   044B    E5 F6 72 1B           	db	0E5h, 0F6h, 072h, 01Bh			; expected crc
                                 	tmsg	'<inr,dcr> c'
   044F    3C 69 6E 72     +     ..001F:	db	'<inr,dcr> c'
-  0453    2C 64 63 72     +     
-  0457    3E 20 63        +     
+  0453    2C 64 63 72     +
+  0457    3E 20 63        +
   045A                    +     	ds	..001F+30-$,'.'
   046D    24              +     	db	'$'
-                                
+
                                 ; <inc,dec> d (3072 cycles)
   046E    FF                    incd:	db	0ffh		; flag mask
                                 	tstr	014h,0a0eah,05fbah,065fbh,0981ch,038cch,0debch,043h,05ch,003bdh
   046F    14              +     ..0020:	db	014h
   0470                    +     	ds	..0020+4-$,0
   0473    A0EA 5FBA       +     	dw	0a0eah,05fbah,065fbh,0981ch,038cch,0debch
-  0477    65FB 981C       +     
-  047B    38CC DEBC       +     
+  0477    65FB 981C       +
+  047B    38CC DEBC       +
   047F    43              +     	db	043h
   0480    5C              +     	db	05ch
   0481    03BD            +     	dw	003bdh
@@ -524,8 +524,8 @@
   0483    01              +     ..0021:	db	001h
   0484                    +     	ds	..0021+4-$,0
   0487    0000 0000       +     	dw	0,0,0,0,0ff00h,0
-  048B    0000 0000       +     
-  048F    FF00 0000       +     
+  048B    0000 0000       +
+  048F    FF00 0000       +
   0493    00              +     	db	0
   0494    00              +     	db	0
   0495    0000            +     	dw	0
@@ -536,27 +536,27 @@
   0497    00              +     ..0022:	db	0
   0498                    +     	ds	..0022+4-$,0
   049B    0000 0000       +     	dw	0,0,0,0,0,0
-  049F    0000 0000       +     
-  04A3    0000 0000       +     
+  049F    0000 0000       +
+  04A3    0000 0000       +
   04A7    D7              +     	db	0d7h
   04A8    00              +     	db	0
   04A9    0000            +     	dw	0
   04AB    15 B5 57 9A           	db	015h, 0B5h, 057h, 09Ah			; expected crc
                                 	tmsg	'<inr,dcr> d'
   04AF    3C 69 6E 72     +     ..0023:	db	'<inr,dcr> d'
-  04B3    2C 64 63 72     +     
-  04B7    3E 20 64        +     
+  04B3    2C 64 63 72     +
+  04B7    3E 20 64        +
   04BA                    +     	ds	..0023+30-$,'.'
   04CD    24              +     	db	'$'
-                                
+
                                 ; <inc,dec> de (1536 cycles)
   04CE    FF                    incde:	db	0ffh		; flag mask
                                 	tstr	013h,0342eh,0131dh,028c9h,00acah,09967h,03a2eh,092h,0f6h,09d54h
   04CF    13              +     ..0024:	db	013h
   04D0                    +     	ds	..0024+4-$,0
   04D3    342E 131D       +     	dw	0342eh,0131dh,028c9h,00acah,09967h,03a2eh
-  04D7    28C9 0ACA       +     
-  04DB    9967 3A2E       +     
+  04D7    28C9 0ACA       +
+  04DB    9967 3A2E       +
   04DF    92              +     	db	092h
   04E0    F6              +     	db	0f6h
   04E1    9D54            +     	dw	09d54h
@@ -564,8 +564,8 @@
   04E3    08              +     ..0025:	db	008h
   04E4                    +     	ds	..0025+4-$,0
   04E7    0000 0000       +     	dw	0,0,0,0,0f821h,0
-  04EB    0000 0000       +     
-  04EF    F821 0000       +     
+  04EB    0000 0000       +
+  04EF    F821 0000       +
   04F3    00              +     	db	0
   04F4    00              +     	db	0
   04F5    0000            +     	dw	0
@@ -573,19 +573,19 @@
   04F7    00              +     ..0026:	db	0
   04F8                    +     	ds	..0026+4-$,0
   04FB    0000 0000       +     	dw	0,0,0,0,0,0
-  04FF    0000 0000       +     
-  0503    0000 0000       +     
+  04FF    0000 0000       +
+  0503    0000 0000       +
   0507    D7              +     	db	0d7h
   0508    00              +     	db	0
   0509    0000            +     	dw	0
   050B    7F 4E 25 01           	db	07Fh, 04Eh, 025h, 001h			; expected crc
                                 	tmsg	'<inx,dcx> d'
   050F    3C 69 6E 78     +     ..0027:	db	'<inx,dcx> d'
-  0513    2C 64 63 78     +     
-  0517    3E 20 64        +     
+  0513    2C 64 63 78     +
+  0517    3E 20 64        +
   051A                    +     	ds	..0027+30-$,'.'
   052D    24              +     	db	'$'
-                                
+
                                 ; <inc,dec> e (3072 cycles)
   052E    FF                    ince:	db	0ffh		; flag mask
 'Z80 instruction set exerciser'	MACRO-80 3.44	09-Dec-81	PAGE	1-10
@@ -595,8 +595,8 @@
   052F    1C              +     ..0028:	db	01ch
   0530                    +     	ds	..0028+4-$,0
   0533    602F 4C0D       +     	dw	0602fh,04c0dh,02402h,0e2f5h,0a0f4h,0a10ah
-  0537    2402 E2F5       +     
-  053B    A0F4 A10A       +     
+  0537    2402 E2F5       +
+  053B    A0F4 A10A       +
   053F    13              +     	db	013h
   0540    32              +     	db	032h
   0541    5925            +     	dw	05925h
@@ -604,8 +604,8 @@
   0543    01              +     ..0029:	db	001h
   0544                    +     	ds	..0029+4-$,0
   0547    0000 0000       +     	dw	0,0,0,0,0ffh,0
-  054B    0000 0000       +     
-  054F    00FF 0000       +     
+  054B    0000 0000       +
+  054F    00FF 0000       +
   0553    00              +     	db	0
   0554    00              +     	db	0
   0555    0000            +     	dw	0
@@ -613,27 +613,27 @@
   0557    00              +     ..002A:	db	0
   0558                    +     	ds	..002A+4-$,0
   055B    0000 0000       +     	dw	0,0,0,0,0,0
-  055F    0000 0000       +     
-  0563    0000 0000       +     
+  055F    0000 0000       +
+  0563    0000 0000       +
   0567    D7              +     	db	0d7h
   0568    00              +     	db	0
   0569    0000            +     	dw	0
   056B    CF 2A B3 96           	db	0CFh, 02Ah, 0B3h, 096h			; expected crc
                                 	tmsg	'<inr,dcr> e'
   056F    3C 69 6E 72     +     ..002B:	db	'<inr,dcr> e'
-  0573    2C 64 63 72     +     
-  0577    3E 20 65        +     
+  0573    2C 64 63 72     +
+  0577    3E 20 65        +
   057A                    +     	ds	..002B+30-$,'.'
   058D    24              +     	db	'$'
-                                
+
                                 ; <inc,dec> h (3072 cycles)
   058E    FF                    inch:	db	0ffh		; flag mask
                                 	tstr	024h,01506h,0f2ebh,0e8ddh,0262bh,011a6h,0bc1ah,017h,006h,02818h
   058F    24              +     ..002C:	db	024h
   0590                    +     	ds	..002C+4-$,0
   0593    1506 F2EB       +     	dw	01506h,0f2ebh,0e8ddh,0262bh,011a6h,0bc1ah
-  0597    E8DD 262B       +     
-  059B    11A6 BC1A       +     
+  0597    E8DD 262B       +
+  059B    11A6 BC1A       +
   059F    17              +     	db	017h
   05A0    06              +     	db	006h
   05A1    2818            +     	dw	02818h
@@ -641,8 +641,8 @@
   05A3    01              +     ..002D:	db	001h
   05A4                    +     	ds	..002D+4-$,0
   05A7    0000 0000       +     	dw	0,0,0,0ff00h,0,0
-  05AB    0000 FF00       +     
-  05AF    0000 0000       +     
+  05AB    0000 FF00       +
+  05AF    0000 0000       +
   05B3    00              +     	db	0
   05B4    00              +     	db	0
   05B5    0000            +     	dw	0
@@ -653,27 +653,27 @@
   05B7    00              +     ..002E:	db	0
   05B8                    +     	ds	..002E+4-$,0
   05BB    0000 0000       +     	dw	0,0,0,0,0,0
-  05BF    0000 0000       +     
-  05C3    0000 0000       +     
+  05BF    0000 0000       +
+  05C3    0000 0000       +
   05C7    D7              +     	db	0d7h
   05C8    00              +     	db	0
   05C9    0000            +     	dw	0
   05CB    12 B2 95 2C           	db	012h, 0B2h, 095h, 02Ch			; expected crc
                                 	tmsg	'<inr,dcr> h'
   05CF    3C 69 6E 72     +     ..002F:	db	'<inr,dcr> h'
-  05D3    2C 64 63 72     +     
-  05D7    3E 20 68        +     
+  05D3    2C 64 63 72     +
+  05D7    3E 20 68        +
   05DA                    +     	ds	..002F+30-$,'.'
   05ED    24              +     	db	'$'
-                                
+
                                 ; <inc,dec> hl (1536 cycles)
   05EE    FF                    inchl:	db	0ffh		; flag mask
                                 	tstr	023h,0c3f4h,007a5h,01b6dh,04f04h,0e2c2h,0822ah,057h,0e0h,0c3e1h
   05EF    23              +     ..0030:	db	023h
   05F0                    +     	ds	..0030+4-$,0
   05F3    C3F4 07A5       +     	dw	0c3f4h,007a5h,01b6dh,04f04h,0e2c2h,0822ah
-  05F7    1B6D 4F04       +     
-  05FB    E2C2 822A       +     
+  05F7    1B6D 4F04       +
+  05FB    E2C2 822A       +
   05FF    57              +     	db	057h
   0600    E0              +     	db	0e0h
   0601    C3E1            +     	dw	0c3e1h
@@ -681,8 +681,8 @@
   0603    08              +     ..0031:	db	008h
   0604                    +     	ds	..0031+4-$,0
   0607    0000 0000       +     	dw	0,0,0,0f821h,0,0
-  060B    0000 F821       +     
-  060F    0000 0000       +     
+  060B    0000 F821       +
+  060F    0000 0000       +
   0613    00              +     	db	0
   0614    00              +     	db	0
   0615    0000            +     	dw	0
@@ -690,19 +690,19 @@
   0617    00              +     ..0032:	db	0
   0618                    +     	ds	..0032+4-$,0
   061B    0000 0000       +     	dw	0,0,0,0,0,0
-  061F    0000 0000       +     
-  0623    0000 0000       +     
+  061F    0000 0000       +
+  0623    0000 0000       +
   0627    D7              +     	db	0d7h
   0628    00              +     	db	0
   0629    0000            +     	dw	0
   062B    9F 2B 23 C0           	db	09Fh, 02Bh, 023h, 0C0h			; expected crc
                                 	tmsg	'<inx,dcx> h'
   062F    3C 69 6E 78     +     ..0033:	db	'<inx,dcx> h'
-  0633    2C 64 63 78     +     
-  0637    3E 20 68        +     
+  0633    2C 64 63 78     +
+  0637    3E 20 68        +
   063A                    +     	ds	..0033+30-$,'.'
   064D    24              +     	db	'$'
-                                
+
                                 ; <inc,dec> l (3072 cycles)
   064E    FF                    incl:	db	0ffh		; flag mask
                                 	tstr	02ch,08031h,0a520h,04356h,0b409h,0f4c1h,0dfa2h,0d1h,03ch,03ea2h
@@ -712,8 +712,8 @@
   064F    2C              +     ..0034:	db	02ch
   0650                    +     	ds	..0034+4-$,0
   0653    8031 A520       +     	dw	08031h,0a520h,04356h,0b409h,0f4c1h,0dfa2h
-  0657    4356 B409       +     
-  065B    F4C1 DFA2       +     
+  0657    4356 B409       +
+  065B    F4C1 DFA2       +
   065F    D1              +     	db	0d1h
   0660    3C              +     	db	03ch
   0661    3EA2            +     	dw	03ea2h
@@ -721,8 +721,8 @@
   0663    01              +     ..0035:	db	001h
   0664                    +     	ds	..0035+4-$,0
   0667    0000 0000       +     	dw	0,0,0,0ffh,0,0
-  066B    0000 00FF       +     
-  066F    0000 0000       +     
+  066B    0000 00FF       +
+  066F    0000 0000       +
   0673    00              +     	db	0
   0674    00              +     	db	0
   0675    0000            +     	dw	0
@@ -730,27 +730,27 @@
   0677    00              +     ..0036:	db	0
   0678                    +     	ds	..0036+4-$,0
   067B    0000 0000       +     	dw	0,0,0,0,0,0
-  067F    0000 0000       +     
-  0683    0000 0000       +     
+  067F    0000 0000       +
+  0683    0000 0000       +
   0687    D7              +     	db	0d7h
   0688    00              +     	db	0
   0689    0000            +     	dw	0
   068B    FF 57 D3 56           	db	0FFh, 057h, 0D3h, 056h			; expected crc
                                 	tmsg	'<inr,dcr> l'
   068F    3C 69 6E 72     +     ..0037:	db	'<inr,dcr> l'
-  0693    2C 64 63 72     +     
-  0697    3E 20 6C        +     
+  0693    2C 64 63 72     +
+  0697    3E 20 6C        +
   069A                    +     	ds	..0037+30-$,'.'
   06AD    24              +     	db	'$'
-                                
+
                                 ; <inc,dec> (hl) (3072 cycles)
   06AE    FF                    incm:	db	0ffh		; flag mask
                                 	tstr	034h,0b856h,00c7ch,0e53eh,msbt,0877eh,0da58h,015h,05ch,01f37h
   06AF    34              +     ..0038:	db	034h
   06B0                    +     	ds	..0038+4-$,0
   06B3    B856 0C7C       +     	dw	0b856h,00c7ch,0e53eh,msbt,0877eh,0da58h
-  06B7    E53E 0103       +     
-  06BB    877E DA58       +     
+  06B7    E53E 0103       +
+  06BB    877E DA58       +
   06BF    15              +     	db	015h
   06C0    5C              +     	db	05ch
   06C1    1F37            +     	dw	01f37h
@@ -758,8 +758,8 @@
   06C3    01              +     ..0039:	db	001h
   06C4                    +     	ds	..0039+4-$,0
   06C7    00FF 0000       +     	dw	0ffh,0,0,0,0,0
-  06CB    0000 0000       +     
-  06CF    0000 0000       +     
+  06CB    0000 0000       +
+  06CF    0000 0000       +
   06D3    00              +     	db	0
   06D4    00              +     	db	0
   06D5    0000            +     	dw	0
@@ -770,27 +770,27 @@
 
   06D8                    +     	ds	..003A+4-$,0
   06DB    0000 0000       +     	dw	0,0,0,0,0,0
-  06DF    0000 0000       +     
-  06E3    0000 0000       +     
+  06DF    0000 0000       +
+  06E3    0000 0000       +
   06E7    D7              +     	db	0d7h
   06E8    00              +     	db	0
   06E9    0000            +     	dw	0
   06EB    92 E9 63 BD           	db	092h, 0E9h, 063h, 0BDh			; expected crc
                                 	tmsg	'<inr,dcr> m'
   06EF    3C 69 6E 72     +     ..003B:	db	'<inr,dcr> m'
-  06F3    2C 64 63 72     +     
-  06F7    3E 20 6D        +     
+  06F3    2C 64 63 72     +
+  06F7    3E 20 6D        +
   06FA                    +     	ds	..003B+30-$,'.'
   070D    24              +     	db	'$'
-                                
+
                                 ; <inc,dec> sp (1536 cycles)
   070E    FF                    incsp:	db	0ffh		; flag mask
                                 	tstr	033h,0346fh,0d482h,0d169h,0deb6h,0a494h,0f476h,053h,002h,0855bh
   070F    33              +     ..003C:	db	033h
   0710                    +     	ds	..003C+4-$,0
   0713    346F D482       +     	dw	0346fh,0d482h,0d169h,0deb6h,0a494h,0f476h
-  0717    D169 DEB6       +     
-  071B    A494 F476       +     
+  0717    D169 DEB6       +
+  071B    A494 F476       +
   071F    53              +     	db	053h
   0720    02              +     	db	002h
   0721    855B            +     	dw	0855bh
@@ -798,8 +798,8 @@
   0723    08              +     ..003D:	db	008h
   0724                    +     	ds	..003D+4-$,0
   0727    0000 0000       +     	dw	0,0,0,0,0,0
-  072B    0000 0000       +     
-  072F    0000 0000       +     
+  072B    0000 0000       +
+  072F    0000 0000       +
   0733    00              +     	db	0
   0734    00              +     	db	0
   0735    F821            +     	dw	0f821h
@@ -807,19 +807,19 @@
   0737    00              +     ..003E:	db	0
   0738                    +     	ds	..003E+4-$,0
   073B    0000 0000       +     	dw	0,0,0,0,0,0
-  073F    0000 0000       +     
-  0743    0000 0000       +     
+  073F    0000 0000       +
+  0743    0000 0000       +
   0747    D7              +     	db	0d7h
   0748    00              +     	db	0
   0749    0000            +     	dw	0
   074B    D5 70 2F AB           	db	0D5h, 070h, 02Fh, 0ABh			; expected crc
                                 	tmsg	'<inx,dcx> sp'
   074F    3C 69 6E 78     +     ..003F:	db	'<inx,dcx> sp'
-  0753    2C 64 63 78     +     
-  0757    3E 20 73 70     +     
+  0753    2C 64 63 78     +
+  0757    3E 20 73 70     +
   075B                    +     	ds	..003F+30-$,'.'
   076D    24              +     	db	'$'
-                                
+
                                 ; ld hl,(nnnn) (16 cycles)
   076E    FF                    ld162:	db	0ffh		; flag mask
                                 	tstr	<02ah,low msbt,high msbt>,09863h,07830h,02077h,0b1feh,0b9fah,0abb8h,004h,006h,06015h
@@ -829,8 +829,8 @@
 
   0772                    +     	ds	..0040+4-$,0
   0773    9863 7830       +     	dw	09863h,07830h,02077h,0b1feh,0b9fah,0abb8h
-  0777    2077 B1FE       +     
-  077B    B9FA ABB8       +     
+  0777    2077 B1FE       +
+  077B    B9FA ABB8       +
   077F    04              +     	db	004h
   0780    06              +     	db	006h
   0781    6015            +     	dw	06015h
@@ -838,8 +838,8 @@
   0783    00              +     ..0041:	db	0
   0784                    +     	ds	..0041+4-$,0
   0787    0000 0000       +     	dw	0,0,0,0,0,0
-  078B    0000 0000       +     
-  078F    0000 0000       +     
+  078B    0000 0000       +
+  078F    0000 0000       +
   0793    00              +     	db	0
   0794    00              +     	db	0
   0795    0000            +     	dw	0
@@ -847,27 +847,27 @@
   0797    00              +     ..0042:	db	0
   0798                    +     	ds	..0042+4-$,0
   079B    FFFF 0000       +     	dw	-1,0,0,0,0,0
-  079F    0000 0000       +     
-  07A3    0000 0000       +     
+  079F    0000 0000       +
+  07A3    0000 0000       +
   07A7    00              +     	db	0
   07A8    00              +     	db	0
   07A9    0000            +     	dw	0
   07AB    A9 C3 D5 CB           	db	0A9h, 0C3h, 0D5h, 0CBh			; expected crc
                                 	tmsg	'lhld nnnn'
   07AF    6C 68 6C 64     +     ..0043:	db	'lhld nnnn'
-  07B3    20 6E 6E 6E     +     
-  07B7    6E              +     
+  07B3    20 6E 6E 6E     +
+  07B7    6E              +
   07B8                    +     	ds	..0043+30-$,'.'
   07CD    24              +     	db	'$'
-                                	
+
                                 ; ld (nnnn),hl (16 cycles)
   07CE    FF                    ld166:	db	0ffh		; flag mask
                                 	tstr	<022h,low msbt,high msbt>,0d003h,07772h,07f53h,03f72h,064eah,0e180h,010h,02dh,035e9h
   07CF    22 03 01        +     ..0044:	db	022h,low msbt,high msbt
   07D2                    +     	ds	..0044+4-$,0
   07D3    D003 7772       +     	dw	0d003h,07772h,07f53h,03f72h,064eah,0e180h
-  07D7    7F53 3F72       +     
-  07DB    64EA E180       +     
+  07D7    7F53 3F72       +
+  07DB    64EA E180       +
   07DF    10              +     	db	010h
   07E0    2D              +     	db	02dh
   07E1    35E9            +     	dw	035e9h
@@ -875,8 +875,8 @@
   07E3    00              +     ..0045:	db	0
   07E4                    +     	ds	..0045+4-$,0
   07E7    0000 0000       +     	dw	0,0,0,0,0,0
-  07EB    0000 0000       +     
-  07EF    0000 0000       +     
+  07EB    0000 0000       +
+  07EF    0000 0000       +
   07F3    00              +     	db	0
   07F4    00              +     	db	0
   07F5    0000            +     	dw	0
@@ -887,27 +887,27 @@
 
 
   07FB    0000 0000       +     	dw	0,0,0,-1,0,0
-  07FF    0000 FFFF       +     
-  0803    0000 0000       +     
+  07FF    0000 FFFF       +
+  0803    0000 0000       +
   0807    00              +     	db	0
   0808    00              +     	db	0
   0809    0000            +     	dw	0
   080B    E8 86 4F 26           	db	0E8h, 086h, 04Fh, 026h			; expected crc
                                 	tmsg	'shld nnnn'
   080F    73 68 6C 64     +     ..0047:	db	'shld nnnn'
-  0813    20 6E 6E 6E     +     
-  0817    6E              +     
+  0813    20 6E 6E 6E     +
+  0817    6E              +
   0818                    +     	ds	..0047+30-$,'.'
   082D    24              +     	db	'$'
-                                
+
                                 ; ld <bc,de,hl,sp>,nnnn (64 cycles)
   082E    FF                    ld16im:	db	0ffh		; flag mask
                                 	tstr	1,05c1ch,02d46h,08eb9h,06078h,074b1h,0b30eh,046h,0d1h,030cch
   082F    01              +     ..0048:	db	1
   0830                    +     	ds	..0048+4-$,0
   0833    5C1C 2D46       +     	dw	05c1ch,02d46h,08eb9h,06078h,074b1h,0b30eh
-  0837    8EB9 6078       +     
-  083B    74B1 B30E       +     
+  0837    8EB9 6078       +
+  083B    74B1 B30E       +
   083F    46              +     	db	046h
   0840    D1              +     	db	0d1h
   0841    30CC            +     	dw	030cch
@@ -915,8 +915,8 @@
   0843    30              +     ..0049:	db	030h
   0844                    +     	ds	..0049+4-$,0
   0847    0000 0000       +     	dw	0,0,0,0,0,0
-  084B    0000 0000       +     
-  084F    0000 0000       +     
+  084B    0000 0000       +
+  084F    0000 0000       +
   0853    00              +     	db	0
   0854    00              +     	db	0
   0855    0000            +     	dw	0
@@ -924,21 +924,21 @@
   0857    00 FF FF        +     ..004A:	db	0,0ffh,0ffh
   085A                    +     	ds	..004A+4-$,0
   085B    0000 0000       +     	dw	0,0,0,0,0,0
-  085F    0000 0000       +     
-  0863    0000 0000       +     
+  085F    0000 0000       +
+  0863    0000 0000       +
   0867    00              +     	db	0
   0868    00              +     	db	0
   0869    0000            +     	dw	0
   086B    FC F4 6E 12           	db	0FCh, 0F4h, 06Eh, 012h			; expected crc
                                 	tmsg	'lxi <b,d,h,sp>,nnnn'
   086F    6C 78 69 20     +     ..004B:	db	'lxi <b,d,h,sp>,nnnn'
-  0873    3C 62 2C 64     +     
-  0877    2C 68 2C 73     +     
-  087B    70 3E 2C 6E     +     
-  087F    6E 6E 6E        +     
+  0873    3C 62 2C 64     +
+  0877    2C 68 2C 73     +
+  087B    70 3E 2C 6E     +
+  087F    6E 6E 6E        +
   0882                    +     	ds	..004B+30-$,'.'
   088D    24              +     	db	'$'
-                                
+
                                 ; ld a,<(bc),(de)> (44 cycles)
   088E    FF                    ld8bd:	db	0ffh		; flag mask
                                 	tstr	00ah,0b3a8h,01d2ah,07f8eh,042ach,msbt,msbt,0c6h,0b1h,0ef8eh
@@ -948,8 +948,8 @@
   088F    0A              +     ..004C:	db	00ah
   0890                    +     	ds	..004C+4-$,0
   0893    B3A8 1D2A       +     	dw	0b3a8h,01d2ah,07f8eh,042ach,msbt,msbt
-  0897    7F8E 42AC       +     
-  089B    0103 0103       +     
+  0897    7F8E 42AC       +
+  089B    0103 0103       +
   089F    C6              +     	db	0c6h
   08A0    B1              +     	db	0b1h
   08A1    EF8E            +     	dw	0ef8eh
@@ -957,8 +957,8 @@
   08A3    10              +     ..004D:	db	010h
   08A4                    +     	ds	..004D+4-$,0
   08A7    0000 0000       +     	dw	0,0,0,0,0,0
-  08AB    0000 0000       +     
-  08AF    0000 0000       +     
+  08AB    0000 0000       +
+  08AF    0000 0000       +
   08B3    00              +     	db	0
   08B4    00              +     	db	0
   08B5    0000            +     	dw	0
@@ -966,27 +966,27 @@
   08B7    00              +     ..004E:	db	0
   08B8                    +     	ds	..004E+4-$,0
   08BB    00FF 0000       +     	dw	0ffh,0,0,0,0,0
-  08BF    0000 0000       +     
-  08C3    0000 0000       +     
+  08BF    0000 0000       +
+  08C3    0000 0000       +
   08C7    D7              +     	db	0d7h
   08C8    FF              +     	db	-1
   08C9    0000            +     	dw	0
   08CB    2B 82 1D 5F           	db	02Bh, 082h, 01Dh, 05Fh			; expected crc
                                 	tmsg	'ldax <b,d>'
   08CF    6C 64 61 78     +     ..004F:	db	'ldax <b,d>'
-  08D3    20 3C 62 2C     +     
-  08D7    64 3E           +     
+  08D3    20 3C 62 2C     +
+  08D7    64 3E           +
   08D9                    +     	ds	..004F+30-$,'.'
   08ED    24              +     	db	'$'
-                                
+
                                 ; ld <b,c,d,e,h,l,(hl),a>,nn (64 cycles)
   08EE    FF                    ld8im:	db	0ffh		; flag mask
                                 	tstr	6,0c407h,0f49dh,0d13dh,00339h,0de89h,07455h,053h,0c0h,05509h
   08EF    06              +     ..0050:	db	6
   08F0                    +     	ds	..0050+4-$,0
   08F3    C407 F49D       +     	dw	0c407h,0f49dh,0d13dh,00339h,0de89h,07455h
-  08F7    D13D 0339       +     
-  08FB    DE89 7455       +     
+  08F7    D13D 0339       +
+  08FB    DE89 7455       +
   08FF    53              +     	db	053h
   0900    C0              +     	db	0c0h
   0901    5509            +     	dw	05509h
@@ -994,8 +994,8 @@
   0903    38              +     ..0051:	db	038h
   0904                    +     	ds	..0051+4-$,0
   0907    0000 0000       +     	dw	0,0,0,0,0,0
-  090B    0000 0000       +     
-  090F    0000 0000       +     
+  090B    0000 0000       +
+  090F    0000 0000       +
   0913    00              +     	db	0
   0914    00              +     	db	0
   0915    0000            +     	dw	0
@@ -1006,30 +1006,30 @@
 
   0918                    +     	ds	..0052+4-$,0
   091B    0000 0000       +     	dw	0,0,0,0,0,0
-  091F    0000 0000       +     
-  0923    0000 0000       +     
+  091F    0000 0000       +
+  0923    0000 0000       +
   0927    00              +     	db	0
   0928    FF              +     	db	-1
   0929    0000            +     	dw	0
   092B    EA A7 20 44           	db	0EAh, 0A7h, 020h, 044h			; expected crc
                                 	tmsg	'mvi <b,c,d,e,h,l,m,a>,nn'
   092F    6D 76 69 20     +     ..0053:	db	'mvi <b,c,d,e,h,l,m,a>,nn'
-  0933    3C 62 2C 63     +     
-  0937    2C 64 2C 65     +     
-  093B    2C 68 2C 6C     +     
-  093F    2C 6D 2C 61     +     
-  0943    3E 2C 6E 6E     +     
+  0933    3C 62 2C 63     +
+  0937    2C 64 2C 65     +
+  093B    2C 68 2C 6C     +
+  093F    2C 6D 2C 61     +
+  0943    3E 2C 6E 6E     +
   0947                    +     	ds	..0053+30-$,'.'
   094D    24              +     	db	'$'
-                                
+
                                 ; ld <b,c,d,e,h,l,a>,<b,c,d,e,h,l,a> (3456 cycles)
   094E    FF                    ld8rr:	db	0ffh		; flag mask
                                 	tstr	040h,072a4h,0a024h,061ach,msbt,082c7h,0718fh,097h,08fh,0ef8eh
   094F    40              +     ..0054:	db	040h
   0950                    +     	ds	..0054+4-$,0
   0953    72A4 A024       +     	dw	072a4h,0a024h,061ach,msbt,082c7h,0718fh
-  0957    61AC 0103       +     
-  095B    82C7 718F       +     
+  0957    61AC 0103       +
+  095B    82C7 718F       +
   095F    97              +     	db	097h
   0960    8F              +     	db	08fh
   0961    EF8E            +     	dw	0ef8eh
@@ -1037,8 +1037,8 @@
   0963    3F              +     ..0055:	db	03fh
   0964                    +     	ds	..0055+4-$,0
   0967    0000 0000       +     	dw	0,0,0,0,0,0
-  096B    0000 0000       +     
-  096F    0000 0000       +     
+  096B    0000 0000       +
+  096F    0000 0000       +
   0973    00              +     	db	0
   0974    00              +     	db	0
   0975    0000            +     	dw	0
@@ -1046,33 +1046,33 @@
   0977    00              +     ..0056:	db	0
   0978                    +     	ds	..0056+4-$,0
   097B    00FF 0000       +     	dw	0ffh,0,0,0,-1,-1
-  097F    0000 0000       +     
-  0983    FFFF FFFF       +     
+  097F    0000 0000       +
+  0983    FFFF FFFF       +
   0987    D7              +     	db	0d7h
   0988    FF              +     	db	-1
   0989    0000            +     	dw	0
   098B    10 B5 8C EE           	db	010h, 0B5h, 08Ch, 0EEh			; expected crc
                                 	tmsg	'mov <bcdehla>,<bcdehla>'
   098F    6D 6F 76 20     +     ..0057:	db	'mov <bcdehla>,<bcdehla>'
-  0993    3C 62 63 64     +     
-  0997    65 68 6C 61     +     
-  099B    3E 2C 3C 62     +     
-  099F    63 64 65 68     +     
-  09A3    6C 61 3E        +     
+  0993    3C 62 63 64     +
+  0997    65 68 6C 61     +
+  099B    3E 2C 3C 62     +
+  099F    63 64 65 68     +
+  09A3    6C 61 3E        +
   09A6                    +     	ds	..0057+30-$,'.'
 'Z80 instruction set exerciser'	MACRO-80 3.44	09-Dec-81	PAGE	1-18
 
 
   09AD    24              +     	db	'$'
-                                
+
                                 ; ld a,(nnnn) / ld (nnnn),a (44 cycles)
   09AE    FF                    lda:	db	0ffh		; flag mask
                                 	tstr	<032h,low msbt,high msbt>,0fd68h,0f4ech,044a0h,0b543h,00653h,0cdbah,0d2h,04fh,01fd8h
   09AF    32 03 01        +     ..0058:	db	032h,low msbt,high msbt
   09B2                    +     	ds	..0058+4-$,0
   09B3    FD68 F4EC       +     	dw	0fd68h,0f4ech,044a0h,0b543h,00653h,0cdbah
-  09B7    44A0 B543       +     
-  09BB    0653 CDBA       +     
+  09B7    44A0 B543       +
+  09BB    0653 CDBA       +
   09BF    D2              +     	db	0d2h
   09C0    4F              +     	db	04fh
   09C1    1FD8            +     	dw	01fd8h
@@ -1080,8 +1080,8 @@
   09C3    08              +     ..0059:	db	008h
   09C4                    +     	ds	..0059+4-$,0
   09C7    0000 0000       +     	dw	0,0,0,0,0,0
-  09CB    0000 0000       +     
-  09CF    0000 0000       +     
+  09CB    0000 0000       +
+  09CF    0000 0000       +
   09D3    00              +     	db	0
   09D4    00              +     	db	0
   09D5    0000            +     	dw	0
@@ -1089,29 +1089,29 @@
   09D7    00              +     ..005A:	db	0
   09D8                    +     	ds	..005A+4-$,0
   09DB    00FF 0000       +     	dw	0ffh,0,0,0,0,0
-  09DF    0000 0000       +     
-  09E3    0000 0000       +     
+  09DF    0000 0000       +
+  09E3    0000 0000       +
   09E7    D7              +     	db	0d7h
   09E8    FF              +     	db	-1
   09E9    0000            +     	dw	0
   09EB    ED 57 AF 72           	db	0EDh, 057h, 0AFh, 072h			; expected crc
                                 	tmsg	'sta nnnn / lda nnnn'
   09EF    73 74 61 20     +     ..005B:	db	'sta nnnn / lda nnnn'
-  09F3    6E 6E 6E 6E     +     
-  09F7    20 2F 20 6C     +     
-  09FB    64 61 20 6E     +     
-  09FF    6E 6E 6E        +     
+  09F3    6E 6E 6E 6E     +
+  09F7    20 2F 20 6C     +
+  09FB    64 61 20 6E     +
+  09FF    6E 6E 6E        +
   0A02                    +     	ds	..005B+30-$,'.'
   0A0D    24              +     	db	'$'
-                                
+
                                 ; <rlca,rrca,rla,rra> (6144 cycles)
   0A0E    FF                    rot8080: db	0ffh		; flag mask
                                 	tstr	7,0cb92h,06d43h,00a90h,0c284h,00c53h,0f50eh,091h,0ebh,040fch
   0A0F    07              +     ..005C:	db	7
   0A10                    +     	ds	..005C+4-$,0
   0A13    CB92 6D43       +     	dw	0cb92h,06d43h,00a90h,0c284h,00c53h,0f50eh
-  0A17    0A90 C284       +     
-  0A1B    0C53 F50E       +     
+  0A17    0A90 C284       +
+  0A1B    0C53 F50E       +
   0A1F    91              +     	db	091h
   0A20    EB              +     	db	0ebh
   0A21    40FC            +     	dw	040fch
@@ -1122,8 +1122,8 @@
 'Z80 instruction set exerciser'	MACRO-80 3.44	09-Dec-81	PAGE	1-19
 
 
-  0A2B    0000 0000       +     
-  0A2F    0000 0000       +     
+  0A2B    0000 0000       +
+  0A2F    0000 0000       +
   0A33    00              +     	db	0
   0A34    FF              +     	db	-1
   0A35    0000            +     	dw	0
@@ -1131,29 +1131,29 @@
   0A37    00              +     ..005E:	db	0
   0A38                    +     	ds	..005E+4-$,0
   0A3B    0000 0000       +     	dw	0,0,0,0,0,0
-  0A3F    0000 0000       +     
-  0A43    0000 0000       +     
+  0A3F    0000 0000       +
+  0A43    0000 0000       +
   0A47    D7              +     	db	0d7h
   0A48    00              +     	db	0
   0A49    0000            +     	dw	0
   0A4B    E0 D8 92 35           	db	0E0h, 0D8h, 092h, 035h			; expected crc
                                 	tmsg	'<rlc,rrc,ral,rar>'
   0A4F    3C 72 6C 63     +     ..005F:	db	'<rlc,rrc,ral,rar>'
-  0A53    2C 72 72 63     +     
-  0A57    2C 72 61 6C     +     
-  0A5B    2C 72 61 72     +     
-  0A5F    3E              +     
+  0A53    2C 72 72 63     +
+  0A57    2C 72 61 6C     +
+  0A5B    2C 72 61 72     +
+  0A5F    3E              +
   0A60                    +     	ds	..005F+30-$,'.'
   0A6D    24              +     	db	'$'
-                                
+
                                 ; ld (<bc,de>),a (96 cycles)
   0A6E    FF                    stabd:	db	0ffh		; flag mask
                                 	tstr	2,00c3bh,0b592h,06cffh,0959eh,msbt,msbt+1,0c1h,021h,0bde7h
   0A6F    02              +     ..0060:	db	2
   0A70                    +     	ds	..0060+4-$,0
   0A73    0C3B B592       +     	dw	00c3bh,0b592h,06cffh,0959eh,msbt,msbt+1
-  0A77    6CFF 959E       +     
-  0A7B    0103 0104       +     
+  0A77    6CFF 959E       +
+  0A7B    0103 0104       +
   0A7F    C1              +     	db	0c1h
   0A80    21              +     	db	021h
   0A81    BDE7            +     	dw	0bde7h
@@ -1161,8 +1161,8 @@
   0A83    18              +     ..0061:	db	018h
   0A84                    +     	ds	..0061+4-$,0
   0A87    0000 0000       +     	dw	0,0,0,0,0,0
-  0A8B    0000 0000       +     
-  0A8F    0000 0000       +     
+  0A8B    0000 0000       +
+  0A8F    0000 0000       +
   0A93    00              +     	db	0
   0A94    00              +     	db	0
   0A95    0000            +     	dw	0
@@ -1170,8 +1170,8 @@
   0A97    00              +     ..0062:	db	0
   0A98                    +     	ds	..0062+4-$,0
   0A9B    FFFF 0000       +     	dw	-1,0,0,0,0,0
-  0A9F    0000 0000       +     
-  0AA3    0000 0000       +     
+  0A9F    0000 0000       +
+  0AA3    0000 0000       +
   0AA7    00              +     	db	0
   0AA8    FF              +     	db	-1
   0AA9    0000            +     	dw	0
@@ -1181,11 +1181,11 @@
 'Z80 instruction set exerciser'	MACRO-80 3.44	09-Dec-81	PAGE	1-20
 
 
-  0AB3    20 3C 62 2C     +     
-  0AB7    64 3E           +     
+  0AB3    20 3C 62 2C     +
+  0AB7    64 3E           +
   0AB9                    +     	ds	..0063+30-$,'.'
   0ACD    24              +     	db	'$'
-                                
+
                                 ; start test pointed to by (hl)
   0ACE    E5                    stt:	push	h
   0ACF    7E                    	mov	a,m		; get pointer to test
@@ -1212,7 +1212,7 @@
   0AF5    E5                    	push	h
   0AF6    11 0D58               	lxi	d,iut		; copy initial instruction under test
   0AF9    01 0004               	lxi	b,4
-                                
+
                                 ;#idb ldir replaced with following code
   0AFC    7E                    ldir1:	mov	a,m
   0AFD    12                    	stax	d
@@ -1223,10 +1223,10 @@
   0B02    B1                    	ora	c
   0B03    C2 0AFC               	jnz	ldir1
                                 ;#idb
-                                
+
   0B06    11 0103               	lxi	d,msbt		; copy initial machine state
   0B09    01 0010               	lxi	b,16
-                                
+
                                 ;#idb ldir replaced with following code
   0B0C    7E                    ldir2:	mov	a,m
   0B0D    12                    	stax	d
@@ -1240,7 +1240,7 @@
 'Z80 instruction set exerciser'	MACRO-80 3.44	09-Dec-81	PAGE	1-21
 
 
-                                
+
   0B16    11 002C               	lxi	d,20+20+4	; skip incmask, scanmask and expcrc
   0B19    19                    	dad	d
   0B1A    EB                    	xchg
@@ -1281,13 +1281,13 @@
   0B70    23                    	inx	h
   0B71    23                    	inx	h
   0B72    C9                    	ret
-                                
+
   0B73    11 0E2D               crcGood: lxi	d,okMsg
   0B76    0E 09                 	mvi	c,9
   0B78    CD 0DF5               	call	bdos
   0B7B    CD 0DC0               	call	phex8
   0B7E    C3 0B67               	jmp	doCrLf
-                                
+
   0B81    E5                    tlp3:	push	h
   0B82    3E 01                 	mvi	a,1		; initialise count and shift scanners
   0B84    32 0BF7               	sta	cntbit
@@ -1299,7 +1299,7 @@
 'Z80 instruction set exerciser'	MACRO-80 3.44	09-Dec-81	PAGE	1-22
 
 
-                                
+
   0B96    06 04                 	mvi	b,4		; bytes in iut field
   0B98    E1                    	pop	h		; pointer to test case
   0B99    E5                    	push	h
@@ -1309,7 +1309,7 @@
   0BA2    11 0103               	lxi	d,msbt
   0BA5    CD 0BAB               	call	setup		; setup machine state
   0BA8    C3 0B23               	jmp	tlp
-                                
+
                                 ; setup a field of the test case
                                 ; b  = number of bytes
                                 ; hl = pointer to base case
@@ -1319,7 +1319,7 @@
   0BAF    05                    	dcr	b
   0BB0    C2 0BAB               	jnz	setup
   0BB3    C9                    	ret
-                                
+
   0BB4    C5                    subyte:	push	b
   0BB5    D5                    	push	d
   0BB6    E5                    	push	h
@@ -1367,11 +1367,11 @@
   0BF4    13                    	inx	d
   0BF5    C1                    	pop	b
   0BF6    C9                    	ret
-                                
+
                                 ; get next counter bit in low bit of a
   0BF7                          cntbit:	ds	1
   0BF8                          cntbyt:	ds	2
-                                
+
   0BFA    C5                    nxtcbit: push	b
   0BFB    E5                    	push	h
   0BFC    2A 0BF8               	lhld	cntbyt
@@ -1393,11 +1393,11 @@
   0C17    C8                    	rz
   0C18    3E 01                 	mvi	a,1
   0C1A    C9                    	ret
-                                	
+
                                 ; get next shifter bit in low bit of a
   0C1B                          shfbit:	ds	1
   0C1C                          shfbyt:	ds	2
-                                
+
   0C1E    C5                    nxtsbit: push	b
   0C1F    E5                    	push	h
   0C20    2A 0C1C               	lhld	shfbyt
@@ -1422,8 +1422,8 @@
   0C3B    C8                    	rz
   0C3C    3E 01                 	mvi	a,1
   0C3E    C9                    	ret
-                                	
-                                
+
+
                                 ; clear memory at hl, bc bytes
   0C3F    F5                    clrmem:	push	psw
   0C40    C5                    	push	b
@@ -1434,7 +1434,7 @@
   0C46    5D                    	mov	e,l
   0C47    13                    	inx	d
   0C48    0B                    	dcx	b
-                                
+
                                 ;#idb ldir replaced with following code
   0C49    7E                    ldir3:	mov	a,m
   0C4A    12                    	stax	d
@@ -1445,13 +1445,13 @@
   0C4F    B1                    	ora	c
   0C50    C2 0C49               	jnz	ldir3
                                 ;#idb
-                                
+
   0C53    E1                    	pop	h
   0C54    D1                    	pop	d
   0C55    C1                    	pop	b
   0C56    F1                    	pop	psw
   0C57    C9                    	ret
-                                
+
                                 ; initialise counter or shifter
                                 ; de = pointer to work area for counter or shifter
                                 ; hl = pointer to mask
@@ -1502,7 +1502,7 @@
   0C95    19                    	dad	d
   0C96    77                    	mov	m,a
   0C97    C9                    	ret
-                                
+
                                 ; multi-byte counter
   0C98    C5                    count:	push	b
   0C99    D5                    	push	d
@@ -1525,12 +1525,12 @@
   0CB4    D1                    	pop	d
   0CB5    E1                    	pop	h
   0CB6    C9                    	ret
-                                
+
   0CB7    23                    cntlp1:	inx	h
   0CB8    13                    	inx	d
   0CB9    C3 0CA4               	jmp	cntlp
-                                	
-                                
+
+
                                 ; multi-byte shifter
 'Z80 instruction set exerciser'	MACRO-80 3.44	09-Dec-81	PAGE	1-26
 
@@ -1566,10 +1566,10 @@
   0CE4    23                    shflp1:	inx	h
   0CE5    13                    	inx	d
   0CE6    C3 0CC8               	jmp	shflp
-                                
+
   0CE9                          counter: ds	2*20
   0D11                          shifter: ds	2*20
-                                
+
                                 ; test harness
   0D39    F5                    test:	push	psw
   0D3A    C5                    	push	b
@@ -1588,9 +1588,9 @@
                                 	mvi	b,16
                                 	lxi	h,msbt
                                 	call	hexstr
-                                      endif	
+                                      endif
   0D3D    F3                    	di			; disable interrupts
-                                
+
 'Z80 instruction set exerciser'	MACRO-80 3.44	09-Dec-81	PAGE	1-27
 
 
@@ -1601,21 +1601,21 @@
   0D41    39                    	dad	sp
   0D42    22 0DB4               	shld	spsav
                                 ;#idb
-                                
+
   0D45    31 0105               	lxi	sp,msbt+2	; point to test-case machine state
-                                
-                                ;#idb pop iy	
+
+                                ;#idb pop iy
                                 ;#idb pop ix both replaced by following code
                                 ;#idb Just dummy out ix/iy with copies of hl
   0D48    E1                    	pop	h		; and load all regs
   0D49    E1                    	pop	h
                                 ;#idb
-                                
+
   0D4A    E1                    	pop	h
   0D4B    D1                    	pop	d
   0D4C    C1                    	pop	b
   0D4D    F1                    	pop	psw
-                                
+
                                 ;#idb ld sp,(spbt) replaced with the following code
                                 ;#idb HL is copied/restored before/after load so no state changed
   0D4E    22 0DA2               	shld	temp
@@ -1623,9 +1623,9 @@
   0D54    F9                    	sphl
   0D55    2A 0DA2               	lhld	temp
                                 ;#idb
-                                
+
   0D58                          iut:	ds	4		; max 4 byte instruction under test
-                                
+
                                 ;#idb ld (spat),sp replaced with the following code
                                 ;#idb Must be very careful to preserve registers and flag
                                 ;#idb state resulting from the test.  The temptation is to use the
@@ -1635,17 +1635,17 @@
   0D5C    22 0DA2               	shld	temp
   0D5F    21 0000               	lxi	h,0
   0D62    DA 0D69               	jc	temp1		;jump on the state of the C flag set in the test
-                                
+
   0D65    39                    	dad	sp		;this code will clear the C flag (0 + nnnn = nc)
   0D66    C3 0D6B               	jmp	temp2		;C flag is same state as before
-                                
+
   0D69    39                    temp1:	dad	sp		;this code will clear the C flag (0 + nnnn = nc)
   0D6A    37                    	stc			;C flage needs re-setting to preserve state
-                                
+
   0D6B    22 0DB2               temp2:	shld	spat
   0D6E    2A 0DA2               	lhld	temp
                                 ;#idb
-                                
+
   0D71    31 0DB2               	lxi	sp,spat
   0D74    F5                    	push	psw		; save other registers
   0D75    C5                    	push	b
@@ -1654,20 +1654,20 @@
 
 
   0D77    E5                    	push	h
-                                
+
                                 ;#idb push ix
                                 ;#idb push iy both replaced by following code
                                 ;#idb Must match change made to pops made before test
   0D78    E5                    	push	h
   0D79    E5                    	push	h
                                 ;#idb
-                                
+
                                 ;#idb ld sp,(spsav) replaced with following code
                                 ;#idb No need to preserve state
   0D7A    2A 0DB4               	lhld	spsav		; restore stack pointer
   0D7D    F9                    	sphl
                                 ;#idb
-                                
+
   0D7E    FB                    	ei			; enable interrupts
   0D7F    2A 0103               	lhld	msbt		; copy memory operand
   0D82    22 0DA4               	shld	msat
@@ -1704,11 +1704,11 @@
   0D9F    C1                    	pop	b
   0DA0    F1                    	pop	psw
   0DA1    C9                    	ret
-                                
+
                                 ;#idb Added to store HL state
   0DA2                          temp:	ds	2
                                 ;#idb
-                                
+
 'Z80 instruction set exerciser'	MACRO-80 3.44	09-Dec-81	PAGE	1-29
 
 
@@ -1716,9 +1716,9 @@
   0DA4                          msat:	ds	14	; memop,iy,ix,hl,de,bc,af
   0DB2                          spat:	ds	2	; stack pointer after test
   0DB0                          flgsat	equ	spat-2	; flags
-                                
+
   0DB4                          spsav:	ds	2	; saved stack pointer
-                                
+
                                 ; display hex string (pointer in hl, byte count in b)
   0DB6    7E                    hexstr:	mov	a,m
   0DB7    CD 0DD2               	call	phex2
@@ -1726,7 +1726,7 @@
   0DBB    05                    	dcr	b
   0DBC    C2 0DB6               	jnz	hexstr
   0DBF    C9                    	ret
-                                
+
                                 ; display hex
                                 ; display the big-endian 32-bit value pointed to by hl
   0DC0    F5                    phex8:	push	psw
@@ -1742,7 +1742,7 @@
   0DCF    C1                    	pop	b
   0DD0    F1                    	pop	psw
   0DD1    C9                    	ret
-                                
+
                                 ; display byte in a
   0DD2    F5                    phex2:	push	psw
   0DD3    0F                    	rrc
@@ -1751,8 +1751,8 @@
   0DD6    0F                    	rrc
   0DD7    CD 0DDB               	call	phex1
   0DDA    F1                    	pop	psw
-                                ; fall through	
-                                
+                                ; fall through
+
                                 ; display low nibble in a
   0DDB    F5                    phex1:	push	psw
   0DDC    C5                    	push	b
@@ -1774,7 +1774,7 @@
   0DF2    C1                    	pop	b
   0DF3    F1                    	pop	psw
   0DF4    C9                    	ret
-                                
+
   0DF5    F5                    bdos:	push	psw
   0DF6    C5                    	push	b
   0DF7    D5                    	push	d
@@ -1785,34 +1785,34 @@
   0DFE    C1                    	pop	b
   0DFF    F1                    	pop	psw
   0E00    C9                    	ret
-                                
+
   0E01    38 30 38 30           msg1:	db	'8080 instruction exerciser',10,13,'$'
-  0E05    20 69 6E 73           
-  0E09    74 72 75 63           
-  0E0D    74 69 6F 6E           
-  0E11    20 65 78 65           
-  0E15    72 63 69 73           
-  0E19    65 72 0A 0D           
-  0E1D    24                    
+  0E05    20 69 6E 73
+  0E09    74 72 75 63
+  0E0D    74 69 6F 6E
+  0E11    20 65 78 65
+  0E15    72 63 69 73
+  0E19    65 72 0A 0D
+  0E1D    24
   0E1E    54 65 73 74           msg2:	db	'Tests complete$'
-  0E22    73 20 63 6F           
-  0E26    6D 70 6C 65           
-  0E2A    74 65 24              
+  0E22    73 20 63 6F
+  0E26    6D 70 6C 65
+  0E2A    74 65 24
   0E2D    20 20 50 41           okmsg:	db	'  PASS! crc is:$'
-  0E31    53 53 21 20           
-  0E35    63 72 63 20           
-  0E39    69 73 3A 24           
+  0E31    53 53 21 20
+  0E35    63 72 63 20
+  0E39    69 73 3A 24
   0E3D    20 20 45 52           ermsg1:	db	'  ERROR **** crc expected:$'
-  0E41    52 4F 52 20           
-  0E45    2A 2A 2A 2A           
-  0E49    20 63 72 63           
-  0E4D    20 65 78 70           
-  0E51    65 63 74 65           
-  0E55    64 3A 24              
+  0E41    52 4F 52 20
+  0E45    2A 2A 2A 2A
+  0E49    20 63 72 63
+  0E4D    20 65 78 70
+  0E51    65 63 74 65
+  0E55    64 3A 24
   0E58    20 66 6F 75           ermsg2:	db	' found:$'
-  0E5C    6E 64 3A 24           
+  0E5C    6E 64 3A 24
   0E60    0A 0D 24              crlf:	db	10,13,'$'
-                                
+
                                 ; compare crc
                                 ; hl points to value to compare to crcval
   0E63    C5                    cmpcrc:	push	b
@@ -1834,7 +1834,7 @@
   0E77    D1                    	pop	d
   0E78    C1                    	pop	b
   0E79    C9                    	ret
-                                
+
                                 ; 32-bit crc routine
                                 ; entry: a contains next byte, hl points to crc
                                 ; exit:  crc updated
@@ -1876,7 +1876,7 @@
   0E9F    C1                    	pop	b
   0EA0    F1                    	pop	psw
   0EA1    C9                    	ret
-                                
+
   0EA2    F5                    initcrc:push	psw
   0EA3    C5                    	push	b
   0EA4    E5                    	push	h
@@ -1894,9 +1894,9 @@
   0EB3    C1                    	pop	b
   0EB4    F1                    	pop	psw
   0EB5    C9                    	ret
-                                
+
   0EB6                          crcval:	ds	4
-                                
+
   0EBA    00 00 00 00           crctab:	db	000h,000h,000h,000h
   0EBE    77 07 30 96           	db	077h,007h,030h,096h
   0EC2    EE 0E 61 2C           	db	0eeh,00eh,061h,02ch
@@ -2165,90 +2165,88 @@
   12AE    C3 0C 8E A1           	db	0c3h,00ch,08eh,0a1h
   12B2    5A 05 DF 1B           	db	05ah,005h,0dfh,01bh
   12B6    2D 02 EF 8D           	db	02dh,002h,0efh,08dh
-                                
+
                                 	end
 'Z80 instruction set exerciser'	MACRO-80 3.44	09-Dec-81	PAGE	S
 
 
 Macros:
-TMSG            TSTR            
+TMSG            TSTR
 
 Symbols:
-016F 	..0000          0183 	..0001          0197 	..0002          
-01AF 	..0003          01CF 	..0004          01E3 	..0005          
-01F7 	..0006          020F 	..0007          022F 	..0008          
-0243 	..0009          0257 	..000A          026F 	..000B          
-028F 	..000C          02A3 	..000D          02B7 	..000E          
-02CF 	..000F          02EF 	..0010          0303 	..0011          
-0317 	..0012          032F 	..0013          034F 	..0014          
-0363 	..0015          0377 	..0016          038F 	..0017          
-03AF 	..0018          03C3 	..0019          03D7 	..001A          
-03EF 	..001B          040F 	..001C          0423 	..001D          
-0437 	..001E          044F 	..001F          046F 	..0020          
-0483 	..0021          0497 	..0022          04AF 	..0023          
-04CF 	..0024          04E3 	..0025          04F7 	..0026          
-050F 	..0027          052F 	..0028          0543 	..0029          
-0557 	..002A          056F 	..002B          058F 	..002C          
-05A3 	..002D          05B7 	..002E          05CF 	..002F          
-05EF 	..0030          0603 	..0031          0617 	..0032          
-062F 	..0033          064F 	..0034          0663 	..0035          
-0677 	..0036          068F 	..0037          06AF 	..0038          
-06C3 	..0039          06D7 	..003A          06EF 	..003B          
-070F 	..003C          0723 	..003D          0737 	..003E          
-074F 	..003F          076F 	..0040          0783 	..0041          
-0797 	..0042          07AF 	..0043          07CF 	..0044          
-07E3 	..0045          07F7 	..0046          080F 	..0047          
-082F 	..0048          0843 	..0049          0857 	..004A          
-086F 	..004B          088F 	..004C          08A3 	..004D          
-08B7 	..004E          08CF 	..004F          08EF 	..0050          
-0903 	..0051          0917 	..0052          092F 	..0053          
-094F 	..0054          0963 	..0055          0977 	..0056          
-098F 	..0057          09AF 	..0058          09C3 	..0059          
-09D7 	..005A          09EF 	..005B          0A0F 	..005C          
-0A23 	..005D          0A37 	..005E          0A4F 	..005F          
-0A6F 	..0060          0A83 	..0061          0A97 	..0062          
-0AAF 	..0063          016E 	ADD16           01CE 	ALU8I           
-022E 	ALU8R           0DF5 	BDOS            0100 	BEGIN           
-0E76 	CCE             0E6B 	CCLP            0C3F 	CLRMEM          
-0E63 	CMPCRC          0BF7 	CNTBIT          0BF8 	CNTBYT          
-0CB3 	CNTEND          0CA4 	CNTLP           0CB7 	CNTLP1          
-0C98 	COUNT           0CE9 	COUNTER         0B73 	CRCGOOD         
-0E93 	CRCLP           0EBA 	CRCTAB          0EB6 	CRCVAL          
-0E60 	CRLF            028E 	DAA             0B67 	DOCRLF          
-012F 	DONE            0E3D 	ERMSG1          0E58 	ERMSG2          
-0D89 	FLGMSK          0DB0 	FLGSAT          0DB6 	HEXSTR          
-0EAC 	ICRCLP          0C67 	IMLP            0C68 	IMLP1           
-0C6E 	IMLP2           0C8B 	IMLP3           02EE 	INCA            
-034E 	INCB            03AE 	INCBC           040E 	INCC            
-046E 	INCD            04CE 	INCDE           052E 	INCE            
-058E 	INCH            05EE 	INCHL           064E 	INCL            
-06AE 	INCM            070E 	INCSP           0EA2 	INITCRC         
-0C58 	INITMASK        0D58 	IUT             076E 	LD162           
-07CE 	LD166           082E 	LD16IM          088E 	LD8BD           
-08EE 	LD8IM           094E 	LD8RR           09AE 	LDA             
+016F 	..0000          0183 	..0001          0197 	..0002
+01AF 	..0003          01CF 	..0004          01E3 	..0005
+01F7 	..0006          020F 	..0007          022F 	..0008
+0243 	..0009          0257 	..000A          026F 	..000B
+028F 	..000C          02A3 	..000D          02B7 	..000E
+02CF 	..000F          02EF 	..0010          0303 	..0011
+0317 	..0012          032F 	..0013          034F 	..0014
+0363 	..0015          0377 	..0016          038F 	..0017
+03AF 	..0018          03C3 	..0019          03D7 	..001A
+03EF 	..001B          040F 	..001C          0423 	..001D
+0437 	..001E          044F 	..001F          046F 	..0020
+0483 	..0021          0497 	..0022          04AF 	..0023
+04CF 	..0024          04E3 	..0025          04F7 	..0026
+050F 	..0027          052F 	..0028          0543 	..0029
+0557 	..002A          056F 	..002B          058F 	..002C
+05A3 	..002D          05B7 	..002E          05CF 	..002F
+05EF 	..0030          0603 	..0031          0617 	..0032
+062F 	..0033          064F 	..0034          0663 	..0035
+0677 	..0036          068F 	..0037          06AF 	..0038
+06C3 	..0039          06D7 	..003A          06EF 	..003B
+070F 	..003C          0723 	..003D          0737 	..003E
+074F 	..003F          076F 	..0040          0783 	..0041
+0797 	..0042          07AF 	..0043          07CF 	..0044
+07E3 	..0045          07F7 	..0046          080F 	..0047
+082F 	..0048          0843 	..0049          0857 	..004A
+086F 	..004B          088F 	..004C          08A3 	..004D
+08B7 	..004E          08CF 	..004F          08EF 	..0050
+0903 	..0051          0917 	..0052          092F 	..0053
+094F 	..0054          0963 	..0055          0977 	..0056
+098F 	..0057          09AF 	..0058          09C3 	..0059
+09D7 	..005A          09EF 	..005B          0A0F 	..005C
+0A23 	..005D          0A37 	..005E          0A4F 	..005F
+0A6F 	..0060          0A83 	..0061          0A97 	..0062
+0AAF 	..0063          016E 	ADD16           01CE 	ALU8I
+022E 	ALU8R           0DF5 	BDOS            0100 	BEGIN
+0E76 	CCE             0E6B 	CCLP            0C3F 	CLRMEM
+0E63 	CMPCRC          0BF7 	CNTBIT          0BF8 	CNTBYT
+0CB3 	CNTEND          0CA4 	CNTLP           0CB7 	CNTLP1
+0C98 	COUNT           0CE9 	COUNTER         0B73 	CRCGOOD
+0E93 	CRCLP           0EBA 	CRCTAB          0EB6 	CRCVAL
+0E60 	CRLF            028E 	DAA             0B67 	DOCRLF
+012F 	DONE            0E3D 	ERMSG1          0E58 	ERMSG2
+0D89 	FLGMSK          0DB0 	FLGSAT          0DB6 	HEXSTR
+0EAC 	ICRCLP          0C67 	IMLP            0C68 	IMLP1
+0C6E 	IMLP2           0C8B 	IMLP3           02EE 	INCA
+034E 	INCB            03AE 	INCBC           040E 	INCC
+046E 	INCD            04CE 	INCDE           052E 	INCE
+058E 	INCH            05EE 	INCHL           064E 	INCL
+06AE 	INCM            070E 	INCSP           0EA2 	INITCRC
+0C58 	INITMASK        0D58 	IUT             076E 	LD162
+07CE 	LD166           082E 	LD16IM          088E 	LD8BD
+08EE 	LD8IM           094E 	LD8RR           09AE 	LDA
 'Z80 instruction set exerciser'	MACRO-80 3.44	09-Dec-81	PAGE	S-1
 
 
-0AFC 	LDIR1           0B0C 	LDIR2           0C49 	LDIR3           
-0122 	LOOP            0DA4 	MSAT            0103 	MSBT            
-0E01 	MSG1            0E1E 	MSG2            0C13 	NCB1            
-0C37 	NSB1            0BFA 	NXTCBIT         0C1E 	NXTSBIT         
-0E2D 	OKMSG           0DE8 	PH11            0DC5 	PH8LP           
-0DDB 	PHEX1           0DD2 	PHEX2           0DC0 	PHEX8           
-0A0E 	ROT8080         0BE1 	SBSHF1          0BAB 	SETUP           
-0C1B 	SHFBIT          0C1C 	SHFBYT          0CC8 	SHFLP           
-0CE4 	SHFLP1          0CDE 	SHFLP2          0CBC 	SHIFT           
-0D11 	SHIFTER         0CE0 	SHLPE           0DB2 	SPAT            
-0111 	SPBT            0DB4 	SPSAV           0A6E 	STABD           
-0113 	START           0ACE 	STT             0BC4 	SUBCLP          
-0BD5 	SUBSHF          0BF0 	SUBSTR          0BB4 	SUBYTE          
-0D94 	TCRC            0DA2 	TEMP            0D69 	TEMP1           
-0D6B 	TEMP2           0D39 	TEST            013A 	TESTS           
-0B23 	TLP             0B37 	TLP1            0B3A 	TLP2            
-0B81 	TLP3            0B6A 	TLPOK           0E7A 	UPDCRC          
+0AFC 	LDIR1           0B0C 	LDIR2           0C49 	LDIR3
+0122 	LOOP            0DA4 	MSAT            0103 	MSBT
+0E01 	MSG1            0E1E 	MSG2            0C13 	NCB1
+0C37 	NSB1            0BFA 	NXTCBIT         0C1E 	NXTSBIT
+0E2D 	OKMSG           0DE8 	PH11            0DC5 	PH8LP
+0DDB 	PHEX1           0DD2 	PHEX2           0DC0 	PHEX8
+0A0E 	ROT8080         0BE1 	SBSHF1          0BAB 	SETUP
+0C1B 	SHFBIT          0C1C 	SHFBYT          0CC8 	SHFLP
+0CE4 	SHFLP1          0CDE 	SHFLP2          0CBC 	SHIFT
+0D11 	SHIFTER         0CE0 	SHLPE           0DB2 	SPAT
+0111 	SPBT            0DB4 	SPSAV           0A6E 	STABD
+0113 	START           0ACE 	STT             0BC4 	SUBCLP
+0BD5 	SUBSHF          0BF0 	SUBSTR          0BB4 	SUBYTE
+0D94 	TCRC            0DA2 	TEMP            0D69 	TEMP1
+0D6B 	TEMP2           0D39 	TEST            013A 	TESTS
+0B23 	TLP             0B37 	TLP1            0B3A 	TLP2
+0B81 	TLP3            0B6A 	TLPOK           0E7A 	UPDCRC
 
 
 
 No Fatal error(s)
-
-

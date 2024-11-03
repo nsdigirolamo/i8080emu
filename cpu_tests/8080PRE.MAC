@@ -51,10 +51,10 @@ start:	mvi	a,1		; test simple compares and z/nz jumps
 	jmp	lab0
 	hlt			; emergency exit
 	db	0ffh
-	
+
 lab0:	call	lab2		; does a simple call work?
 lab1:	jmp	0		; fail
-	
+
 lab2:	pop	h		; check return address
 	mov	a,h
 	cpi	high lab1
@@ -133,7 +133,7 @@ reta:	mvi	a,0ffh
 	mov	a,c
 	cpi	34h
 	jnz	0
-	
+
 ; from now on we can report errors by displaying an address
 
 ; test conditional call, ret, jp, jr
@@ -174,7 +174,7 @@ lab5&pcond:	lxi	h,0d7h xor &flag
 	pop	psw
 	j&ncond	lab6&pcond
 	call	error
-lab6&pcond:	
+lab6&pcond:
 	endm
 
 	tcond	1,c,nc,1
@@ -212,14 +212,14 @@ lab10:	inx	h
 	mov	a,l
 	cpi	0
 	cnz	error
-	
+
 allok:	lxi	d,okmsg
 	mvi	c,9
 	call	5
 	jmp	0
 
 okmsg:	db	'8080 Preliminary tests complete$'
-	
+
 ; display address at top of stack and exit
 error:	pop	b
 	mvi	h,high hextab
@@ -269,7 +269,7 @@ conout:	push	psw
 	pop	b
 	pop	psw
 	ret
-	
+
 v	defl	0
 regs1:	rept	8
 v	defl	v+2

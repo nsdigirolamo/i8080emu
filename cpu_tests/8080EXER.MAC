@@ -20,7 +20,7 @@
 ;******************************************************************************
 ;
 ; Modified to exercise an 8080 by Ian Bartholomew, February 2009
-; 
+;
 ; I have made the following changes -
 ;
 ; Converted all mnemonics to 8080 and rewritten any Z80 code used
@@ -28,7 +28,7 @@
 ; source code listing.
 ;
 ; Removed any test descriptors that are not used.
-;  
+;
 ; Changed the macro definitions to work in M80
 ;
 ; The machine state snapshot has been changed to remove the IX/IY registers.
@@ -115,7 +115,7 @@ loop:	mov	a,m		; end of list ?
 	dcx	h
 	call	stt
 	jmp	loop
-	
+
 done:	lxi	d,msg2
 	mvi	c,9
 	call	bdos
@@ -308,7 +308,7 @@ ld162:	db	0ffh		; flag mask
 	tstr	0,-1,0,0,0,0,0,0,0,0			; (16 cycles)
 	db	0A9h, 0C3h, 0D5h, 0CBh			; expected crc
 	tmsg	'lhld nnnn'
-	
+
 ; ld (nnnn),hl (16 cycles)
 ld166:	db	0ffh		; flag mask
 	tstr	<022h,low msbt,high msbt>,0d003h,07772h,07f53h,03f72h,064eah,0e180h,010h,02dh,035e9h
@@ -566,7 +566,7 @@ ncb1:	mov	a,b
 	rz
 	mvi	a,1
 	ret
-	
+
 ; get next shifter bit in low bit of a
 shfbit:	ds	1
 shfbyt:	ds	2
@@ -592,7 +592,7 @@ nsb1:	mov	a,b
 	rz
 	mvi	a,1
 	ret
-	
+
 
 ; clear memory at hl, bc bytes
 clrmem:	push	psw
@@ -696,7 +696,7 @@ cntend:	pop	b
 cntlp1:	inx	h
 	inx	d
 	jmp	cntlp
-	
+
 
 ; multi-byte shifter
 shift:	push	b
@@ -752,7 +752,7 @@ test:	push	psw
 	mvi	b,16
 	lxi	h,msbt
 	call	hexstr
-      endif	
+      endif
 	di			; disable interrupts
 
 ;#idb ld (spsav),sp replaced by following code
@@ -765,7 +765,7 @@ test:	push	psw
 
 	lxi	sp,msbt+2	; point to test-case machine state
 
-;#idb pop iy	
+;#idb pop iy
 ;#idb pop ix both replaced by following code
 ;#idb Just dummy out ix/iy with copies of hl
 	pop	h		; and load all regs
@@ -906,7 +906,7 @@ phex2:	push	psw
 	rrc
 	call	phex1
 	pop	psw
-; fall through	
+; fall through
 
 ; display low nibble in a
 phex1:	push	psw

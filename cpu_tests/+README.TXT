@@ -24,7 +24,7 @@ TST8080
 
 CPUTEST
 	SuperSoft Associates CPU test from the Diagnostic II
-	suite. When it displays "ABCDEF..." those are actually 
+	suite. When it displays "ABCDEF..." those are actually
 	indications of test that have passed. Additional testing
 	occurs during the "Begin Timing Test" and "End Timing Test"
 	period. On a 2MHz 8080, the timing test period lasts about

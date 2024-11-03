@@ -9,7 +9,7 @@
 ;(805) 527-9321 (MODEM, CP/M-NET (TM))
 ;(805) 527-0518 (VERBAL)
 ;
-;  Updated by Mike Douglas October, 2012 
+;  Updated by Mike Douglas October, 2012
 ;
 ;	Added the following tests that were missing:
 ;	   mov c,m
@@ -655,7 +655,7 @@ MOVI:	MVI	A,077H
 	CMC
 	CC	CPUER	;TEST "CMC
 	MVI	A,0AAH
-	CMA	
+	CMA
 	CPI	055H
 	CNZ	CPUER	;TEST "CMA"
 	ORA	A	;RE-SET AUXILIARY CARRY

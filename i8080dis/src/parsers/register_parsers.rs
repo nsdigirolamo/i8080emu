@@ -1,7 +1,6 @@
 use nom::{branch::alt, bytes::complete::tag, IResult};
 
-#[derive(Debug)]
-#[derive(PartialEq)]
+#[derive(Debug, PartialEq)]
 pub enum Register {
     A = 0b111,
     B = 0b000,
@@ -12,8 +11,7 @@ pub enum Register {
     L = 0b101,
 }
 
-#[derive(Debug)]
-#[derive(PartialEq)]
+#[derive(Debug, PartialEq)]
 pub enum RegisterPair {
     BC = 0b00,
     DE = 0b01,
@@ -21,42 +19,42 @@ pub enum RegisterPair {
     SP = 0b11,
 }
 
-pub fn parse_register_a (input: &str) -> IResult<&str, Register> {
+pub fn parse_register_a(input: &str) -> IResult<&str, Register> {
     let (input, _) = tag("111")(input)?;
     Ok((input, Register::A))
 }
 
-pub fn parse_register_b (input: &str) -> IResult<&str, Register> {
+pub fn parse_register_b(input: &str) -> IResult<&str, Register> {
     let (input, _) = tag("000")(input)?;
     Ok((input, Register::B))
 }
 
-pub fn parse_register_c (input: &str) -> IResult<&str, Register> {
+pub fn parse_register_c(input: &str) -> IResult<&str, Register> {
     let (input, _) = tag("001")(input)?;
     Ok((input, Register::C))
 }
 
-pub fn parse_register_d (input: &str) -> IResult<&str, Register> {
+pub fn parse_register_d(input: &str) -> IResult<&str, Register> {
     let (input, _) = tag("010")(input)?;
     Ok((input, Register::D))
 }
 
-pub fn parse_register_e (input: &str) -> IResult<&str, Register> {
+pub fn parse_register_e(input: &str) -> IResult<&str, Register> {
     let (input, _) = tag("011")(input)?;
     Ok((input, Register::E))
 }
 
-pub fn parse_register_h (input: &str) -> IResult<&str, Register> {
+pub fn parse_register_h(input: &str) -> IResult<&str, Register> {
     let (input, _) = tag("100")(input)?;
     Ok((input, Register::H))
 }
 
-pub fn parse_register_l (input: &str) -> IResult<&str, Register> {
+pub fn parse_register_l(input: &str) -> IResult<&str, Register> {
     let (input, _) = tag("101")(input)?;
     Ok((input, Register::L))
 }
 
-pub fn parse_register (input: &str) -> IResult<&str, Register> {
+pub fn parse_register(input: &str) -> IResult<&str, Register> {
     alt((
         parse_register_a,
         parse_register_b,
@@ -68,27 +66,27 @@ pub fn parse_register (input: &str) -> IResult<&str, Register> {
     ))(input)
 }
 
-pub fn parse_register_pair_bc (input: &str) -> IResult<&str, RegisterPair> {
+pub fn parse_register_pair_bc(input: &str) -> IResult<&str, RegisterPair> {
     let (input, _) = tag("00")(input)?;
     Ok((input, RegisterPair::BC))
 }
 
-pub fn parse_register_pair_de (input: &str) -> IResult<&str, RegisterPair> {
+pub fn parse_register_pair_de(input: &str) -> IResult<&str, RegisterPair> {
     let (input, _) = tag("01")(input)?;
     Ok((input, RegisterPair::DE))
 }
 
-pub fn parse_register_pair_hl (input: &str) -> IResult<&str, RegisterPair> {
+pub fn parse_register_pair_hl(input: &str) -> IResult<&str, RegisterPair> {
     let (input, _) = tag("10")(input)?;
     Ok((input, RegisterPair::HL))
 }
 
-pub fn parse_register_pair_sp (input: &str) -> IResult<&str, RegisterPair> {
+pub fn parse_register_pair_sp(input: &str) -> IResult<&str, RegisterPair> {
     let (input, _) = tag("11")(input)?;
     Ok((input, RegisterPair::SP))
 }
 
-pub fn parse_register_pair (input: &str) -> IResult<&str, RegisterPair> {
+pub fn parse_register_pair(input: &str) -> IResult<&str, RegisterPair> {
     alt((
         parse_register_pair_bc,
         parse_register_pair_de,

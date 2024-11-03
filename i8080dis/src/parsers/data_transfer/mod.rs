@@ -2,14 +2,14 @@
 
 use super::register_parsers::{Register, RegisterPair};
 
+pub mod lda;
+pub mod ldax;
+pub mod lhld;
+pub mod lxi;
 pub mod mov;
 pub mod mvi;
-pub mod lxi;
-pub mod lda;
-pub mod sta;
-pub mod lhld;
 pub mod shld;
-pub mod ldax;
+pub mod sta;
 pub mod stax;
 pub mod xchg;
 
@@ -82,6 +82,4 @@ pub struct StoreAccumulatorIndirect {
 }
 
 #[derive(Debug)]
-pub struct ExchangeHLtoDE {
-
-}
+pub struct ExchangeHLtoDE {}
