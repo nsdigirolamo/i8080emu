@@ -34,7 +34,7 @@ pub mod parse_load_accumulator_direct_tests {
 
     #[test]
     #[should_panic]
-    pub fn test_bad_low_addr() {
+    pub fn test_short_low_addr() {
         let bad_low_addr = "1";
         let input = format!("{}{}{}", GOOD_OPCODE, bad_low_addr, GOOD_HIGH_ADDR);
         let (_, _) = parse_load_accumulator_direct(&input).unwrap();
@@ -42,8 +42,24 @@ pub mod parse_load_accumulator_direct_tests {
 
     #[test]
     #[should_panic]
-    pub fn test_bad_high_addr() {
+    pub fn test_non_numeric_low_addr() {
+        let bad_low_addr = "1010a010";
+        let input = format!("{}{}{}", GOOD_OPCODE, bad_low_addr, GOOD_HIGH_ADDR);
+        let (_, _) = parse_load_accumulator_direct(&input).unwrap();
+    }
+
+    #[test]
+    #[should_panic]
+    pub fn test_short_high_addr() {
         let bad_high_addr = "1";
+        let input = format!("{}{}{}", GOOD_OPCODE, GOOD_LOW_ADDR, bad_high_addr);
+        let (_, _) = parse_load_accumulator_direct(&input).unwrap();
+    }
+
+    #[test]
+    #[should_panic]
+    pub fn test_non_numeric_high_addr() {
+        let bad_high_addr = "101a1010";
         let input = format!("{}{}{}", GOOD_OPCODE, GOOD_LOW_ADDR, bad_high_addr);
         let (_, _) = parse_load_accumulator_direct(&input).unwrap();
     }
