@@ -87,6 +87,13 @@ mod from_binary_tests {
     }
 
     #[test]
+    pub fn test_four_digits () {
+        let vec = vec!["1", "0", "0", "0"];
+        let result = from_binary(vec).unwrap();
+        assert_eq!(result, 0b00001000)
+    }
+
+    #[test]
     #[should_panic]
     pub fn test_nine_digits () {
         let vec = vec!["1", "0", "0", "0", "0", "0", "0", "0", "0"];
@@ -119,5 +126,68 @@ mod from_binary_tests {
     pub fn test_non_number_then_seven_ones () {
         let vec = vec!["a", "1", "1", "1", "1", "1", "1", "1"];
         let _ = from_binary(vec).unwrap();
+    }
+}
+
+mod parse_byte_tests {
+    use crate::parsers::data_parsers::parse_byte;
+
+    #[test]
+    pub fn test_eight_ones () {
+        let (input, output) = parse_byte("11111111").unwrap();
+        assert_eq!(input, "");
+        assert_eq!(output, 0b11111111);
+    }
+
+    #[test]
+    pub fn test_eight_zeroes () {
+        let (input, output) = parse_byte("00000000").unwrap();
+        assert_eq!(input, "");
+        assert_eq!(output, 0b00000000);
+    }
+
+    #[test]
+    pub fn test_mixed_ones_and_zeroes () {
+        let (input, output) = parse_byte("10101010").unwrap();
+        assert_eq!(input, "");
+        assert_eq!(output, 0b10101010);
+    }
+
+    #[test]
+    pub fn test_nine_ones () {
+        let (input, output) = parse_byte("111111111").unwrap();
+        assert_eq!(input, "1");
+        assert_eq!(output, 0b11111111);
+    }
+
+    #[test]
+    pub fn test_nine_zeroes () {
+        let (input, output) = parse_byte("000000000").unwrap();
+        assert_eq!(input, "0");
+        assert_eq!(output, 0b00000000);
+    }
+
+    #[test]
+    #[should_panic]
+    pub fn test_one_digits () {
+        let (_, _) = parse_byte("1").unwrap();
+    }
+
+    #[test]
+    #[should_panic]
+    pub fn test_seven_digits () {
+        let (_, _) = parse_byte("1111111").unwrap();
+    }
+
+    #[test]
+    #[should_panic]
+    pub fn test_other () {
+        let (_, _) = parse_byte("aaaaaaaa").unwrap();
+    }
+
+    #[test]
+    #[should_panic]
+    pub fn test_other_in_string () {
+        let (_, _) = parse_byte("111a1111").unwrap();
     }
 }
