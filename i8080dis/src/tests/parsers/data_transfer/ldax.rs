@@ -1,49 +1,128 @@
-pub mod parse_load_accumulator_indirect_tests {
+mod parse_load_accumulator_indirect {
+    use nom::error::ErrorKind;
+
     use crate::parsers::{
         data_transfer::{ldax::parse_load_accumulator_indirect, LoadAccumulatorIndirect},
         register_parsers::RegisterPair,
     };
 
-    const GOOD_PREFIX: &str = "00";
-    const GOOD_SUFFIX: &str = "1010";
-    const GOOD_REGISTER_PAIR: &str = "00";
-
-    const EXPECTED_REGISTER_PAIR: RegisterPair = RegisterPair::BC;
-
     #[test]
-    pub fn test_proper_form_and_register() {
-        let input = format!("{}{}{}", GOOD_PREFIX, GOOD_REGISTER_PAIR, GOOD_SUFFIX);
-        let (input, output) = parse_load_accumulator_indirect(&input).unwrap();
-
-        let expected_output = LoadAccumulatorIndirect {
-            rp: EXPECTED_REGISTER_PAIR,
+    fn test_valid_input() {
+        let input = "00001010";
+        let expected = LoadAccumulatorIndirect {
+            rp: RegisterPair::BC,
         };
 
+        let result = parse_load_accumulator_indirect(input);
+        assert!(result.is_ok());
+
+        let (input, output) = result.unwrap();
         assert_eq!(input, "");
-        assert_eq!(output, expected_output);
+        assert_eq!(output, expected);
     }
 
     #[test]
-    #[should_panic]
-    pub fn test_bad_prefix() {
-        let bad_prefix = "10";
-        let input = format!("{}{}{}", bad_prefix, GOOD_REGISTER_PAIR, GOOD_SUFFIX);
-        let (_, _) = parse_load_accumulator_indirect(&input).unwrap();
+    fn test_invalid_prefix() {
+        let input = "010010101";
+
+        let result = parse_load_accumulator_indirect(input);
+        assert!(result.is_err());
+
+        match result {
+            Err(nom::Err::Error(e)) => {
+                assert_eq!(e.code, ErrorKind::Tag);
+            }
+            _ => panic!("Expected Tag Error."),
+        }
     }
 
     #[test]
-    #[should_panic]
-    pub fn test_bad_suffix() {
-        let bad_suffix = "1011";
-        let input = format!("{}{}{}", GOOD_PREFIX, GOOD_REGISTER_PAIR, bad_suffix);
-        let (_, _) = parse_load_accumulator_indirect(&input).unwrap();
+    fn test_invalid_suffix() {
+        let input = "00001110";
+
+        let result = parse_load_accumulator_indirect(input);
+        assert!(result.is_err());
+
+        match result {
+            Err(nom::Err::Error(e)) => {
+                assert_eq!(e.code, ErrorKind::Tag);
+            }
+            _ => panic!("Expected Tag Error."),
+        }
     }
 
     #[test]
-    #[should_panic]
-    pub fn test_bad_register_pair() {
-        let bad_register_pair = "1";
-        let input = format!("{}{}{}", GOOD_PREFIX, bad_register_pair, GOOD_SUFFIX);
-        let (_, _) = parse_load_accumulator_indirect(&input).unwrap();
+    fn test_incomplete_input() {
+        let input = "00";
+
+        let result = parse_load_accumulator_indirect(input);
+        assert!(result.is_err());
+
+        match result {
+            Err(nom::Err::Error(e)) => {
+                assert_eq!(e.code, ErrorKind::Tag);
+            }
+            _ => panic!("Expected Tag Error."),
+        }
+    }
+
+    #[test]
+    fn test_excess_input() {
+        let input = "000010101";
+        let expected = LoadAccumulatorIndirect {
+            rp: RegisterPair::BC,
+        };
+
+        let result = parse_load_accumulator_indirect(input);
+        assert!(result.is_ok());
+
+        let (input, output) = result.unwrap();
+        assert_eq!(input, "1");
+        assert_eq!(output, expected);
+    }
+
+    #[test]
+    fn test_empty_input() {
+        let input = "";
+
+        let result = parse_load_accumulator_indirect(input);
+        assert!(result.is_err());
+
+        match result {
+            Err(nom::Err::Error(e)) => {
+                assert_eq!(e.code, ErrorKind::Tag);
+            }
+            _ => panic!("Expected Tag Error."),
+        }
+    }
+
+    #[test]
+    fn test_nonnumeric_input() {
+        let input = "0a001010";
+
+        let result = parse_load_accumulator_indirect(input);
+        assert!(result.is_err());
+
+        match result {
+            Err(nom::Err::Error(e)) => {
+                assert_eq!(e.code, ErrorKind::Tag);
+            }
+            _ => panic!("Expected Tag Error."),
+        }
+    }
+
+    #[test]
+    fn test_nonbinary_input() {
+        let input = "02001010";
+
+        let result = parse_load_accumulator_indirect(input);
+        assert!(result.is_err());
+
+        match result {
+            Err(nom::Err::Error(e)) => {
+                assert_eq!(e.code, ErrorKind::Tag);
+            }
+            _ => panic!("Expected Tag Error."),
+        }
     }
 }

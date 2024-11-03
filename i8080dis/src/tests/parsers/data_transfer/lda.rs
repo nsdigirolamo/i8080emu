@@ -1,66 +1,114 @@
-pub mod parse_load_accumulator_direct_tests {
+mod parse_load_accumulator_direct {
+    use nom::error::ErrorKind;
+
     use crate::parsers::data_transfer::{
         lda::parse_load_accumulator_direct, LoadAccumulatorDirect,
     };
 
-    const GOOD_OPCODE: &str = "00111010";
-    const GOOD_LOW_ADDR: &str = "10101010";
-    const GOOD_HIGH_ADDR: &str = "01010101";
-
-    const EXPECTED_LOW_ADDR: u8 = 0b10101010;
-    const EXPECTED_HIGH_ADDR: u8 = 0b01010101;
-
     #[test]
-    pub fn test_proper_opcode_and_address() {
-        let input = format!("{}{}{}", GOOD_OPCODE, GOOD_LOW_ADDR, GOOD_HIGH_ADDR);
-        let (input, output) = parse_load_accumulator_direct(&input).unwrap();
-
-        let expected_output = LoadAccumulatorDirect {
-            low_addr: EXPECTED_LOW_ADDR,
-            high_addr: EXPECTED_HIGH_ADDR,
+    fn test_valid_input() {
+        let input = "001110101111111111111111";
+        let expected = LoadAccumulatorDirect {
+            low_addr: 0b11111111,
+            high_addr: 0b11111111,
         };
 
+        let result = parse_load_accumulator_direct(input);
+        assert!(result.is_ok());
+
+        let (input, output) = result.unwrap();
         assert_eq!(input, "");
-        assert_eq!(output, expected_output);
+        assert_eq!(output, expected);
     }
 
     #[test]
-    #[should_panic]
-    pub fn test_bad_opcode() {
-        let bad_opcode = "11111111";
-        let input = format!("{}{}{}", bad_opcode, GOOD_LOW_ADDR, GOOD_HIGH_ADDR);
-        let (_, _) = parse_load_accumulator_direct(&input).unwrap();
+    fn test_invalid_prefix() {
+        let input = "111111111111111111111111";
+
+        let result = parse_load_accumulator_direct(input);
+        assert!(result.is_err());
+
+        match result {
+            Err(nom::Err::Error(e)) => {
+                assert_eq!(e.code, ErrorKind::Tag);
+            }
+            _ => panic!("Expected Tag Error."),
+        }
     }
 
     #[test]
-    #[should_panic]
-    pub fn test_short_low_addr() {
-        let bad_low_addr = "1";
-        let input = format!("{}{}{}", GOOD_OPCODE, bad_low_addr, GOOD_HIGH_ADDR);
-        let (_, _) = parse_load_accumulator_direct(&input).unwrap();
+    fn test_incomplete_input() {
+        let input = "00111010";
+
+        let result = parse_load_accumulator_direct(input);
+        assert!(result.is_err());
+
+        match result {
+            Err(nom::Err::Error(e)) => {
+                assert_eq!(e.code, ErrorKind::Tag);
+            }
+            _ => panic!("Expected Tag Error."),
+        }
     }
 
     #[test]
-    #[should_panic]
-    pub fn test_non_numeric_low_addr() {
-        let bad_low_addr = "1010a010";
-        let input = format!("{}{}{}", GOOD_OPCODE, bad_low_addr, GOOD_HIGH_ADDR);
-        let (_, _) = parse_load_accumulator_direct(&input).unwrap();
+    fn test_excess_input() {
+        let input = "0011101011111111111111111";
+        let expected = LoadAccumulatorDirect {
+            low_addr: 0b11111111,
+            high_addr: 0b11111111,
+        };
+
+        let result = parse_load_accumulator_direct(input);
+        assert!(result.is_ok());
+
+        let (input, output) = result.unwrap();
+        assert_eq!(input, "1");
+        assert_eq!(output, expected);
     }
 
     #[test]
-    #[should_panic]
-    pub fn test_short_high_addr() {
-        let bad_high_addr = "1";
-        let input = format!("{}{}{}", GOOD_OPCODE, GOOD_LOW_ADDR, bad_high_addr);
-        let (_, _) = parse_load_accumulator_direct(&input).unwrap();
+    fn test_empty_input() {
+        let input = "";
+
+        let result = parse_load_accumulator_direct(input);
+        assert!(result.is_err());
+
+        match result {
+            Err(nom::Err::Error(e)) => {
+                assert_eq!(e.code, ErrorKind::Tag);
+            }
+            _ => panic!("Expected Tag Error."),
+        }
     }
 
     #[test]
-    #[should_panic]
-    pub fn test_non_numeric_high_addr() {
-        let bad_high_addr = "101a1010";
-        let input = format!("{}{}{}", GOOD_OPCODE, GOOD_LOW_ADDR, bad_high_addr);
-        let (_, _) = parse_load_accumulator_direct(&input).unwrap();
+    fn test_nonnumeric_input() {
+        let input = "0011101011111a1111111111";
+
+        let result = parse_load_accumulator_direct(input);
+        assert!(result.is_err());
+
+        match result {
+            Err(nom::Err::Error(e)) => {
+                assert_eq!(e.code, ErrorKind::Tag);
+            }
+            _ => panic!("Expected Tag Error."),
+        }
+    }
+
+    #[test]
+    fn test_nonbinary_input() {
+        let input = "001110101111121111111111";
+
+        let result = parse_load_accumulator_direct(input);
+        assert!(result.is_err());
+
+        match result {
+            Err(nom::Err::Error(e)) => {
+                assert_eq!(e.code, ErrorKind::Tag);
+            }
+            _ => panic!("Expected Tag Error."),
+        }
     }
 }
