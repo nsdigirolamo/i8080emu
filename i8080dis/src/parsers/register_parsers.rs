@@ -1,6 +1,7 @@
 use nom::{branch::alt, bytes::complete::tag, IResult};
 
 #[derive(Debug)]
+#[derive(PartialEq)]
 pub enum Register {
     A = 0b111,
     B = 0b000,
@@ -12,6 +13,7 @@ pub enum Register {
 }
 
 #[derive(Debug)]
+#[derive(PartialEq)]
 pub enum RegisterPair {
     BC = 0b00,
     DE = 0b01,
