@@ -8,19 +8,15 @@ the 1970s. Many thanks to [altairclone.com](https://altairclone.com/) for
 publicly providing a wealth of information about the 8080, including the tests
 stored in the `cpu_tests` directory.
 
-## Progress
-
-todo
-
 ## Resources
 
 ### Documents
 
 1. [Intel 8080 Microcomputer Systems User's Manual September 1975](https://www.nj7p.info/Manuals/PDFs/Intel/9800153B.pdf)
-	- Also available [here](https://archive.org/details/intel8080microco00inte) and [here](https://mark-ogden.uk/files/intel/publications/98-153B%20Intel%208080%20Microcomputer%20Systems%20Users%20Manual-Sep75.pdf)
+    - Also available [here](https://archive.org/details/intel8080microco00inte) and [here](https://mark-ogden.uk/files/intel/publications/98-153B%20Intel%208080%20Microcomputer%20Systems%20Users%20Manual-Sep75.pdf)
 2. [Intel 8080 Assembly Language Programming Manual](https://altairclone.com/downloads/manuals/8080%20Programmers%20Manual.pdf)
 3. [Intel MCS-80/85™ FAMILY USER'S MANUAL OCTOBER 1979](https://archive.org/details/Mcs80_85FamilyUsersManual/page/n1/mode/2up)
-	- Also available [here](https://drive.google.com/file/d/0B9rh9tVI0J5mMDQ5M2VkYzYtMWZkYS00YWVlLTg5MWEtNTgzN2ZjYTk3YWU3/view?resourcekey=0--8gZogrur8I4z7w4MMAwkg)
+    - Also available [here](https://drive.google.com/file/d/0B9rh9tVI0J5mMDQ5M2VkYzYtMWZkYS00YWVlLTg5MWEtNTgzN2ZjYTk3YWU3/view?resourcekey=0--8gZogrur8I4z7w4MMAwkg)
 4. [8080/8085 ASSEMBLY LANGUAGE PROGRAMMING MANUAL](https://altairclone.com/downloads/manuals/8080-8085%20Programmers%20Manual.pdf)
 
 ### Sites
@@ -32,3 +28,208 @@ variety of publications related to Intel technologies.
 3. [emulator101.com](http://web.archive.org/web/20240522090447/http://emulator101.com/)
 is now defunct, but is available on the Wayback Machine and seems like an
 authoritative source of 8080 emulator information.
+
+## TO-DO List
+
+### Parsers for the Dissassembler
+
+- [x] Write parsers for the Data Transfer Group of instructions.
+    - [x] MOV
+    - [x] MVI
+    - [x] LXI
+    - [x] LDA
+    - [x] STA
+    - [x] LHLD
+    - [x] SHLD
+    - [x] LDAX
+    - [x] STAX
+    - [x] XCHG
+- [ ] Write parsers for the Arithmetic Group of instructions.
+    - [ ] ADD
+    - [ ] ADI
+    - [ ] ADC
+    - [ ] ACI
+    - [ ] SUB
+    - [ ] SUI
+    - [ ] SBB
+    - [ ] SBI
+    - [ ] INR
+    - [ ] DCR
+    - [ ] INX
+    - [ ] DCX
+    - [ ] DAD
+    - [ ] DAA
+- [ ] Write parsers for the Logical Group of instructions.
+    - [ ] ANA
+    - [ ] ANI
+    - [ ] XRA
+    - [ ] XRI
+    - [ ] ORA
+    - [ ] ORI
+    - [ ] CMP
+    - [ ] CPI
+    - [ ] RLC
+    - [ ] RRC
+    - [ ] RAL
+    - [ ] RAR
+    - [ ] CMA
+    - [ ] CMC
+    - [ ] STC
+- [ ] Write parsers for the Branch Group of instructions.
+    - [ ] JMP
+    - [ ] Jcondition
+    - [ ] CALL
+    - [ ] Ccondition
+    - [ ] RET
+    - [ ] Rcondition
+    - [ ] RST
+    - [ ] PCHL
+- [ ] Write parsers for the Stack, I/O, and Machine Control Group of
+instructions.
+    - [ ] PUSH
+    - [ ] PUSH PSW
+    - [ ] POP
+    - [ ] POP PSW
+    - [ ] XTHL
+    - [ ] SPHL
+    - [ ] IN
+    - [ ] OUT
+    - [ ] EI
+    - [ ] DI
+    - [ ] HLT
+    - [ ] NOP
+
+### Emitters (De-Emitters?) for the Dissassembler
+
+- [ ] Write emitters for the Data Transfer Group of instructions.
+    - [ ] MOV
+    - [ ] MVI
+    - [ ] LXI
+    - [ ] LDA
+    - [ ] STA
+    - [ ] LHLD
+    - [ ] SHLD
+    - [ ] LDAX
+    - [ ] STAX
+    - [ ] XCHG
+- [ ] Write emitters for the Arithmetic Group of instructions.
+    - [ ] ADD
+    - [ ] ADI
+    - [ ] ADC
+    - [ ] ACI
+    - [ ] SUB
+    - [ ] SUI
+    - [ ] SBB
+    - [ ] SBI
+    - [ ] INR
+    - [ ] DCR
+    - [ ] INX
+    - [ ] DCX
+    - [ ] DAD
+    - [ ] DAA
+- [ ] Write emitters for the Logical Group of instructions.
+    - [ ] ANA
+    - [ ] ANI
+    - [ ] XRA
+    - [ ] XRI
+    - [ ] ORA
+    - [ ] ORI
+    - [ ] CMP
+    - [ ] CPI
+    - [ ] RLC
+    - [ ] RRC
+    - [ ] RAL
+    - [ ] RAR
+    - [ ] CMA
+    - [ ] CMC
+    - [ ] STC
+- [ ] Write emitters for the Branch Group of instructions.
+    - [ ] JMP
+    - [ ] Jcondition
+    - [ ] CALL
+    - [ ] Ccondition
+    - [ ] RET
+    - [ ] Rcondition
+    - [ ] RST
+    - [ ] PCHL
+- [ ] Write emitters for the Stack, I/O, and Machine Control Group of
+instructions.
+    - [ ] PUSH
+    - [ ] PUSH PSW
+    - [ ] POP
+    - [ ] POP PSW
+    - [ ] XTHL
+    - [ ] SPHL
+    - [ ] IN
+    - [ ] OUT
+    - [ ] EI
+    - [ ] DI
+    - [ ] HLT
+    - [ ] NOP
+
+### Emulator Functionality
+- [ ] Write the functions for the Data Transfer Group of instructions.
+    - [ ] MOV
+    - [ ] MVI
+    - [ ] LXI
+    - [ ] LDA
+    - [ ] STA
+    - [ ] LHLD
+    - [ ] SHLD
+    - [ ] LDAX
+    - [ ] STAX
+    - [ ] XCHG
+- [ ] Write the functions for the Arithmetic Group of instructions.
+    - [ ] ADD
+    - [ ] ADI
+    - [ ] ADC
+    - [ ] ACI
+    - [ ] SUB
+    - [ ] SUI
+    - [ ] SBB
+    - [ ] SBI
+    - [ ] INR
+    - [ ] DCR
+    - [ ] INX
+    - [ ] DCX
+    - [ ] DAD
+    - [ ] DAA
+- [ ] Write the functions for the Logical Group of instructions.
+    - [ ] ANA
+    - [ ] ANI
+    - [ ] XRA
+    - [ ] XRI
+    - [ ] ORA
+    - [ ] ORI
+    - [ ] CMP
+    - [ ] CPI
+    - [ ] RLC
+    - [ ] RRC
+    - [ ] RAL
+    - [ ] RAR
+    - [ ] CMA
+    - [ ] CMC
+    - [ ] STC
+- [ ] Write the functions for the Branch Group of instructions.
+    - [ ] JMP
+    - [ ] Jcondition
+    - [ ] CALL
+    - [ ] Ccondition
+    - [ ] RET
+    - [ ] Rcondition
+    - [ ] RST
+    - [ ] PCHL
+- [ ] Write the functions for the Stack, I/O, and Machine Control Group of
+instructions.
+    - [ ] PUSH
+    - [ ] PUSH PSW
+    - [ ] POP
+    - [ ] POP PSW
+    - [ ] XTHL
+    - [ ] SPHL
+    - [ ] IN
+    - [ ] OUT
+    - [ ] EI
+    - [ ] DI
+    - [ ] HLT
+    - [ ] NOP
