@@ -1,112 +1,58 @@
 mod parse_store_hl_direct {
-    use nom::error::ErrorKind;
-
     use crate::parsers::data_transfer::{shld::parse_store_hl_direct, StoreHLDirect};
+    use crate::tests::parsers::{test_expects_error, test_expects_success};
+    use nom::{error::ErrorKind, IResult};
+
+    const TESTED_FUNCTION: &dyn Fn(&str) -> IResult<&str, StoreHLDirect> = &parse_store_hl_direct;
 
     #[test]
     fn test_valid_input() {
-        let input = "001000101111111111111111";
-        let expected = StoreHLDirect {
-            low_addr: 0b11111111,
-            high_addr: 0b11111111,
-        };
-
-        let result = parse_store_hl_direct(input);
-        assert!(result.is_ok());
-
-        let (input, output) = result.unwrap();
-        assert_eq!(input, "");
-        assert_eq!(output, expected);
+        test_expects_success(
+            "001000101111111111111111",
+            "",
+            StoreHLDirect {
+                low_addr: 0b11111111,
+                high_addr: 0b11111111,
+            },
+            TESTED_FUNCTION,
+        );
     }
 
     #[test]
     fn test_invalid_prefix() {
-        let input = "101000101111111111111111";
-
-        let result = parse_store_hl_direct(input);
-        assert!(result.is_err());
-
-        match result {
-            Err(nom::Err::Error(e)) => {
-                assert_eq!(e.code, ErrorKind::Tag);
-            }
-            _ => panic!("Expected Tag Error."),
-        }
+        test_expects_error("101000101111111111111111", ErrorKind::Tag, TESTED_FUNCTION);
     }
 
     #[test]
     fn test_incomplete_input() {
-        let input = "00100010";
-
-        let result = parse_store_hl_direct(input);
-        assert!(result.is_err());
-
-        match result {
-            Err(nom::Err::Error(e)) => {
-                assert_eq!(e.code, ErrorKind::Tag);
-            }
-            _ => panic!("Expected Tag Error."),
-        }
+        test_expects_error("00100010", ErrorKind::Tag, TESTED_FUNCTION);
     }
 
     #[test]
     fn test_excess_input() {
-        let input = "0010001011111111111111111";
-        let expected = StoreHLDirect {
-            low_addr: 0b11111111,
-            high_addr: 0b11111111,
-        };
-
-        let result = parse_store_hl_direct(input);
-        assert!(result.is_ok());
-
-        let (input, output) = result.unwrap();
-        assert_eq!(input, "1");
-        assert_eq!(output, expected);
+        test_expects_success(
+            "0010001011111111111111111",
+            "1",
+            StoreHLDirect {
+                low_addr: 0b11111111,
+                high_addr: 0b11111111,
+            },
+            TESTED_FUNCTION,
+        );
     }
 
     #[test]
     fn test_empty_input() {
-        let input = "";
-
-        let result = parse_store_hl_direct(input);
-        assert!(result.is_err());
-
-        match result {
-            Err(nom::Err::Error(e)) => {
-                assert_eq!(e.code, ErrorKind::Tag);
-            }
-            _ => panic!("Expected Tag Error."),
-        }
+        test_expects_error("", ErrorKind::Tag, TESTED_FUNCTION);
     }
 
     #[test]
     fn test_nonnumeric_input() {
-        let input = "0a1000101111111111111111";
-
-        let result = parse_store_hl_direct(input);
-        assert!(result.is_err());
-
-        match result {
-            Err(nom::Err::Error(e)) => {
-                assert_eq!(e.code, ErrorKind::Tag);
-            }
-            _ => panic!("Expected Tag Error."),
-        }
+        test_expects_error("0a1000101111111111111111", ErrorKind::Tag, TESTED_FUNCTION);
     }
 
     #[test]
     fn test_nonbinary_input() {
-        let input = "021000101111111111111111";
-
-        let result = parse_store_hl_direct(input);
-        assert!(result.is_err());
-
-        match result {
-            Err(nom::Err::Error(e)) => {
-                assert_eq!(e.code, ErrorKind::Tag);
-            }
-            _ => panic!("Expected Tag Error."),
-        }
+        test_expects_error("021000101111111111111111", ErrorKind::Tag, TESTED_FUNCTION);
     }
 }
