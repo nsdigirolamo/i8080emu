@@ -5,3 +5,4 @@ pub mod register_parsers;
 // Instruction Parsers
 pub mod arithmetic;
 pub mod data_transfer;
+pub mod logical;
