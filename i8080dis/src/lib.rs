@@ -1,8 +1,6 @@
 use parsers::data_transfer::mov::parse_move_register;
 
 pub mod parsers;
-#[cfg(test)]
-pub mod tests;
 
 pub fn disassemble_binary(filename: &str) {
     // let bytes: Vec<u8> = std::fs::read(filename).expect("File not found");
