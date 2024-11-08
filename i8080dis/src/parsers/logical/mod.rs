@@ -1,4 +1,4 @@
-use super::register_parsers::Register;
+use super::register::Register;
 
 pub mod ana;
 pub mod ani;

@@ -1,6 +1,6 @@
 use nom::{bytes::complete::tag, sequence::preceded, IResult};
 
-use crate::parsers::register_parsers::parse_register;
+use crate::parsers::register::parse_register;
 
 use super::{SubtractMemoryWithBorrow, SubtractRegisterWithBorrow};
 
@@ -23,7 +23,7 @@ mod tests {
     mod parse_subtract_register_with_borrow {
         use crate::parsers::{
             arithmetic::{sbb::parse_subtract_register_with_borrow, SubtractRegisterWithBorrow},
-            register_parsers::Register,
+            register::Register,
             test_expects_error, test_expects_success,
         };
         use nom::{error::ErrorKind, IResult};

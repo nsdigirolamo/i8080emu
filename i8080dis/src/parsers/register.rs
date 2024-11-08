@@ -99,7 +99,7 @@ pub fn parse_register_pair(input: &str) -> IResult<&str, RegisterPair> {
 mod tests {
     mod parse_register_a_tests {
         use crate::parsers::{
-            register_parsers::{parse_register_a, Register},
+            register::{parse_register_a, Register},
             test_expects_success,
         };
         use nom::IResult;
@@ -114,7 +114,7 @@ mod tests {
 
     mod parse_register_b_tests {
         use crate::parsers::{
-            register_parsers::{parse_register_b, Register},
+            register::{parse_register_b, Register},
             test_expects_success,
         };
         use nom::IResult;
@@ -129,7 +129,7 @@ mod tests {
 
     mod parse_register_c_tests {
         use crate::parsers::{
-            register_parsers::{parse_register_c, Register},
+            register::{parse_register_c, Register},
             test_expects_success,
         };
         use nom::IResult;
@@ -144,7 +144,7 @@ mod tests {
 
     mod parse_register_d_tests {
         use crate::parsers::{
-            register_parsers::{parse_register_d, Register},
+            register::{parse_register_d, Register},
             test_expects_success,
         };
         use nom::IResult;
@@ -159,7 +159,7 @@ mod tests {
 
     mod parse_register_e_tests {
         use crate::parsers::{
-            register_parsers::{parse_register_e, Register},
+            register::{parse_register_e, Register},
             test_expects_success,
         };
         use nom::IResult;
@@ -174,7 +174,7 @@ mod tests {
 
     mod parse_register_h_tests {
         use crate::parsers::{
-            register_parsers::{parse_register_h, Register},
+            register::{parse_register_h, Register},
             test_expects_success,
         };
         use nom::IResult;
@@ -189,7 +189,7 @@ mod tests {
 
     mod parse_register_l_tests {
         use crate::parsers::{
-            register_parsers::{parse_register_l, Register},
+            register::{parse_register_l, Register},
             test_expects_success,
         };
         use nom::IResult;
@@ -207,7 +207,7 @@ mod tests {
     // Register Pair Tests
     mod parse_register_pair_bc_tests {
         use crate::parsers::{
-            register_parsers::{parse_register_pair_bc, RegisterPair},
+            register::{parse_register_pair_bc, RegisterPair},
             test_expects_success,
         };
         use nom::IResult;
@@ -223,7 +223,7 @@ mod tests {
 
     mod parse_register_pair_de_tests {
         use crate::parsers::{
-            register_parsers::{parse_register_pair_de, RegisterPair},
+            register::{parse_register_pair_de, RegisterPair},
             test_expects_success,
         };
         use nom::IResult;
@@ -239,7 +239,7 @@ mod tests {
 
     mod parse_register_pair_hl_tests {
         use crate::parsers::{
-            register_parsers::{parse_register_pair_hl, RegisterPair},
+            register::{parse_register_pair_hl, RegisterPair},
             test_expects_success,
         };
         use nom::IResult;
@@ -255,7 +255,7 @@ mod tests {
 
     mod parse_register_pair_sp_tests {
         use crate::parsers::{
-            register_parsers::{parse_register_pair_sp, RegisterPair},
+            register::{parse_register_pair_sp, RegisterPair},
             test_expects_success,
         };
         use nom::IResult;

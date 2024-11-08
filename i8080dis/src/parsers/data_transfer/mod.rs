@@ -1,6 +1,4 @@
-#![allow(dead_code)]
-
-use super::register_parsers::{Register, RegisterPair};
+use super::register::{Register, RegisterPair};
 
 pub mod lda;
 pub mod ldax;

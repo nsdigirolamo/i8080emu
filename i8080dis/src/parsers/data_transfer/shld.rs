@@ -4,7 +4,7 @@ use nom::{
     IResult,
 };
 
-use crate::parsers::data_parsers::parse_byte;
+use crate::parsers::data::parse_byte;
 
 use super::StoreHLDirect;
 

@@ -1,6 +1,6 @@
 use nom::{bytes::complete::tag, sequence::delimited, IResult};
 
-use crate::parsers::register_parsers::parse_register_pair;
+use crate::parsers::register::parse_register_pair;
 
 use super::AddRegisterPairToHL;
 
@@ -17,7 +17,7 @@ mod tests {
 
         use crate::parsers::{
             arithmetic::{dad::parse_add_register_pair_to_hl, AddRegisterPairToHL},
-            register_parsers::RegisterPair,
+            register::RegisterPair,
             test_expects_error, test_expects_success,
         };
 

@@ -1,11 +1,13 @@
 use nom::{error::ErrorKind, IResult};
 
 // Misc Parsers
-pub mod data_parsers;
-pub mod register_parsers;
+pub mod condition;
+pub mod data;
+pub mod register;
 
 // Instruction Parsers
 pub mod arithmetic;
+pub mod branch;
 pub mod data_transfer;
 pub mod logical;
 

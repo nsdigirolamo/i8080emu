@@ -4,7 +4,7 @@ use nom::{
     IResult,
 };
 
-use crate::parsers::{data_parsers::parse_byte, register_parsers::parse_register};
+use crate::parsers::{data::parse_byte, register::parse_register};
 
 use super::{MoveImmediate, MoveToMemoryImmediate};
 
@@ -26,7 +26,7 @@ mod tests {
     mod parse_move_immediate {
         use crate::parsers::{
             data_transfer::{mvi::parse_move_immediate, MoveImmediate},
-            register_parsers::Register,
+            register::Register,
             test_expects_error, test_expects_success,
         };
         use nom::{error::ErrorKind, IResult};

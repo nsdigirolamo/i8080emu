@@ -4,7 +4,7 @@ use nom::{
     IResult,
 };
 
-use crate::parsers::register_parsers::parse_register;
+use crate::parsers::register::parse_register;
 
 use super::{MoveFromMemory, MoveRegister, MoveToMemory};
 
@@ -31,7 +31,7 @@ mod tests {
     mod parse_move_register {
         use crate::parsers::{
             data_transfer::{mov::parse_move_register, MoveRegister},
-            register_parsers::Register,
+            register::Register,
             test_expects_error, test_expects_success,
         };
         use nom::{error::ErrorKind, IResult};
@@ -93,7 +93,7 @@ mod tests {
     mod parse_move_from_memory {
         use crate::parsers::{
             data_transfer::{mov::parse_move_from_memory, MoveFromMemory},
-            register_parsers::Register,
+            register::Register,
             test_expects_error, test_expects_success,
         };
         use nom::{error::ErrorKind, IResult};
@@ -150,7 +150,7 @@ mod tests {
     mod parse_move_to_memory {
         use crate::parsers::{
             data_transfer::{mov::parse_move_to_memory, MoveToMemory},
-            register_parsers::Register,
+            register::Register,
             test_expects_error, test_expects_success,
         };
         use nom::{error::ErrorKind, IResult};

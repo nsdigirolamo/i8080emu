@@ -1,6 +1,6 @@
 use nom::{bytes::complete::tag, sequence::preceded, IResult};
 
-use crate::parsers::data_parsers::parse_byte;
+use crate::parsers::data::parse_byte;
 
 use super::SubtractImmediateWithBorrow;
 

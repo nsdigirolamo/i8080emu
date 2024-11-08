@@ -1,6 +1,6 @@
 use nom::{bytes::complete::tag, sequence::delimited, IResult};
 
-use crate::parsers::register_parsers::parse_register_pair;
+use crate::parsers::register::parse_register_pair;
 
 use super::DecrementRegisterPair;
 
@@ -15,7 +15,7 @@ mod tests {
     mod parse_decrement_register_pair {
         use crate::parsers::{
             arithmetic::{dcx::parse_decrement_register_pair, DecrementRegisterPair},
-            register_parsers::RegisterPair,
+            register::RegisterPair,
             test_expects_error, test_expects_success,
         };
         use nom::{error::ErrorKind, IResult};

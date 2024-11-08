@@ -17,12 +17,16 @@ pub fn parse_byte(input: &str) -> IResult<&str, u8> {
     map_res(count(parse_bit, 8), from_binary).parse(input)
 }
 
+pub fn parse_three_bits(input: &str) -> IResult<&str, u8> {
+    map_res(count(parse_bit, 3), from_binary).parse(input)
+}
+
 #[cfg(test)]
 mod tests {
     mod parse_bit_tests {
         use nom::{error::ErrorKind, IResult};
 
-        use crate::parsers::{data_parsers::parse_bit, test_expects_error, test_expects_success};
+        use crate::parsers::{data::parse_bit, test_expects_error, test_expects_success};
 
         const TESTED_FUNCTION: &dyn Fn(&str) -> IResult<&str, &str> = &parse_bit;
 
@@ -73,7 +77,7 @@ mod tests {
     }
 
     mod from_binary_tests {
-        use crate::parsers::data_parsers::from_binary;
+        use crate::parsers::data::from_binary;
 
         fn from_binary_success(input: Vec<&str>, expected_output: u8) {
             let result = from_binary(input);
@@ -144,7 +148,7 @@ mod tests {
     }
 
     mod parse_byte_tests {
-        use crate::parsers::data_parsers::parse_byte;
+        use crate::parsers::data::parse_byte;
         use crate::parsers::{test_expects_error, test_expects_success};
         use nom::error::ErrorKind;
         use nom::IResult;

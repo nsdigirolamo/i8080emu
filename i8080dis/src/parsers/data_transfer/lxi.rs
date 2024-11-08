@@ -4,7 +4,7 @@ use nom::{
     IResult,
 };
 
-use crate::parsers::{data_parsers::parse_byte, register_parsers::parse_register_pair};
+use crate::parsers::{data::parse_byte, register::parse_register_pair};
 
 use super::LoadRegisterPairImmediate;
 
@@ -27,7 +27,7 @@ mod tests {
     mod parse_load_hl_direct {
         use crate::parsers::{
             data_transfer::{lxi::parse_load_register_pair_immediate, LoadRegisterPairImmediate},
-            register_parsers::RegisterPair,
+            register::RegisterPair,
             test_expects_error, test_expects_success,
         };
         use nom::{error::ErrorKind, IResult};

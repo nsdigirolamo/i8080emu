@@ -1,6 +1,6 @@
 use nom::{bytes::complete::tag, sequence::delimited, IResult};
 
-use crate::parsers::register_parsers::parse_register;
+use crate::parsers::register::parse_register;
 
 use super::{DecrementMemory, DecrementRegister};
 
@@ -23,7 +23,7 @@ mod tests {
 
         use crate::parsers::{
             arithmetic::{dcr::parse_decrement_register, DecrementRegister},
-            register_parsers::Register,
+            register::Register,
             test_expects_error, test_expects_success,
         };
 

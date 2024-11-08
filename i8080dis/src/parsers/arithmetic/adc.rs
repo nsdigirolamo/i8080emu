@@ -1,6 +1,6 @@
 use nom::{bytes::complete::tag, sequence::preceded, IResult};
 
-use crate::parsers::register_parsers::parse_register;
+use crate::parsers::register::parse_register;
 
 use super::{AddMemoryWithCarry, AddRegisterWithCarry};
 
@@ -23,7 +23,7 @@ mod tests {
 
         use crate::parsers::{
             arithmetic::{adc::parse_add_register_with_carry, AddRegisterWithCarry},
-            register_parsers::Register,
+            register::Register,
             test_expects_error, test_expects_success,
         };
 

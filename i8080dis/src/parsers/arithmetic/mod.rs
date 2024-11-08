@@ -1,4 +1,4 @@
-use super::register_parsers::{Register, RegisterPair};
+use super::register::{Register, RegisterPair};
 
 pub mod aci;
 pub mod adc;
