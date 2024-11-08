@@ -8,6 +8,7 @@ pub mod register;
 // Instruction Parsers
 pub mod arithmetic;
 pub mod branch;
+pub mod control;
 pub mod data_transfer;
 pub mod logical;
 
