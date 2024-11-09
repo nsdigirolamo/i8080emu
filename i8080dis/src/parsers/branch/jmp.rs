@@ -8,6 +8,7 @@ use crate::parsers::data::parse_byte;
 
 use super::Branch;
 
+#[derive(Debug, PartialEq)]
 pub enum JMP {
     Jump { low_addr: u8, high_addr: u8 },
 }

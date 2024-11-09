@@ -11,6 +11,7 @@ pub mod rcondition;
 pub mod ret;
 pub mod rst;
 
+#[derive(Debug, PartialEq)]
 pub enum Branch {
     CALL(call::CALL),
     Ccondition(ccondition::Ccondition),

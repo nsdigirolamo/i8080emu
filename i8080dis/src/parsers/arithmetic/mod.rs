@@ -17,6 +17,7 @@ pub mod sbi;
 pub mod sub;
 pub mod sui;
 
+#[derive(Debug, PartialEq)]
 pub enum Arithmetic {
     ACI(aci::ACI),
     ADC(adc::ADC),

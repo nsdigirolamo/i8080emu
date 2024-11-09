@@ -2,6 +2,7 @@ use nom::{bytes::complete::tag, IResult};
 
 use super::Control;
 
+#[derive(Debug, PartialEq)]
 pub enum NOP {
     NoOp,
 }

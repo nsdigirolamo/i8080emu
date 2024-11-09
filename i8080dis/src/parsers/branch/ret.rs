@@ -2,6 +2,7 @@ use nom::{bytes::complete::tag, IResult};
 
 use super::Branch;
 
+#[derive(Debug, PartialEq)]
 pub enum RET {
     Return,
 }

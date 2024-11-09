@@ -1,5 +1,6 @@
 use nom::{branch::alt, bytes::complete::tag, IResult};
 
+#[derive(Debug, PartialEq)]
 pub enum Condition {
     NZ = 0b000,
     Z = 0b001,

@@ -1,4 +1,4 @@
-use nom::{branch::alt, error::ErrorKind, IResult};
+use nom::{branch::alt, error::ErrorKind, multi::many0, IResult};
 
 // Misc Parsers
 pub mod condition;
@@ -12,6 +12,7 @@ pub mod control;
 pub mod data_transfer;
 pub mod logical;
 
+#[derive(Debug, PartialEq)]
 pub enum Instruction {
     Arithmetic(arithmetic::Arithmetic),
     Branch(branch::Branch),
@@ -28,6 +29,10 @@ pub fn parse_instruction(input: &str) -> IResult<&str, Instruction> {
         data_transfer::parse_data_transfer,
         logical::parse_logical,
     ))(input)
+}
+
+pub fn parse_instructions(input: &str) -> IResult<&str, Vec<Instruction>> {
+    many0(parse_instruction)(input)
 }
 
 pub fn test_expects_success<T: PartialEq + std::fmt::Debug, U: PartialEq + std::fmt::Debug>(

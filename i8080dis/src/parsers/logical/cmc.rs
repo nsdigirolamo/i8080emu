@@ -2,6 +2,7 @@ use nom::{bytes::complete::tag, IResult};
 
 use super::Logical;
 
+#[derive(Debug, PartialEq)]
 pub enum CMC {
     ComplementCarry,
 }

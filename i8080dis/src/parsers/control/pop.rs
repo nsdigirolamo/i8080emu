@@ -1,9 +1,12 @@
 use nom::{branch::alt, bytes::complete::tag, sequence::delimited, IResult};
 
-use crate::parsers::register::{parse_register_pair_bc, parse_register_pair_de, parse_register_pair_hl, RegisterPair};
+use crate::parsers::register::{
+    parse_register_pair_bc, parse_register_pair_de, parse_register_pair_hl, RegisterPair,
+};
 
 use super::Control;
 
+#[derive(Debug, PartialEq)]
 pub enum POP {
     Pop { rp: RegisterPair },
     PopProcessorStatusWord,
@@ -23,7 +26,7 @@ fn parse_pop_instruction(input: &str) -> IResult<&str, POP> {
             parse_register_pair_de,
             parse_register_pair_hl,
         )),
-        tag("0001")
+        tag("0001"),
     )(input)?;
     let result = POP::Pop { rp };
     Ok((input, result))

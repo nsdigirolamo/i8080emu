@@ -11,6 +11,7 @@ use crate::parsers::{
 
 use super::Branch;
 
+#[derive(Debug, PartialEq)]
 pub enum Jcondition {
     ConditionalJump {
         condition: Condition,

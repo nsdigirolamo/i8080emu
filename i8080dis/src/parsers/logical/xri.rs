@@ -4,6 +4,7 @@ use crate::parsers::data::parse_byte;
 
 use super::Logical;
 
+#[derive(Debug, PartialEq)]
 pub enum XRI {
     ExclusiveORImmediate { data: u8 },
 }

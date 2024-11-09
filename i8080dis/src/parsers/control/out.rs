@@ -4,6 +4,7 @@ use crate::parsers::data::parse_byte;
 
 use super::Control;
 
+#[derive(Debug, PartialEq)]
 pub enum OUT {
     Output { port: u8 },
 }

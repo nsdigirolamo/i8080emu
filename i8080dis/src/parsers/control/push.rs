@@ -1,9 +1,12 @@
 use nom::{branch::alt, bytes::complete::tag, sequence::delimited, IResult};
 
-use crate::parsers::register::{parse_register_pair_bc, parse_register_pair_de, parse_register_pair_hl, RegisterPair};
+use crate::parsers::register::{
+    parse_register_pair_bc, parse_register_pair_de, parse_register_pair_hl, RegisterPair,
+};
 
 use super::Control;
 
+#[derive(Debug, PartialEq)]
 pub enum PUSH {
     Push { rp: RegisterPair },
     PushProcessorStatusWord,
@@ -23,7 +26,7 @@ fn parse_push_instruction(input: &str) -> IResult<&str, PUSH> {
             parse_register_pair_de,
             parse_register_pair_hl,
         )),
-        tag("0101")
+        tag("0101"),
     )(input)?;
     let result = PUSH::Push { rp };
     Ok((input, result))

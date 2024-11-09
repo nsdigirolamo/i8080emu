@@ -4,6 +4,7 @@ use crate::parsers::condition::{parse_condition, Condition};
 
 use super::Branch;
 
+#[derive(Debug, PartialEq)]
 pub enum Rcondition {
     ConditionalReturn { condition: Condition },
 }

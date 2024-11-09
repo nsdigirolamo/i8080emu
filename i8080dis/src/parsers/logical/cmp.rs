@@ -4,6 +4,7 @@ use crate::parsers::register::{parse_register, Register};
 
 use super::Logical;
 
+#[derive(Debug, PartialEq)]
 pub enum CMP {
     CompareRegister { r: Register },
     CompareMemory,

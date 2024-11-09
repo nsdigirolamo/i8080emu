@@ -4,6 +4,7 @@ use crate::parsers::data::parse_three_bits;
 
 use super::Branch;
 
+#[derive(Debug, PartialEq)]
 pub enum RST {
     Restart { n: u8 },
 }

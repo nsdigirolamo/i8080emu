@@ -13,6 +13,7 @@ pub mod push;
 pub mod sphl;
 pub mod xthl;
 
+#[derive(Debug, PartialEq)]
 pub enum Control {
     DI(di::DI),
     EI(ei::EI),

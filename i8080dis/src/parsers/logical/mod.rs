@@ -18,6 +18,7 @@ pub mod stc;
 pub mod xra;
 pub mod xri;
 
+#[derive(Debug, PartialEq)]
 pub enum Logical {
     ANA(ana::ANA),
     ANI(ani::ANI),
