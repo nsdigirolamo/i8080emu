@@ -22,7 +22,8 @@ pub enum LXI {
 
 pub fn parse_lxi(input: &str) -> IResult<&str, DataTransfer> {
     let (input, lxi) = parse_load_register_pair_immediate(input)?;
-    Ok((input, DataTransfer::LXI(lxi)))
+    let result = DataTransfer::LXI(lxi);
+    Ok((input, result))
 }
 
 fn parse_load_register_pair_immediate(input: &str) -> IResult<&str, LXI> {

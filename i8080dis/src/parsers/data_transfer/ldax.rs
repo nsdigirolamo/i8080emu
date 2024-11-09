@@ -11,7 +11,8 @@ pub enum LDAX {
 
 pub fn parse_ldax(input: &str) -> IResult<&str, DataTransfer> {
     let (input, ldax) = parse_load_accumulator_indirect(input)?;
-    Ok((input, DataTransfer::LDAX(ldax)))
+    let result = DataTransfer::LDAX(ldax);
+    Ok((input, result))
 }
 
 fn parse_load_accumulator_indirect(input: &str) -> IResult<&str, LDAX> {

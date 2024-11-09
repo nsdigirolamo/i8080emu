@@ -15,7 +15,8 @@ pub enum LDA {
 
 pub fn parse_lda(input: &str) -> IResult<&str, DataTransfer> {
     let (input, lda) = parse_load_accumulator_direct(input)?;
-    Ok((input, DataTransfer::LDA(lda)))
+    let result = DataTransfer::LDA(lda);
+    Ok((input, result))
 }
 
 fn parse_load_accumulator_direct(input: &str) -> IResult<&str, LDA> {

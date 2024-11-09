@@ -11,7 +11,8 @@ pub enum STAX {
 
 pub fn parse_stax(input: &str) -> IResult<&str, DataTransfer> {
     let (input, stax) = parse_store_accumulator_indirect(input)?;
-    Ok((input, DataTransfer::STAX(stax)))
+    let result = DataTransfer::STAX(stax);
+    Ok((input, result))
 }
 
 fn parse_store_accumulator_indirect(input: &str) -> IResult<&str, STAX> {

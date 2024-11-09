@@ -15,7 +15,8 @@ pub enum STA {
 
 pub fn parse_sta(input: &str) -> IResult<&str, DataTransfer> {
     let (input, sta) = parse_store_accumulator_direct(input)?;
-    Ok((input, DataTransfer::STA(sta)))
+    let result = DataTransfer::STA(sta);
+    Ok((input, result))
 }
 
 fn parse_store_accumulator_direct(input: &str) -> IResult<&str, STA> {

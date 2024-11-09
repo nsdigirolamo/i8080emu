@@ -15,7 +15,8 @@ pub enum LHLD {
 
 pub fn parse_lhld(input: &str) -> IResult<&str, DataTransfer> {
     let (input, lhld) = parse_load_hl_direct(input)?;
-    Ok((input, DataTransfer::LHLD(lhld)))
+    let result = DataTransfer::LHLD(lhld);
+    Ok((input, result))
 }
 
 fn parse_load_hl_direct(input: &str) -> IResult<&str, LHLD> {

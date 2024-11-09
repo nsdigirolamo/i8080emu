@@ -9,7 +9,8 @@ pub enum XCHG {
 
 pub fn parse_xchg(input: &str) -> IResult<&str, DataTransfer> {
     let (input, xchg) = parse_exchange_hl_to_de(input)?;
-    Ok((input, DataTransfer::XCHG(xchg)))
+    let result = DataTransfer::XCHG(xchg);
+    Ok((input, result))
 }
 
 pub fn parse_exchange_hl_to_de(input: &str) -> IResult<&str, XCHG> {

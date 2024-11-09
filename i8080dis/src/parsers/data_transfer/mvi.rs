@@ -20,7 +20,8 @@ pub enum MVI {
 
 pub fn parse_mvi(input: &str) -> IResult<&str, DataTransfer> {
     let (input, mvi) = alt((parse_move_immediate, parse_move_to_memory_immediate))(input)?;
-    Ok((input, DataTransfer::MVI(mvi)))
+    let result = DataTransfer::MVI(mvi);
+    Ok((input, result))
 }
 
 fn parse_move_immediate(input: &str) -> IResult<&str, MVI> {

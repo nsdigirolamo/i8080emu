@@ -22,7 +22,8 @@ pub fn parse_mov(input: &str) -> IResult<&str, DataTransfer> {
         parse_move_from_memory,
         parse_move_to_memory,
     ))(input)?;
-    Ok((input, DataTransfer::MOV(mov)))
+    let result = DataTransfer::MOV(mov);
+    Ok((input, result))
 }
 
 fn parse_move_register(input: &str) -> IResult<&str, MOV> {
