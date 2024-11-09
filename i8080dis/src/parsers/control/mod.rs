@@ -1,4 +1,4 @@
-use super::register::RegisterPair;
+use nom::{branch::alt, IResult};
 
 pub mod di;
 pub mod ei;
@@ -11,34 +11,30 @@ pub mod push;
 pub mod sphl;
 pub mod xthl;
 
-pub struct Push {
-    pub rp: RegisterPair,
+pub enum Control {
+    DI(di::DI),
+    EI(ei::EI),
+    HLT(hlt::HLT),
+    IN(input::IN),
+    NOP(nop::NOP),
+    OUT(out::OUT),
+    POP(pop::POP),
+    PUSH(push::PUSH),
+    SPHL(sphl::SPHL),
+    XTHL(xthl::XTHL),
 }
 
-pub struct PushProcessorStatusWord {}
-
-pub struct Pop {
-    pub rp: RegisterPair,
+pub fn parse_control(input: &str) -> IResult<&str, Control> {
+    alt((
+        di::parse_di,
+        ei::parse_ei,
+        hlt::parse_hlt,
+        input::parse_in,
+        nop::parse_nop,
+        out::parse_out,
+        pop::parse_pop,
+        push::parse_push,
+        sphl::parse_sphl,
+        xthl::parse_xthl,
+    ))(input)
 }
-
-pub struct PopProcessorStatusWord {}
-
-pub struct ExchangeStackTopWithHL {}
-
-pub struct MoveHLtoSP {}
-
-pub struct Input {
-    pub port: u8,
-}
-
-pub struct Output {
-    pub port: u8,
-}
-
-pub struct EnableInterrupts {}
-
-pub struct DisableInterrupts {}
-
-pub struct Halt {}
-
-pub struct NoOp {}
