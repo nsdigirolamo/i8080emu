@@ -1,6 +1,6 @@
 use nom::{branch::alt, bytes::complete::tag, sequence::delimited, IResult};
 
-use crate::parsers::register::{parse_register_pair, RegisterPair};
+use crate::parsers::register::{parse_register_pair_bc, parse_register_pair_de, parse_register_pair_hl, RegisterPair};
 
 use super::Control;
 
@@ -16,7 +16,15 @@ pub fn parse_push(input: &str) -> IResult<&str, Control> {
 }
 
 fn parse_push_instruction(input: &str) -> IResult<&str, PUSH> {
-    let (input, rp) = delimited(tag("11"), parse_register_pair, tag("0101"))(input)?;
+    let (input, rp) = delimited(
+        tag("11"),
+        alt((
+            parse_register_pair_bc,
+            parse_register_pair_de,
+            parse_register_pair_hl,
+        )),
+        tag("0101")
+    )(input)?;
     let result = PUSH::Push { rp };
     Ok((input, result))
 }
