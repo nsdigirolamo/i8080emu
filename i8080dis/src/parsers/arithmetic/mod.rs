@@ -1,5 +1,7 @@
 use nom::{branch::alt, IResult};
 
+use super::Instruction;
+
 pub mod aci;
 pub mod adc;
 pub mod add;
@@ -32,8 +34,8 @@ pub enum Arithmetic {
     SUI(sui::SUI),
 }
 
-pub fn parse_arithmetic(input: &str) -> IResult<&str, Arithmetic> {
-    alt((
+pub fn parse_arithmetic(input: &str) -> IResult<&str, Instruction> {
+    let (input, arithmetic) = alt((
         aci::parse_aci,
         adc::parse_adc,
         add::parse_add,
@@ -48,5 +50,7 @@ pub fn parse_arithmetic(input: &str) -> IResult<&str, Arithmetic> {
         sbi::parse_sbi,
         sub::parse_sub,
         sui::parse_sui,
-    ))(input)
+    ))(input)?;
+    let result = Instruction::Arithmetic(arithmetic);
+    Ok((input, result))
 }

@@ -1,5 +1,7 @@
 use nom::{branch::alt, IResult};
 
+use super::Instruction;
+
 pub mod call;
 pub mod ccondition;
 pub mod jcondition;
@@ -20,8 +22,8 @@ pub enum Branch {
     RST(rst::RST),
 }
 
-pub fn parse_branch(input: &str) -> IResult<&str, Branch> {
-    alt((
+pub fn parse_branch(input: &str) -> IResult<&str, Instruction> {
+    let (input, branch) = alt((
         call::parse_call,
         ccondition::parse_ccondition,
         jcondition::parse_jcondition,
@@ -30,5 +32,7 @@ pub fn parse_branch(input: &str) -> IResult<&str, Branch> {
         rcondition::parse_rcondition,
         ret::parse_ret,
         rst::parse_rst,
-    ))(input)
+    ))(input)?;
+    let result = Instruction::Branch(branch);
+    Ok((input, result))
 }

@@ -1,5 +1,7 @@
 use nom::{branch::alt, IResult};
 
+use super::Instruction;
+
 mod lda;
 mod ldax;
 mod lhld;
@@ -25,8 +27,8 @@ pub enum DataTransfer {
     XCHG(xchg::XCHG),
 }
 
-pub fn parse_data_transfer(input: &str) -> IResult<&str, DataTransfer> {
-    alt((
+pub fn parse_data_transfer(input: &str) -> IResult<&str, Instruction> {
+    let (input, data_transfer) = alt((
         lda::parse_lda,
         ldax::parse_ldax,
         lhld::parse_lhld,
@@ -37,5 +39,7 @@ pub fn parse_data_transfer(input: &str) -> IResult<&str, DataTransfer> {
         sta::parse_sta,
         stax::parse_stax,
         xchg::parse_xchg,
-    ))(input)
+    ))(input)?;
+    let result = Instruction::DataTransfer(data_transfer);
+    Ok((input, result))
 }

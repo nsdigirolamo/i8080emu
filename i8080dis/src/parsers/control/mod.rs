@@ -1,5 +1,7 @@
 use nom::{branch::alt, IResult};
 
+use super::Instruction;
+
 pub mod di;
 pub mod ei;
 pub mod hlt;
@@ -24,8 +26,8 @@ pub enum Control {
     XTHL(xthl::XTHL),
 }
 
-pub fn parse_control(input: &str) -> IResult<&str, Control> {
-    alt((
+pub fn parse_control(input: &str) -> IResult<&str, Instruction> {
+    let (input, control) = alt((
         di::parse_di,
         ei::parse_ei,
         hlt::parse_hlt,
@@ -36,5 +38,7 @@ pub fn parse_control(input: &str) -> IResult<&str, Control> {
         push::parse_push,
         sphl::parse_sphl,
         xthl::parse_xthl,
-    ))(input)
+    ))(input)?;
+    let result = Instruction::Control(control);
+    Ok((input, result))
 }
