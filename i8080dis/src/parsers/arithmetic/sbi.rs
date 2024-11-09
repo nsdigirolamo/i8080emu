@@ -2,13 +2,22 @@ use nom::{bytes::complete::tag, sequence::preceded, IResult};
 
 use crate::parsers::data::parse_byte;
 
-use super::SubtractImmediateWithBorrow;
+use super::Arithmetic;
 
-pub fn parse_subtract_immediate_with_borrow(
-    input: &str,
-) -> IResult<&str, SubtractImmediateWithBorrow> {
+#[derive(Debug, PartialEq)]
+pub enum SBI {
+    SubtractImmediateWithBorrow { data: u8 },
+}
+
+pub fn parse_sbi(input: &str) -> IResult<&str, Arithmetic> {
+    let (input, sbi) = parse_subtract_immediate_with_borrow(input)?;
+    let result = Arithmetic::SBI(sbi);
+    Ok((input, result))
+}
+
+fn parse_subtract_immediate_with_borrow(input: &str) -> IResult<&str, SBI> {
     let (input, data) = preceded(tag("11011110"), parse_byte)(input)?;
-    let result = SubtractImmediateWithBorrow { data };
+    let result = SBI::SubtractImmediateWithBorrow { data };
     Ok((input, result))
 }
 
@@ -16,12 +25,12 @@ pub fn parse_subtract_immediate_with_borrow(
 mod tests {
     mod parse_subtract_immediate_with_borrow {
         use crate::parsers::{
-            arithmetic::{sbi::parse_subtract_immediate_with_borrow, SubtractImmediateWithBorrow},
+            arithmetic::sbi::{parse_subtract_immediate_with_borrow, SBI},
             test_expects_error, test_expects_success,
         };
         use nom::{error::ErrorKind, IResult};
 
-        const TESTED_FUNCTION: &dyn Fn(&str) -> IResult<&str, SubtractImmediateWithBorrow> =
+        const TESTED_FUNCTION: &dyn Fn(&str) -> IResult<&str, SBI> =
             &parse_subtract_immediate_with_borrow;
 
         #[test]
@@ -29,7 +38,7 @@ mod tests {
             test_expects_success(
                 "1101111001010101",
                 "",
-                SubtractImmediateWithBorrow { data: 0b01010101 },
+                SBI::SubtractImmediateWithBorrow { data: 0b01010101 },
                 TESTED_FUNCTION,
             );
         }
@@ -39,7 +48,7 @@ mod tests {
             test_expects_success(
                 "1101111000000000",
                 "",
-                SubtractImmediateWithBorrow { data: 0b00000000 },
+                SBI::SubtractImmediateWithBorrow { data: 0b00000000 },
                 TESTED_FUNCTION,
             );
         }
@@ -49,7 +58,7 @@ mod tests {
             test_expects_success(
                 "1101111011111111",
                 "",
-                SubtractImmediateWithBorrow { data: 0b11111111 },
+                SBI::SubtractImmediateWithBorrow { data: 0b11111111 },
                 TESTED_FUNCTION,
             );
         }
@@ -74,7 +83,7 @@ mod tests {
             test_expects_success(
                 "11011110010101011",
                 "1",
-                SubtractImmediateWithBorrow { data: 0b01010101 },
+                SBI::SubtractImmediateWithBorrow { data: 0b01010101 },
                 TESTED_FUNCTION,
             );
         }

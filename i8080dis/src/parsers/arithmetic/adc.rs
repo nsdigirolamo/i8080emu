@@ -1,18 +1,30 @@
-use nom::{bytes::complete::tag, sequence::preceded, IResult};
+use nom::{branch::alt, bytes::complete::tag, sequence::preceded, IResult};
 
-use crate::parsers::register::parse_register;
+use crate::parsers::register::{parse_register, Register};
 
-use super::{AddMemoryWithCarry, AddRegisterWithCarry};
+use super::Arithmetic;
 
-pub fn parse_add_register_with_carry(input: &str) -> IResult<&str, AddRegisterWithCarry> {
-    let (input, r) = preceded(tag("10001"), parse_register)(input)?;
-    let result = AddRegisterWithCarry { r };
+#[derive(Debug, PartialEq)]
+pub enum ADC {
+    AddRegisterWithCarry { r: Register },
+    AddMemoryWithCarry,
+}
+
+pub fn parse_adc(input: &str) -> IResult<&str, Arithmetic> {
+    let (input, adc) = alt((parse_add_register_with_carry, parse_add_memory_with_carry))(input)?;
+    let result = Arithmetic::ADC(adc);
     Ok((input, result))
 }
 
-pub fn parse_add_memory_with_carry(input: &str) -> IResult<&str, AddMemoryWithCarry> {
+fn parse_add_register_with_carry(input: &str) -> IResult<&str, ADC> {
+    let (input, r) = preceded(tag("10001"), parse_register)(input)?;
+    let result = ADC::AddRegisterWithCarry { r };
+    Ok((input, result))
+}
+
+fn parse_add_memory_with_carry(input: &str) -> IResult<&str, ADC> {
     let (input, _) = tag("10001110")(input)?;
-    let result = AddMemoryWithCarry {};
+    let result = ADC::AddMemoryWithCarry;
     Ok((input, result))
 }
 
@@ -22,20 +34,19 @@ mod tests {
         use nom::{error::ErrorKind, IResult};
 
         use crate::parsers::{
-            arithmetic::{adc::parse_add_register_with_carry, AddRegisterWithCarry},
+            arithmetic::adc::{parse_add_register_with_carry, ADC},
             register::Register,
             test_expects_error, test_expects_success,
         };
 
-        const TESTED_FUNCTION: &dyn Fn(&str) -> IResult<&str, AddRegisterWithCarry> =
-            &parse_add_register_with_carry;
+        const TESTED_FUNCTION: &dyn Fn(&str) -> IResult<&str, ADC> = &parse_add_register_with_carry;
 
         #[test]
         fn test_valid_input() {
             test_expects_success(
                 "10001111",
                 "",
-                AddRegisterWithCarry { r: Register::A },
+                ADC::AddRegisterWithCarry { r: Register::A },
                 TESTED_FUNCTION,
             );
         }
@@ -55,7 +66,7 @@ mod tests {
             test_expects_success(
                 "100011111",
                 "1",
-                AddRegisterWithCarry { r: Register::A },
+                ADC::AddRegisterWithCarry { r: Register::A },
                 TESTED_FUNCTION,
             );
         }
@@ -80,16 +91,15 @@ mod tests {
         use nom::{error::ErrorKind, IResult};
 
         use crate::parsers::{
-            arithmetic::{adc::parse_add_memory_with_carry, AddMemoryWithCarry},
+            arithmetic::adc::{parse_add_memory_with_carry, ADC},
             test_expects_error, test_expects_success,
         };
 
-        const TESTED_FUNCTION: &dyn Fn(&str) -> IResult<&str, AddMemoryWithCarry> =
-            &parse_add_memory_with_carry;
+        const TESTED_FUNCTION: &dyn Fn(&str) -> IResult<&str, ADC> = &parse_add_memory_with_carry;
 
         #[test]
         fn test_valid_input() {
-            test_expects_success("10001110", "", AddMemoryWithCarry {}, TESTED_FUNCTION);
+            test_expects_success("10001110", "", ADC::AddMemoryWithCarry, TESTED_FUNCTION);
         }
 
         #[test]
@@ -104,7 +114,7 @@ mod tests {
 
         #[test]
         fn test_excess_input() {
-            test_expects_success("100011101", "1", AddMemoryWithCarry {}, TESTED_FUNCTION);
+            test_expects_success("100011101", "1", ADC::AddMemoryWithCarry, TESTED_FUNCTION);
         }
 
         #[test]

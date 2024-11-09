@@ -1,12 +1,23 @@
 use nom::{bytes::complete::tag, sequence::delimited, IResult};
 
-use crate::parsers::register::parse_register_pair;
+use crate::parsers::register::{parse_register_pair, RegisterPair};
 
-use super::IncrementRegisterPair;
+use super::Arithmetic;
 
-pub fn parse_increment_register_pair(input: &str) -> IResult<&str, IncrementRegisterPair> {
+#[derive(Debug, PartialEq)]
+pub enum INX {
+    IncrementRegisterPair { rp: RegisterPair },
+}
+
+pub fn parse_inx(input: &str) -> IResult<&str, Arithmetic> {
+    let (input, inx) = parse_increment_register_pair(input)?;
+    let result = Arithmetic::INX(inx);
+    Ok((input, result))
+}
+
+fn parse_increment_register_pair(input: &str) -> IResult<&str, INX> {
     let (input, rp) = delimited(tag("00"), parse_register_pair, tag("0011"))(input)?;
-    let result = IncrementRegisterPair { rp };
+    let result = INX::IncrementRegisterPair { rp };
     Ok((input, result))
 }
 
@@ -14,21 +25,20 @@ pub fn parse_increment_register_pair(input: &str) -> IResult<&str, IncrementRegi
 mod tests {
     mod parse_increment_register_pair {
         use crate::parsers::{
-            arithmetic::{inx::parse_increment_register_pair, IncrementRegisterPair},
+            arithmetic::inx::{parse_increment_register_pair, INX},
             register::RegisterPair,
             test_expects_error, test_expects_success,
         };
         use nom::{error::ErrorKind, IResult};
 
-        const TESTED_FUNCTION: &dyn Fn(&str) -> IResult<&str, IncrementRegisterPair> =
-            &parse_increment_register_pair;
+        const TESTED_FUNCTION: &dyn Fn(&str) -> IResult<&str, INX> = &parse_increment_register_pair;
 
         #[test]
         fn test_valid_input_bc() {
             test_expects_success(
                 "00000011",
                 "",
-                IncrementRegisterPair {
+                INX::IncrementRegisterPair {
                     rp: RegisterPair::BC,
                 },
                 TESTED_FUNCTION,
@@ -40,7 +50,7 @@ mod tests {
             test_expects_success(
                 "00010011",
                 "",
-                IncrementRegisterPair {
+                INX::IncrementRegisterPair {
                     rp: RegisterPair::DE,
                 },
                 TESTED_FUNCTION,
@@ -52,7 +62,7 @@ mod tests {
             test_expects_success(
                 "00100011",
                 "",
-                IncrementRegisterPair {
+                INX::IncrementRegisterPair {
                     rp: RegisterPair::HL,
                 },
                 TESTED_FUNCTION,
@@ -64,7 +74,7 @@ mod tests {
             test_expects_success(
                 "00110011",
                 "",
-                IncrementRegisterPair {
+                INX::IncrementRegisterPair {
                     rp: RegisterPair::SP,
                 },
                 TESTED_FUNCTION,
@@ -101,7 +111,7 @@ mod tests {
             test_expects_success(
                 "000000111",
                 "1",
-                IncrementRegisterPair {
+                INX::IncrementRegisterPair {
                     rp: RegisterPair::BC,
                 },
                 TESTED_FUNCTION,

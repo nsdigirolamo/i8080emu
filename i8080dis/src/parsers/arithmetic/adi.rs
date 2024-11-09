@@ -2,11 +2,22 @@ use nom::{bytes::complete::tag, sequence::preceded, IResult};
 
 use crate::parsers::data::parse_byte;
 
-use super::AddImmediate;
+use super::Arithmetic;
 
-pub fn parse_add_immediate(input: &str) -> IResult<&str, AddImmediate> {
+#[derive(Debug, PartialEq)]
+pub enum ADI {
+    AddImmediate { data: u8 },
+}
+
+pub fn parse_adi(input: &str) -> IResult<&str, Arithmetic> {
+    let (input, adi) = parse_add_immediate(input)?;
+    let result = Arithmetic::ADI(adi);
+    Ok((input, result))
+}
+
+fn parse_add_immediate(input: &str) -> IResult<&str, ADI> {
     let (input, data) = preceded(tag("11000110"), parse_byte)(input)?;
-    let result = AddImmediate { data };
+    let result = ADI::AddImmediate { data };
     Ok((input, result))
 }
 
@@ -16,18 +27,18 @@ mod tests {
         use nom::{error::ErrorKind, IResult};
 
         use crate::parsers::{
-            arithmetic::{adi::parse_add_immediate, AddImmediate},
+            arithmetic::adi::{parse_add_immediate, ADI},
             test_expects_error, test_expects_success,
         };
 
-        const TESTED_FUNCTION: &dyn Fn(&str) -> IResult<&str, AddImmediate> = &parse_add_immediate;
+        const TESTED_FUNCTION: &dyn Fn(&str) -> IResult<&str, ADI> = &parse_add_immediate;
 
         #[test]
         fn test_valid_input() {
             test_expects_success(
                 "1100011011111111",
                 "",
-                AddImmediate { data: 0b11111111 },
+                ADI::AddImmediate { data: 0b11111111 },
                 TESTED_FUNCTION,
             );
         }
@@ -37,7 +48,7 @@ mod tests {
             test_expects_success(
                 "1100011000000000",
                 "",
-                AddImmediate { data: 0b00000000 },
+                ADI::AddImmediate { data: 0b00000000 },
                 TESTED_FUNCTION,
             );
         }
@@ -62,7 +73,7 @@ mod tests {
             test_expects_success(
                 "11000110111111111",
                 "1",
-                AddImmediate { data: 0b11111111 },
+                ADI::AddImmediate { data: 0b11111111 },
                 TESTED_FUNCTION,
             );
         }
@@ -87,7 +98,7 @@ mod tests {
             test_expects_success(
                 "1100011010101010",
                 "",
-                AddImmediate { data: 0b10101010 },
+                ADI::AddImmediate { data: 0b10101010 },
                 TESTED_FUNCTION,
             );
         }

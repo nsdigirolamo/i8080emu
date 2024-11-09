@@ -1,12 +1,23 @@
 use nom::{bytes::complete::tag, sequence::delimited, IResult};
 
-use crate::parsers::register::parse_register_pair;
+use crate::parsers::register::{parse_register_pair, RegisterPair};
 
-use super::DecrementRegisterPair;
+use super::Arithmetic;
 
-pub fn parse_decrement_register_pair(input: &str) -> IResult<&str, DecrementRegisterPair> {
+#[derive(Debug, PartialEq)]
+pub enum DCX {
+    DecrementRegisterPair { rp: RegisterPair },
+}
+
+pub fn parse_dcx(input: &str) -> IResult<&str, Arithmetic> {
+    let (input, dcx) = parse_decrement_register_pair(input)?;
+    let result = Arithmetic::DCX(dcx);
+    Ok((input, result))
+}
+
+fn parse_decrement_register_pair(input: &str) -> IResult<&str, DCX> {
     let (input, rp) = delimited(tag("00"), parse_register_pair, tag("1011"))(input)?;
-    let result = DecrementRegisterPair { rp };
+    let result = DCX::DecrementRegisterPair { rp };
     Ok((input, result))
 }
 
@@ -14,21 +25,20 @@ pub fn parse_decrement_register_pair(input: &str) -> IResult<&str, DecrementRegi
 mod tests {
     mod parse_decrement_register_pair {
         use crate::parsers::{
-            arithmetic::{dcx::parse_decrement_register_pair, DecrementRegisterPair},
+            arithmetic::dcx::{parse_decrement_register_pair, DCX},
             register::RegisterPair,
             test_expects_error, test_expects_success,
         };
         use nom::{error::ErrorKind, IResult};
 
-        const TESTED_FUNCTION: &dyn Fn(&str) -> IResult<&str, DecrementRegisterPair> =
-            &parse_decrement_register_pair;
+        const TESTED_FUNCTION: &dyn Fn(&str) -> IResult<&str, DCX> = &parse_decrement_register_pair;
 
         #[test]
         fn test_valid_input_bc() {
             test_expects_success(
                 "00001011",
                 "",
-                DecrementRegisterPair {
+                DCX::DecrementRegisterPair {
                     rp: RegisterPair::BC,
                 },
                 TESTED_FUNCTION,
@@ -40,7 +50,7 @@ mod tests {
             test_expects_success(
                 "00011011",
                 "",
-                DecrementRegisterPair {
+                DCX::DecrementRegisterPair {
                     rp: RegisterPair::DE,
                 },
                 TESTED_FUNCTION,
@@ -52,7 +62,7 @@ mod tests {
             test_expects_success(
                 "00101011",
                 "",
-                DecrementRegisterPair {
+                DCX::DecrementRegisterPair {
                     rp: RegisterPair::HL,
                 },
                 TESTED_FUNCTION,
@@ -64,7 +74,7 @@ mod tests {
             test_expects_success(
                 "00111011",
                 "",
-                DecrementRegisterPair {
+                DCX::DecrementRegisterPair {
                     rp: RegisterPair::SP,
                 },
                 TESTED_FUNCTION,
@@ -101,7 +111,7 @@ mod tests {
             test_expects_success(
                 "000010111",
                 "1",
-                DecrementRegisterPair {
+                DCX::DecrementRegisterPair {
                     rp: RegisterPair::BC,
                 },
                 TESTED_FUNCTION,

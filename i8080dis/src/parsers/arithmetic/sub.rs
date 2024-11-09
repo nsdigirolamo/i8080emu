@@ -1,18 +1,30 @@
-use nom::{bytes::complete::tag, sequence::preceded, IResult};
+use nom::{branch::alt, bytes::complete::tag, sequence::preceded, IResult};
 
-use crate::parsers::register::parse_register;
+use crate::parsers::register::{parse_register, Register};
 
-use super::{SubtractMemory, SubtractRegister};
+use super::Arithmetic;
 
-pub fn parse_subtract_register(input: &str) -> IResult<&str, SubtractRegister> {
-    let (input, r) = preceded(tag("10010"), parse_register)(input)?;
-    let result = SubtractRegister { r };
+#[derive(Debug, PartialEq)]
+pub enum SUB {
+    SubtractRegister { r: Register },
+    SubtractMemory,
+}
+
+pub fn parse_sub(input: &str) -> IResult<&str, Arithmetic> {
+    let (input, sub) = alt((parse_subtract_register, parse_subtract_memory))(input)?;
+    let result = Arithmetic::SUB(sub);
     Ok((input, result))
 }
 
-pub fn parse_subtract_memory(input: &str) -> IResult<&str, SubtractMemory> {
+pub fn parse_subtract_register(input: &str) -> IResult<&str, SUB> {
+    let (input, r) = preceded(tag("10010"), parse_register)(input)?;
+    let result = SUB::SubtractRegister { r };
+    Ok((input, result))
+}
+
+pub fn parse_subtract_memory(input: &str) -> IResult<&str, SUB> {
     let (input, _) = tag("10010110")(input)?;
-    let result = SubtractMemory {};
+    let result = SUB::SubtractMemory;
     Ok((input, result))
 }
 
@@ -20,21 +32,20 @@ pub fn parse_subtract_memory(input: &str) -> IResult<&str, SubtractMemory> {
 mod tests {
     mod parse_subtract_register {
         use crate::parsers::{
-            arithmetic::{sub::parse_subtract_register, SubtractRegister},
+            arithmetic::sub::{parse_subtract_register, SUB},
             register::Register,
             test_expects_error, test_expects_success,
         };
         use nom::{error::ErrorKind, IResult};
 
-        const TESTED_FUNCTION: &dyn Fn(&str) -> IResult<&str, SubtractRegister> =
-            &parse_subtract_register;
+        const TESTED_FUNCTION: &dyn Fn(&str) -> IResult<&str, SUB> = &parse_subtract_register;
 
         #[test]
         fn test_valid_input_b() {
             test_expects_success(
                 "10010000",
                 "",
-                SubtractRegister { r: Register::B },
+                SUB::SubtractRegister { r: Register::B },
                 TESTED_FUNCTION,
             );
         }
@@ -44,7 +55,7 @@ mod tests {
             test_expects_success(
                 "10010001",
                 "",
-                SubtractRegister { r: Register::C },
+                SUB::SubtractRegister { r: Register::C },
                 TESTED_FUNCTION,
             );
         }
@@ -54,7 +65,7 @@ mod tests {
             test_expects_success(
                 "10010010",
                 "",
-                SubtractRegister { r: Register::D },
+                SUB::SubtractRegister { r: Register::D },
                 TESTED_FUNCTION,
             );
         }
@@ -64,7 +75,7 @@ mod tests {
             test_expects_success(
                 "10010011",
                 "",
-                SubtractRegister { r: Register::E },
+                SUB::SubtractRegister { r: Register::E },
                 TESTED_FUNCTION,
             );
         }
@@ -74,7 +85,7 @@ mod tests {
             test_expects_success(
                 "10010100",
                 "",
-                SubtractRegister { r: Register::H },
+                SUB::SubtractRegister { r: Register::H },
                 TESTED_FUNCTION,
             );
         }
@@ -84,7 +95,7 @@ mod tests {
             test_expects_success(
                 "10010101",
                 "",
-                SubtractRegister { r: Register::L },
+                SUB::SubtractRegister { r: Register::L },
                 TESTED_FUNCTION,
             );
         }
@@ -94,7 +105,7 @@ mod tests {
             test_expects_success(
                 "10010111",
                 "",
-                SubtractRegister { r: Register::A },
+                SUB::SubtractRegister { r: Register::A },
                 TESTED_FUNCTION,
             );
         }
@@ -114,7 +125,7 @@ mod tests {
             test_expects_success(
                 "100100001",
                 "1",
-                SubtractRegister { r: Register::B },
+                SUB::SubtractRegister { r: Register::B },
                 TESTED_FUNCTION,
             );
         }
@@ -137,17 +148,16 @@ mod tests {
 
     mod parse_subtract_memory {
         use crate::parsers::{
-            arithmetic::{sub::parse_subtract_memory, SubtractMemory},
+            arithmetic::sub::{parse_subtract_memory, SUB},
             test_expects_error, test_expects_success,
         };
         use nom::{error::ErrorKind, IResult};
 
-        const TESTED_FUNCTION: &dyn Fn(&str) -> IResult<&str, SubtractMemory> =
-            &parse_subtract_memory;
+        const TESTED_FUNCTION: &dyn Fn(&str) -> IResult<&str, SUB> = &parse_subtract_memory;
 
         #[test]
         fn test_valid_input() {
-            test_expects_success("10010110", "", SubtractMemory {}, TESTED_FUNCTION);
+            test_expects_success("10010110", "", SUB::SubtractMemory, TESTED_FUNCTION);
         }
 
         #[test]
@@ -162,7 +172,7 @@ mod tests {
 
         #[test]
         fn test_excess_input() {
-            test_expects_success("100101101", "1", SubtractMemory {}, TESTED_FUNCTION);
+            test_expects_success("100101101", "1", SUB::SubtractMemory, TESTED_FUNCTION);
         }
 
         #[test]

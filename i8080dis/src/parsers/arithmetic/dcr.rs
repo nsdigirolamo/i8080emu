@@ -1,18 +1,30 @@
-use nom::{bytes::complete::tag, sequence::delimited, IResult};
+use nom::{branch::alt, bytes::complete::tag, sequence::delimited, IResult};
 
-use crate::parsers::register::parse_register;
+use crate::parsers::register::{parse_register, Register};
 
-use super::{DecrementMemory, DecrementRegister};
+use super::Arithmetic;
 
-pub fn parse_decrement_register(input: &str) -> IResult<&str, DecrementRegister> {
-    let (input, r) = delimited(tag("00"), parse_register, tag("101"))(input)?;
-    let result = DecrementRegister { r };
+#[derive(Debug, PartialEq)]
+pub enum DCR {
+    DecrementRegister { r: Register },
+    DecrementMemory,
+}
+
+pub fn parse_dcr(input: &str) -> IResult<&str, Arithmetic> {
+    let (input, dcr) = alt((parse_decrement_register, parse_decrement_memory))(input)?;
+    let result = Arithmetic::DCR(dcr);
     Ok((input, result))
 }
 
-pub fn parse_decrement_memory(input: &str) -> IResult<&str, DecrementMemory> {
+fn parse_decrement_register(input: &str) -> IResult<&str, DCR> {
+    let (input, r) = delimited(tag("00"), parse_register, tag("101"))(input)?;
+    let result = DCR::DecrementRegister { r };
+    Ok((input, result))
+}
+
+fn parse_decrement_memory(input: &str) -> IResult<&str, DCR> {
     let (input, _) = tag("00110101")(input)?;
-    let result = DecrementMemory {};
+    let result = DCR::DecrementMemory;
     Ok((input, result))
 }
 
@@ -22,20 +34,19 @@ mod tests {
         use nom::{error::ErrorKind, IResult};
 
         use crate::parsers::{
-            arithmetic::{dcr::parse_decrement_register, DecrementRegister},
+            arithmetic::dcr::{parse_decrement_register, DCR},
             register::Register,
             test_expects_error, test_expects_success,
         };
 
-        const TESTED_FUNCTION: &dyn Fn(&str) -> IResult<&str, DecrementRegister> =
-            &parse_decrement_register;
+        const TESTED_FUNCTION: &dyn Fn(&str) -> IResult<&str, DCR> = &parse_decrement_register;
 
         #[test]
         fn test_valid_input_b() {
             test_expects_success(
                 "00000101",
                 "",
-                DecrementRegister { r: Register::B },
+                DCR::DecrementRegister { r: Register::B },
                 TESTED_FUNCTION,
             );
         }
@@ -45,7 +56,7 @@ mod tests {
             test_expects_success(
                 "00001101",
                 "",
-                DecrementRegister { r: Register::C },
+                DCR::DecrementRegister { r: Register::C },
                 TESTED_FUNCTION,
             );
         }
@@ -55,7 +66,7 @@ mod tests {
             test_expects_success(
                 "00010101",
                 "",
-                DecrementRegister { r: Register::D },
+                DCR::DecrementRegister { r: Register::D },
                 TESTED_FUNCTION,
             );
         }
@@ -65,7 +76,7 @@ mod tests {
             test_expects_success(
                 "00011101",
                 "",
-                DecrementRegister { r: Register::E },
+                DCR::DecrementRegister { r: Register::E },
                 TESTED_FUNCTION,
             );
         }
@@ -75,7 +86,7 @@ mod tests {
             test_expects_success(
                 "00100101",
                 "",
-                DecrementRegister { r: Register::H },
+                DCR::DecrementRegister { r: Register::H },
                 TESTED_FUNCTION,
             );
         }
@@ -85,7 +96,7 @@ mod tests {
             test_expects_success(
                 "00101101",
                 "",
-                DecrementRegister { r: Register::L },
+                DCR::DecrementRegister { r: Register::L },
                 TESTED_FUNCTION,
             );
         }
@@ -95,7 +106,7 @@ mod tests {
             test_expects_success(
                 "00111101",
                 "",
-                DecrementRegister { r: Register::A },
+                DCR::DecrementRegister { r: Register::A },
                 TESTED_FUNCTION,
             );
         }
@@ -130,7 +141,7 @@ mod tests {
             test_expects_success(
                 "000001011",
                 "1",
-                DecrementRegister { r: Register::B },
+                DCR::DecrementRegister { r: Register::B },
                 TESTED_FUNCTION,
             );
         }
@@ -155,16 +166,15 @@ mod tests {
         use nom::{error::ErrorKind, IResult};
 
         use crate::parsers::{
-            arithmetic::{dcr::parse_decrement_memory, DecrementMemory},
+            arithmetic::dcr::{parse_decrement_memory, DCR},
             test_expects_error, test_expects_success,
         };
 
-        const TESTED_FUNCTION: &dyn Fn(&str) -> IResult<&str, DecrementMemory> =
-            &parse_decrement_memory;
+        const TESTED_FUNCTION: &dyn Fn(&str) -> IResult<&str, DCR> = &parse_decrement_memory;
 
         #[test]
         fn test_valid_input() {
-            test_expects_success("00110101", "", DecrementMemory {}, TESTED_FUNCTION);
+            test_expects_success("00110101", "", DCR::DecrementMemory, TESTED_FUNCTION);
         }
 
         #[test]
@@ -179,7 +189,7 @@ mod tests {
 
         #[test]
         fn test_excess_input() {
-            test_expects_success("001101011", "1", DecrementMemory {}, TESTED_FUNCTION);
+            test_expects_success("001101011", "1", DCR::DecrementMemory, TESTED_FUNCTION);
         }
 
         #[test]

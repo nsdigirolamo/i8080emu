@@ -1,4 +1,4 @@
-use super::register::{Register, RegisterPair};
+use nom::{branch::alt, IResult};
 
 pub mod aci;
 pub mod adc;
@@ -15,88 +15,38 @@ pub mod sbi;
 pub mod sub;
 pub mod sui;
 
-#[derive(Debug, PartialEq)]
-pub struct AddRegister {
-    pub r: Register,
+pub enum Arithmetic {
+    ACI(aci::ACI),
+    ADC(adc::ADC),
+    ADD(add::ADD),
+    ADI(adi::ADI),
+    DAA(daa::DAA),
+    DAD(dad::DAD),
+    DCR(dcr::DCR),
+    DCX(dcx::DCX),
+    INR(inr::INR),
+    INX(inx::INX),
+    SBB(sbb::SBB),
+    SBI(sbi::SBI),
+    SUB(sub::SUB),
+    SUI(sui::SUI),
 }
 
-#[derive(Debug, PartialEq)]
-pub struct AddMemory {}
-
-#[derive(Debug, PartialEq)]
-pub struct AddImmediate {
-    pub data: u8,
+pub fn parse_arithmetic(input: &str) -> IResult<&str, Arithmetic> {
+    alt((
+        aci::parse_aci,
+        adc::parse_adc,
+        add::parse_add,
+        adi::parse_adi,
+        daa::parse_daa,
+        dad::parse_dad,
+        dcr::parse_dcr,
+        dcx::parse_dcx,
+        inr::parse_inr,
+        inx::parse_inx,
+        sbb::parse_sbb,
+        sbi::parse_sbi,
+        sub::parse_sub,
+        sui::parse_sui,
+    ))(input)
 }
-
-#[derive(Debug, PartialEq)]
-pub struct AddRegisterWithCarry {
-    pub r: Register,
-}
-
-#[derive(Debug, PartialEq)]
-pub struct AddMemoryWithCarry {}
-
-#[derive(Debug, PartialEq)]
-pub struct AddImmediateWithCarry {
-    pub data: u8,
-}
-
-#[derive(Debug, PartialEq)]
-pub struct SubtractRegister {
-    pub r: Register,
-}
-
-#[derive(Debug, PartialEq)]
-pub struct SubtractMemory {}
-
-#[derive(Debug, PartialEq)]
-pub struct SubtractImmediate {
-    pub data: u8,
-}
-
-#[derive(Debug, PartialEq)]
-pub struct SubtractRegisterWithBorrow {
-    pub r: Register,
-}
-
-#[derive(Debug, PartialEq)]
-pub struct SubtractMemoryWithBorrow {}
-
-#[derive(Debug, PartialEq)]
-pub struct SubtractImmediateWithBorrow {
-    pub data: u8,
-}
-
-#[derive(Debug, PartialEq)]
-pub struct IncrementRegister {
-    pub r: Register,
-}
-
-#[derive(Debug, PartialEq)]
-pub struct IncrementMemory {}
-
-#[derive(Debug, PartialEq)]
-pub struct DecrementRegister {
-    pub r: Register,
-}
-
-#[derive(Debug, PartialEq)]
-pub struct DecrementMemory {}
-
-#[derive(Debug, PartialEq)]
-pub struct IncrementRegisterPair {
-    pub rp: RegisterPair,
-}
-
-#[derive(Debug, PartialEq)]
-pub struct DecrementRegisterPair {
-    pub rp: RegisterPair,
-}
-
-#[derive(Debug, PartialEq)]
-pub struct AddRegisterPairToHL {
-    pub rp: RegisterPair,
-}
-
-#[derive(Debug, PartialEq)]
-pub struct DecimalAdjustAccumulator {}

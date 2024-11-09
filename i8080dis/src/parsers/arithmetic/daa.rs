@@ -1,10 +1,21 @@
 use nom::{bytes::complete::tag, IResult};
 
-use super::DecimalAdjustAccumulator;
+use super::Arithmetic;
 
-pub fn parse_decimal_adjust_accumulator(input: &str) -> IResult<&str, DecimalAdjustAccumulator> {
+#[derive(Debug, PartialEq)]
+pub enum DAA {
+    DecimalAdjustAccumulator,
+}
+
+pub fn parse_daa(input: &str) -> IResult<&str, Arithmetic> {
+    let (input, daa) = parse_decimal_adjust_accumulator(input)?;
+    let result = Arithmetic::DAA(daa);
+    Ok((input, result))
+}
+
+fn parse_decimal_adjust_accumulator(input: &str) -> IResult<&str, DAA> {
     let (input, _) = tag("00100111")(input)?;
-    let result = DecimalAdjustAccumulator {};
+    let result = DAA::DecimalAdjustAccumulator;
     Ok((input, result))
 }
 
@@ -14,16 +25,21 @@ mod tests {
         use nom::{error::ErrorKind, IResult};
 
         use crate::parsers::{
-            arithmetic::{daa::parse_decimal_adjust_accumulator, DecimalAdjustAccumulator},
+            arithmetic::daa::{parse_decimal_adjust_accumulator, DAA},
             test_expects_error, test_expects_success,
         };
 
-        const TESTED_FUNCTION: &dyn Fn(&str) -> IResult<&str, DecimalAdjustAccumulator> =
+        const TESTED_FUNCTION: &dyn Fn(&str) -> IResult<&str, DAA> =
             &parse_decimal_adjust_accumulator;
 
         #[test]
         fn test_valid_input() {
-            test_expects_success("00100111", "", DecimalAdjustAccumulator {}, TESTED_FUNCTION);
+            test_expects_success(
+                "00100111",
+                "",
+                DAA::DecimalAdjustAccumulator,
+                TESTED_FUNCTION,
+            );
         }
 
         #[test]
@@ -41,7 +57,7 @@ mod tests {
             test_expects_success(
                 "001001111",
                 "1",
-                DecimalAdjustAccumulator {},
+                DAA::DecimalAdjustAccumulator,
                 TESTED_FUNCTION,
             );
         }

@@ -1,18 +1,30 @@
-use nom::{bytes::complete::tag, sequence::preceded, IResult};
+use nom::{branch::alt, bytes::complete::tag, sequence::preceded, IResult};
 
-use crate::parsers::register::parse_register;
+use crate::parsers::register::{parse_register, Register};
 
-use super::{AddMemory, AddRegister};
+use super::Arithmetic;
 
-pub fn parse_add_register(input: &str) -> IResult<&str, AddRegister> {
-    let (input, r) = preceded(tag("10000"), parse_register)(input)?;
-    let result = AddRegister { r };
+#[derive(Debug, PartialEq)]
+pub enum ADD {
+    AddRegister { r: Register },
+    AddMemory,
+}
+
+pub fn parse_add(input: &str) -> IResult<&str, Arithmetic> {
+    let (input, add) = alt((parse_add_register, parse_add_memory))(input)?;
+    let result = Arithmetic::ADD(add);
     Ok((input, result))
 }
 
-pub fn parse_add_memory(input: &str) -> IResult<&str, AddMemory> {
+fn parse_add_register(input: &str) -> IResult<&str, ADD> {
+    let (input, r) = preceded(tag("10000"), parse_register)(input)?;
+    let result = ADD::AddRegister { r };
+    Ok((input, result))
+}
+
+fn parse_add_memory(input: &str) -> IResult<&str, ADD> {
     let (input, _) = tag("10000110")(input)?;
-    let result = AddMemory {};
+    let result = ADD::AddMemory;
     Ok((input, result))
 }
 
@@ -22,19 +34,19 @@ mod tests {
         use nom::{error::ErrorKind, IResult};
 
         use crate::parsers::{
-            arithmetic::{add::parse_add_register, AddRegister},
+            arithmetic::add::{parse_add_register, ADD},
             register::Register,
             test_expects_error, test_expects_success,
         };
 
-        const TESTED_FUNCTION: &dyn Fn(&str) -> IResult<&str, AddRegister> = &parse_add_register;
+        const TESTED_FUNCTION: &dyn Fn(&str) -> IResult<&str, ADD> = &parse_add_register;
 
         #[test]
         fn test_valid_input() {
             test_expects_success(
                 "10000111",
                 "",
-                AddRegister { r: Register::A },
+                ADD::AddRegister { r: Register::A },
                 TESTED_FUNCTION,
             );
         }
@@ -54,7 +66,7 @@ mod tests {
             test_expects_success(
                 "100001111",
                 "1",
-                AddRegister { r: Register::A },
+                ADD::AddRegister { r: Register::A },
                 TESTED_FUNCTION,
             );
         }
@@ -79,15 +91,15 @@ mod tests {
         use nom::{error::ErrorKind, IResult};
 
         use crate::parsers::{
-            arithmetic::{add::parse_add_memory, AddMemory},
+            arithmetic::add::{parse_add_memory, ADD},
             test_expects_error, test_expects_success,
         };
 
-        const TESTED_FUNCTION: &dyn Fn(&str) -> IResult<&str, AddMemory> = &parse_add_memory;
+        const TESTED_FUNCTION: &dyn Fn(&str) -> IResult<&str, ADD> = &parse_add_memory;
 
         #[test]
         fn test_valid_input() {
-            test_expects_success("10000110", "", AddMemory {}, TESTED_FUNCTION);
+            test_expects_success("10000110", "", ADD::AddMemory, TESTED_FUNCTION);
         }
 
         #[test]
@@ -102,7 +114,7 @@ mod tests {
 
         #[test]
         fn test_excess_input() {
-            test_expects_success("100001101", "1", AddMemory {}, TESTED_FUNCTION);
+            test_expects_success("100001101", "1", ADD::AddMemory, TESTED_FUNCTION);
         }
 
         #[test]

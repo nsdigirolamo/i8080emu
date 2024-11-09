@@ -2,11 +2,22 @@ use nom::{bytes::complete::tag, sequence::preceded, IResult};
 
 use crate::parsers::data::parse_byte;
 
-use super::SubtractImmediate;
+use super::Arithmetic;
 
-pub fn parse_subtract_immediate(input: &str) -> IResult<&str, SubtractImmediate> {
+#[derive(Debug, PartialEq)]
+pub enum SUI {
+    SubtractImmediate { data: u8 },
+}
+
+pub fn parse_sui(input: &str) -> IResult<&str, Arithmetic> {
+    let (input, sui) = parse_subtract_immediate(input)?;
+    let result = Arithmetic::SUI(sui);
+    Ok((input, result))
+}
+
+fn parse_subtract_immediate(input: &str) -> IResult<&str, SUI> {
     let (input, data) = preceded(tag("11010110"), parse_byte)(input)?;
-    let result = SubtractImmediate { data };
+    let result = SUI::SubtractImmediate { data };
     Ok((input, result))
 }
 
@@ -14,20 +25,19 @@ pub fn parse_subtract_immediate(input: &str) -> IResult<&str, SubtractImmediate>
 mod tests {
     mod parse_subtract_immediate {
         use crate::parsers::{
-            arithmetic::{sui::parse_subtract_immediate, SubtractImmediate},
+            arithmetic::sui::{parse_subtract_immediate, SUI},
             test_expects_error, test_expects_success,
         };
         use nom::{error::ErrorKind, IResult};
 
-        const TESTED_FUNCTION: &dyn Fn(&str) -> IResult<&str, SubtractImmediate> =
-            &parse_subtract_immediate;
+        const TESTED_FUNCTION: &dyn Fn(&str) -> IResult<&str, SUI> = &parse_subtract_immediate;
 
         #[test]
         fn test_valid_input() {
             test_expects_success(
                 "1101011001010101",
                 "",
-                SubtractImmediate { data: 0b01010101 },
+                SUI::SubtractImmediate { data: 0b01010101 },
                 TESTED_FUNCTION,
             );
         }
@@ -37,7 +47,7 @@ mod tests {
             test_expects_success(
                 "1101011000000000",
                 "",
-                SubtractImmediate { data: 0b00000000 },
+                SUI::SubtractImmediate { data: 0b00000000 },
                 TESTED_FUNCTION,
             );
         }
@@ -47,7 +57,7 @@ mod tests {
             test_expects_success(
                 "1101011011111111",
                 "",
-                SubtractImmediate { data: 0b11111111 },
+                SUI::SubtractImmediate { data: 0b11111111 },
                 TESTED_FUNCTION,
             );
         }
@@ -72,7 +82,7 @@ mod tests {
             test_expects_success(
                 "11010110010101011",
                 "1",
-                SubtractImmediate { data: 0b01010101 },
+                SUI::SubtractImmediate { data: 0b01010101 },
                 TESTED_FUNCTION,
             );
         }

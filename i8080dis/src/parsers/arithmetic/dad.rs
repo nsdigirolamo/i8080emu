@@ -1,12 +1,23 @@
 use nom::{bytes::complete::tag, sequence::delimited, IResult};
 
-use crate::parsers::register::parse_register_pair;
+use crate::parsers::register::{parse_register_pair, RegisterPair};
 
-use super::AddRegisterPairToHL;
+use super::Arithmetic;
 
-pub fn parse_add_register_pair_to_hl(input: &str) -> IResult<&str, AddRegisterPairToHL> {
+#[derive(Debug, PartialEq)]
+pub enum DAD {
+    AddRegisterPairToHL { rp: RegisterPair },
+}
+
+pub fn parse_dad(input: &str) -> IResult<&str, Arithmetic> {
+    let (input, dad) = parse_add_register_pair_to_hl(input)?;
+    let result = Arithmetic::DAD(dad);
+    Ok((input, result))
+}
+
+fn parse_add_register_pair_to_hl(input: &str) -> IResult<&str, DAD> {
     let (input, rp) = delimited(tag("00"), parse_register_pair, tag("1001"))(input)?;
-    let result = AddRegisterPairToHL { rp };
+    let result = DAD::AddRegisterPairToHL { rp };
     Ok((input, result))
 }
 
@@ -16,20 +27,19 @@ mod tests {
         use nom::{error::ErrorKind, IResult};
 
         use crate::parsers::{
-            arithmetic::{dad::parse_add_register_pair_to_hl, AddRegisterPairToHL},
+            arithmetic::dad::{parse_add_register_pair_to_hl, DAD},
             register::RegisterPair,
             test_expects_error, test_expects_success,
         };
 
-        const TESTED_FUNCTION: &dyn Fn(&str) -> IResult<&str, AddRegisterPairToHL> =
-            &parse_add_register_pair_to_hl;
+        const TESTED_FUNCTION: &dyn Fn(&str) -> IResult<&str, DAD> = &parse_add_register_pair_to_hl;
 
         #[test]
         fn test_valid_input_bc() {
             test_expects_success(
                 "00001001",
                 "",
-                AddRegisterPairToHL {
+                DAD::AddRegisterPairToHL {
                     rp: RegisterPair::BC,
                 },
                 TESTED_FUNCTION,
@@ -41,7 +51,7 @@ mod tests {
             test_expects_success(
                 "00011001",
                 "",
-                AddRegisterPairToHL {
+                DAD::AddRegisterPairToHL {
                     rp: RegisterPair::DE,
                 },
                 TESTED_FUNCTION,
@@ -53,7 +63,7 @@ mod tests {
             test_expects_success(
                 "00101001",
                 "",
-                AddRegisterPairToHL {
+                DAD::AddRegisterPairToHL {
                     rp: RegisterPair::HL,
                 },
                 TESTED_FUNCTION,
@@ -65,7 +75,7 @@ mod tests {
             test_expects_success(
                 "00111001",
                 "",
-                AddRegisterPairToHL {
+                DAD::AddRegisterPairToHL {
                     rp: RegisterPair::SP,
                 },
                 TESTED_FUNCTION,
@@ -102,7 +112,7 @@ mod tests {
             test_expects_success(
                 "000010011",
                 "1",
-                AddRegisterPairToHL {
+                DAD::AddRegisterPairToHL {
                     rp: RegisterPair::BC,
                 },
                 TESTED_FUNCTION,

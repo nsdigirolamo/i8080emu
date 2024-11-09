@@ -1,20 +1,33 @@
-use nom::{bytes::complete::tag, sequence::preceded, IResult};
+use nom::{branch::alt, bytes::complete::tag, sequence::preceded, IResult};
 
-use crate::parsers::register::parse_register;
+use crate::parsers::register::{parse_register, Register};
 
-use super::{SubtractMemoryWithBorrow, SubtractRegisterWithBorrow};
+use super::Arithmetic;
 
-pub fn parse_subtract_register_with_borrow(
-    input: &str,
-) -> IResult<&str, SubtractRegisterWithBorrow> {
-    let (input, r) = preceded(tag("10011"), parse_register)(input)?;
-    let result = SubtractRegisterWithBorrow { r };
+#[derive(Debug, PartialEq)]
+pub enum SBB {
+    SubtractRegisterWithBorrow { r: Register },
+    SubtractMemoryWithBorrow,
+}
+
+pub fn parse_sbb(input: &str) -> IResult<&str, Arithmetic> {
+    let (input, sbb) = alt((
+        parse_subtract_register_with_borrow,
+        parse_subtract_memory_with_borrow,
+    ))(input)?;
+    let result = Arithmetic::SBB(sbb);
     Ok((input, result))
 }
 
-pub fn parse_subtract_memory_with_borrow(input: &str) -> IResult<&str, SubtractMemoryWithBorrow> {
+fn parse_subtract_register_with_borrow(input: &str) -> IResult<&str, SBB> {
+    let (input, r) = preceded(tag("10011"), parse_register)(input)?;
+    let result = SBB::SubtractRegisterWithBorrow { r };
+    Ok((input, result))
+}
+
+fn parse_subtract_memory_with_borrow(input: &str) -> IResult<&str, SBB> {
     let (input, _) = tag("10011110")(input)?;
-    let result = SubtractMemoryWithBorrow {};
+    let result = SBB::SubtractMemoryWithBorrow;
     Ok((input, result))
 }
 
@@ -22,13 +35,13 @@ pub fn parse_subtract_memory_with_borrow(input: &str) -> IResult<&str, SubtractM
 mod tests {
     mod parse_subtract_register_with_borrow {
         use crate::parsers::{
-            arithmetic::{sbb::parse_subtract_register_with_borrow, SubtractRegisterWithBorrow},
+            arithmetic::sbb::{parse_subtract_register_with_borrow, SBB},
             register::Register,
             test_expects_error, test_expects_success,
         };
         use nom::{error::ErrorKind, IResult};
 
-        const TESTED_FUNCTION: &dyn Fn(&str) -> IResult<&str, SubtractRegisterWithBorrow> =
+        const TESTED_FUNCTION: &dyn Fn(&str) -> IResult<&str, SBB> =
             &parse_subtract_register_with_borrow;
 
         #[test]
@@ -36,7 +49,7 @@ mod tests {
             test_expects_success(
                 "10011000",
                 "",
-                SubtractRegisterWithBorrow { r: Register::B },
+                SBB::SubtractRegisterWithBorrow { r: Register::B },
                 TESTED_FUNCTION,
             );
         }
@@ -46,7 +59,7 @@ mod tests {
             test_expects_success(
                 "10011001",
                 "",
-                SubtractRegisterWithBorrow { r: Register::C },
+                SBB::SubtractRegisterWithBorrow { r: Register::C },
                 TESTED_FUNCTION,
             );
         }
@@ -56,7 +69,7 @@ mod tests {
             test_expects_success(
                 "10011010",
                 "",
-                SubtractRegisterWithBorrow { r: Register::D },
+                SBB::SubtractRegisterWithBorrow { r: Register::D },
                 TESTED_FUNCTION,
             );
         }
@@ -66,7 +79,7 @@ mod tests {
             test_expects_success(
                 "10011011",
                 "",
-                SubtractRegisterWithBorrow { r: Register::E },
+                SBB::SubtractRegisterWithBorrow { r: Register::E },
                 TESTED_FUNCTION,
             );
         }
@@ -76,7 +89,7 @@ mod tests {
             test_expects_success(
                 "10011100",
                 "",
-                SubtractRegisterWithBorrow { r: Register::H },
+                SBB::SubtractRegisterWithBorrow { r: Register::H },
                 TESTED_FUNCTION,
             );
         }
@@ -86,7 +99,7 @@ mod tests {
             test_expects_success(
                 "10011101",
                 "",
-                SubtractRegisterWithBorrow { r: Register::L },
+                SBB::SubtractRegisterWithBorrow { r: Register::L },
                 TESTED_FUNCTION,
             );
         }
@@ -96,7 +109,7 @@ mod tests {
             test_expects_success(
                 "10011111",
                 "",
-                SubtractRegisterWithBorrow { r: Register::A },
+                SBB::SubtractRegisterWithBorrow { r: Register::A },
                 TESTED_FUNCTION,
             );
         }
@@ -116,7 +129,7 @@ mod tests {
             test_expects_success(
                 "100110001",
                 "1",
-                SubtractRegisterWithBorrow { r: Register::B },
+                SBB::SubtractRegisterWithBorrow { r: Register::B },
                 TESTED_FUNCTION,
             );
         }
@@ -139,17 +152,22 @@ mod tests {
 
     mod parse_subtract_memory_with_borrow {
         use crate::parsers::{
-            arithmetic::{sbb::parse_subtract_memory_with_borrow, SubtractMemoryWithBorrow},
+            arithmetic::sbb::{parse_subtract_memory_with_borrow, SBB},
             test_expects_error, test_expects_success,
         };
         use nom::{error::ErrorKind, IResult};
 
-        const TESTED_FUNCTION: &dyn Fn(&str) -> IResult<&str, SubtractMemoryWithBorrow> =
+        const TESTED_FUNCTION: &dyn Fn(&str) -> IResult<&str, SBB> =
             &parse_subtract_memory_with_borrow;
 
         #[test]
         fn test_valid_input() {
-            test_expects_success("10011110", "", SubtractMemoryWithBorrow {}, TESTED_FUNCTION);
+            test_expects_success(
+                "10011110",
+                "",
+                SBB::SubtractMemoryWithBorrow,
+                TESTED_FUNCTION,
+            );
         }
 
         #[test]
@@ -167,7 +185,7 @@ mod tests {
             test_expects_success(
                 "100111101",
                 "1",
-                SubtractMemoryWithBorrow {},
+                SBB::SubtractMemoryWithBorrow,
                 TESTED_FUNCTION,
             );
         }

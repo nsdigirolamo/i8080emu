@@ -1,18 +1,30 @@
-use nom::{bytes::complete::tag, sequence::delimited, IResult};
+use nom::{branch::alt, bytes::complete::tag, sequence::delimited, IResult};
 
-use crate::parsers::register::parse_register;
+use crate::parsers::register::{parse_register, Register};
 
-use super::{IncrementMemory, IncrementRegister};
+use super::Arithmetic;
 
-pub fn parse_increment_register(input: &str) -> IResult<&str, IncrementRegister> {
-    let (input, r) = delimited(tag("00"), parse_register, tag("100"))(input)?;
-    let result = IncrementRegister { r };
+#[derive(Debug, PartialEq)]
+pub enum INR {
+    IncrementRegister { r: Register },
+    IncrementMemory,
+}
+
+pub fn parse_inr(input: &str) -> IResult<&str, Arithmetic> {
+    let (input, inr) = alt((parse_increment_register, parse_increment_memory))(input)?;
+    let result = Arithmetic::INR(inr);
     Ok((input, result))
 }
 
-pub fn parse_increment_memory(input: &str) -> IResult<&str, IncrementMemory> {
+fn parse_increment_register(input: &str) -> IResult<&str, INR> {
+    let (input, r) = delimited(tag("00"), parse_register, tag("100"))(input)?;
+    let result = INR::IncrementRegister { r };
+    Ok((input, result))
+}
+
+fn parse_increment_memory(input: &str) -> IResult<&str, INR> {
     let (input, _) = tag("00110100")(input)?;
-    let result = IncrementMemory {};
+    let result = INR::IncrementMemory;
     Ok((input, result))
 }
 
@@ -20,21 +32,20 @@ pub fn parse_increment_memory(input: &str) -> IResult<&str, IncrementMemory> {
 mod tests {
     mod parse_increment_register {
         use crate::parsers::{
-            arithmetic::{inr::parse_increment_register, IncrementRegister},
+            arithmetic::inr::{parse_increment_register, INR},
             register::Register,
             test_expects_error, test_expects_success,
         };
         use nom::{error::ErrorKind, IResult};
 
-        const TESTED_FUNCTION: &dyn Fn(&str) -> IResult<&str, IncrementRegister> =
-            &parse_increment_register;
+        const TESTED_FUNCTION: &dyn Fn(&str) -> IResult<&str, INR> = &parse_increment_register;
 
         #[test]
         fn test_valid_input_b() {
             test_expects_success(
                 "00000100",
                 "",
-                IncrementRegister { r: Register::B },
+                INR::IncrementRegister { r: Register::B },
                 TESTED_FUNCTION,
             );
         }
@@ -44,7 +55,7 @@ mod tests {
             test_expects_success(
                 "00001100",
                 "",
-                IncrementRegister { r: Register::C },
+                INR::IncrementRegister { r: Register::C },
                 TESTED_FUNCTION,
             );
         }
@@ -54,7 +65,7 @@ mod tests {
             test_expects_success(
                 "00010100",
                 "",
-                IncrementRegister { r: Register::D },
+                INR::IncrementRegister { r: Register::D },
                 TESTED_FUNCTION,
             );
         }
@@ -64,7 +75,7 @@ mod tests {
             test_expects_success(
                 "00011100",
                 "",
-                IncrementRegister { r: Register::E },
+                INR::IncrementRegister { r: Register::E },
                 TESTED_FUNCTION,
             );
         }
@@ -74,7 +85,7 @@ mod tests {
             test_expects_success(
                 "00100100",
                 "",
-                IncrementRegister { r: Register::H },
+                INR::IncrementRegister { r: Register::H },
                 TESTED_FUNCTION,
             );
         }
@@ -84,7 +95,7 @@ mod tests {
             test_expects_success(
                 "00101100",
                 "",
-                IncrementRegister { r: Register::L },
+                INR::IncrementRegister { r: Register::L },
                 TESTED_FUNCTION,
             );
         }
@@ -94,7 +105,7 @@ mod tests {
             test_expects_success(
                 "00111100",
                 "",
-                IncrementRegister { r: Register::A },
+                INR::IncrementRegister { r: Register::A },
                 TESTED_FUNCTION,
             );
         }
@@ -129,7 +140,7 @@ mod tests {
             test_expects_success(
                 "000001001",
                 "1",
-                IncrementRegister { r: Register::B },
+                INR::IncrementRegister { r: Register::B },
                 TESTED_FUNCTION,
             );
         }
@@ -152,17 +163,16 @@ mod tests {
 
     mod parse_increment_memory {
         use crate::parsers::{
-            arithmetic::{inr::parse_increment_memory, IncrementMemory},
+            arithmetic::inr::{parse_increment_memory, INR},
             test_expects_error, test_expects_success,
         };
         use nom::{error::ErrorKind, IResult};
 
-        const TESTED_FUNCTION: &dyn Fn(&str) -> IResult<&str, IncrementMemory> =
-            &parse_increment_memory;
+        const TESTED_FUNCTION: &dyn Fn(&str) -> IResult<&str, INR> = &parse_increment_memory;
 
         #[test]
         fn test_valid_input() {
-            test_expects_success("00110100", "", IncrementMemory {}, TESTED_FUNCTION);
+            test_expects_success("00110100", "", INR::IncrementMemory, TESTED_FUNCTION);
         }
 
         #[test]
@@ -177,7 +187,7 @@ mod tests {
 
         #[test]
         fn test_excess_input() {
-            test_expects_success("001101001", "1", IncrementMemory {}, TESTED_FUNCTION);
+            test_expects_success("001101001", "1", INR::IncrementMemory, TESTED_FUNCTION);
         }
 
         #[test]

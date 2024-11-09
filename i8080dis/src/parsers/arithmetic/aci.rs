@@ -2,11 +2,22 @@ use nom::{bytes::complete::tag, sequence::preceded, IResult};
 
 use crate::parsers::data::parse_byte;
 
-use super::AddImmediateWithCarry;
+use super::Arithmetic;
 
-pub fn parse_add_immediate_with_carry(input: &str) -> IResult<&str, AddImmediateWithCarry> {
+#[derive(Debug, PartialEq)]
+pub enum ACI {
+    AddImmediateWithCarry { data: u8 },
+}
+
+pub fn parse_aci(input: &str) -> IResult<&str, Arithmetic> {
+    let (input, aci) = parse_add_immediate_with_carry(input)?;
+    let result = Arithmetic::ACI(aci);
+    Ok((input, result))
+}
+
+fn parse_add_immediate_with_carry(input: &str) -> IResult<&str, ACI> {
     let (input, data) = preceded(tag("11001110"), parse_byte)(input)?;
-    let result = AddImmediateWithCarry { data };
+    let result = ACI::AddImmediateWithCarry { data };
     Ok((input, result))
 }
 
@@ -16,11 +27,11 @@ mod tests {
         use nom::{error::ErrorKind, IResult};
 
         use crate::parsers::{
-            arithmetic::{aci::parse_add_immediate_with_carry, AddImmediateWithCarry},
+            arithmetic::aci::{parse_add_immediate_with_carry, ACI},
             test_expects_error, test_expects_success,
         };
 
-        const TESTED_FUNCTION: &dyn Fn(&str) -> IResult<&str, AddImmediateWithCarry> =
+        const TESTED_FUNCTION: &dyn Fn(&str) -> IResult<&str, ACI> =
             &parse_add_immediate_with_carry;
 
         #[test]
@@ -28,7 +39,7 @@ mod tests {
             test_expects_success(
                 "1100111011111111",
                 "",
-                AddImmediateWithCarry { data: 0b11111111 },
+                ACI::AddImmediateWithCarry { data: 0b11111111 },
                 TESTED_FUNCTION,
             );
         }
@@ -48,7 +59,7 @@ mod tests {
             test_expects_success(
                 "11001110111111111",
                 "1",
-                AddImmediateWithCarry { data: 0b11111111 },
+                ACI::AddImmediateWithCarry { data: 0b11111111 },
                 TESTED_FUNCTION,
             );
         }
