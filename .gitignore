@@ -1,0 +1,5 @@
+# Ignore generated files.
+target
+
+# Ignore external testing suite.
+cpu_tests
