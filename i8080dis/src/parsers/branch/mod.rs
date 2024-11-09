@@ -1,4 +1,4 @@
-use super::condition::Condition;
+use nom::{branch::alt, IResult};
 
 pub mod call;
 pub mod ccondition;
@@ -9,36 +9,26 @@ pub mod rcondition;
 pub mod ret;
 pub mod rst;
 
-pub struct Jump {
-    pub low_addr: u8,
-    pub high_addr: u8,
+pub enum Branch {
+    CALL(call::CALL),
+    Ccondition(ccondition::Ccondition),
+    Jcondition(jcondition::Jcondition),
+    JMP(jmp::JMP),
+    PCHL(pchl::PCHL),
+    Rcondition(rcondition::Rcondition),
+    RET(ret::RET),
+    RST(rst::RST),
 }
 
-pub struct ConditionalJump {
-    pub condition: Condition,
-    pub low_addr: u8,
-    pub high_addr: u8,
+pub fn parse_branch(input: &str) -> IResult<&str, Branch> {
+    alt((
+        call::parse_call,
+        ccondition::parse_ccondition,
+        jcondition::parse_jcondition,
+        jmp::parse_jmp,
+        pchl::parse_pchl,
+        rcondition::parse_rcondition,
+        ret::parse_ret,
+        rst::parse_rst,
+    ))(input)
 }
-
-pub struct Call {
-    pub low_addr: u8,
-    pub high_addr: u8,
-}
-
-pub struct ConditionCall {
-    pub condition: Condition,
-    pub low_addr: u8,
-    pub high_addr: u8,
-}
-
-pub struct Return {}
-
-pub struct ConditionalReturn {
-    pub condition: Condition,
-}
-
-pub struct Restart {
-    pub n: u8,
-}
-
-pub struct JumpHLIndirect {}

@@ -1,9 +1,19 @@
 use nom::{bytes::complete::tag, IResult};
 
-use super::Return;
+use super::Branch;
 
-pub fn parse_return(input: &str) -> IResult<&str, Return> {
+pub enum RET {
+    Return,
+}
+
+pub fn parse_ret(input: &str) -> IResult<&str, Branch> {
+    let (input, ret) = parse_return(input)?;
+    let result = Branch::RET(ret);
+    Ok((input, result))
+}
+
+fn parse_return(input: &str) -> IResult<&str, RET> {
     let (input, _) = tag("11001001")(input)?;
-    let result = Return {};
+    let result = RET::Return;
     Ok((input, result))
 }

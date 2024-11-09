@@ -6,12 +6,22 @@ use nom::{
 
 use crate::parsers::data::parse_byte;
 
-use super::Call;
+use super::Branch;
 
-pub fn parse_call(input: &str) -> IResult<&str, Call> {
+pub enum CALL {
+    Call { low_addr: u8, high_addr: u8 },
+}
+
+pub fn parse_call(input: &str) -> IResult<&str, Branch> {
+    let (input, call) = parse_call_instruction(input)?;
+    let result = Branch::CALL(call);
+    Ok((input, result))
+}
+
+fn parse_call_instruction(input: &str) -> IResult<&str, CALL> {
     let (input, (low_addr, high_addr)) =
         preceded(tag("11001101"), pair(parse_byte, parse_byte))(input)?;
-    let result = Call {
+    let result = CALL::Call {
         low_addr,
         high_addr,
     };
