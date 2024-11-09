@@ -1,4 +1,4 @@
-use super::register::Register;
+use nom::{branch::alt, IResult};
 
 pub mod ana;
 pub mod ani;
@@ -16,56 +16,40 @@ pub mod stc;
 pub mod xra;
 pub mod xri;
 
-pub struct ANDRegister {
-    pub r: Register,
+pub enum Logical {
+    ANA(ana::ANA),
+    ANI(ani::ANI),
+    CMA(cma::CMA),
+    CMC(cmc::CMC),
+    CMP(cmp::CMP),
+    CPI(cpi::CPI),
+    ORA(ora::ORA),
+    ORI(ori::ORI),
+    RAL(ral::RAL),
+    RAR(rar::RAR),
+    RLC(rlc::RLC),
+    RRC(rrc::RRC),
+    STC(stc::STC),
+    XRA(xra::XRA),
+    XRI(xri::XRI),
 }
 
-pub struct ANDMemory {}
-
-pub struct ANDImmediate {
-    pub data: u8,
+pub fn parse_logical(input: &str) -> IResult<&str, Logical> {
+    alt((
+        ana::parse_ana,
+        ani::parse_ani,
+        cma::parse_cma,
+        cmc::parse_cmc,
+        cmp::parse_cmp,
+        cpi::parse_cpi,
+        ora::parse_ora,
+        ori::parse_ori,
+        ral::parse_ral,
+        rar::parse_rar,
+        rlc::parse_rlc,
+        rrc::parse_rrc,
+        stc::parse_stc,
+        xra::parse_xra,
+        xri::parse_xri,
+    ))(input)
 }
-
-pub struct ExclusiveORRegister {
-    pub r: Register,
-}
-
-pub struct ExclusiveORMemory {}
-
-pub struct ExclusiveORImmediate {
-    pub data: u8,
-}
-
-pub struct ORRegister {
-    pub r: Register,
-}
-
-pub struct ORMemory {}
-
-pub struct ORImmediate {
-    pub data: u8,
-}
-
-pub struct CompareRegister {
-    pub r: Register,
-}
-
-pub struct CompareMemory {}
-
-pub struct CompareImmediate {
-    pub data: u8,
-}
-
-pub struct RotateLeft {}
-
-pub struct RotateRight {}
-
-pub struct RotateLeftThroughCarry {}
-
-pub struct RotateRightThroughCarry {}
-
-pub struct ComplementAccumulator {}
-
-pub struct ComplementCarry {}
-
-pub struct SetCarry {}

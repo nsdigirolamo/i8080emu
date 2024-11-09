@@ -1,9 +1,19 @@
 use nom::{bytes::complete::tag, IResult};
 
-use super::RotateLeft;
+use super::Logical;
 
-pub fn parse_rotate_left(input: &str) -> IResult<&str, RotateLeft> {
+pub enum RLC {
+    RotateLeft,
+}
+
+pub fn parse_rlc(input: &str) -> IResult<&str, Logical> {
+    let (input, rlc) = parse_rotate_left(input)?;
+    let result = Logical::RLC(rlc);
+    Ok((input, result))
+}
+
+fn parse_rotate_left(input: &str) -> IResult<&str, RLC> {
     let (input, _) = tag("00000111")(input)?;
-    let result = RotateLeft {};
+    let result = RLC::RotateLeft;
     Ok((input, result))
 }

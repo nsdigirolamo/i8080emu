@@ -1,9 +1,19 @@
 use nom::{bytes::complete::tag, IResult};
 
-use super::RotateLeftThroughCarry;
+use super::Logical;
 
-pub fn parse_rotate_left_through_carry(input: &str) -> IResult<&str, RotateLeftThroughCarry> {
+pub enum RAL {
+    RotateLeftThroughCarry,
+}
+
+pub fn parse_ral(input: &str) -> IResult<&str, Logical> {
+    let (input, ral) = parse_rotate_left_through_carry(input)?;
+    let result = Logical::RAL(ral);
+    Ok((input, result))
+}
+
+fn parse_rotate_left_through_carry(input: &str) -> IResult<&str, RAL> {
     let (input, _) = tag("00010111")(input)?;
-    let result = RotateLeftThroughCarry {};
+    let result = RAL::RotateLeftThroughCarry;
     Ok((input, result))
 }
