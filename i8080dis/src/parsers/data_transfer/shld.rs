@@ -6,12 +6,22 @@ use nom::{
 
 use crate::parsers::data::parse_byte;
 
-use super::StoreHLDirect;
+use super::DataTransfer;
 
-pub fn parse_store_hl_direct(input: &str) -> IResult<&str, StoreHLDirect> {
+#[derive(Debug, PartialEq)]
+pub enum SHLD {
+    StoreHLDirect { low_addr: u8, high_addr: u8 },
+}
+
+pub fn parse_shld(input: &str) -> IResult<&str, DataTransfer> {
+    let (input, shld) = parse_store_hl_direct(input)?;
+    Ok((input, DataTransfer::SHLD(shld)))
+}
+
+fn parse_store_hl_direct(input: &str) -> IResult<&str, SHLD> {
     let (input, (low_addr, high_addr)) =
         preceded(tag("00100010"), pair(parse_byte, parse_byte))(input)?;
-    let result = StoreHLDirect {
+    let result = SHLD::StoreHLDirect {
         low_addr,
         high_addr,
     };
@@ -22,20 +32,19 @@ pub fn parse_store_hl_direct(input: &str) -> IResult<&str, StoreHLDirect> {
 mod tests {
     mod parse_store_hl_direct {
         use crate::parsers::{
-            data_transfer::{shld::parse_store_hl_direct, StoreHLDirect},
+            data_transfer::shld::{parse_store_hl_direct, SHLD},
             test_expects_error, test_expects_success,
         };
         use nom::{error::ErrorKind, IResult};
 
-        const TESTED_FUNCTION: &dyn Fn(&str) -> IResult<&str, StoreHLDirect> =
-            &parse_store_hl_direct;
+        const TESTED_FUNCTION: &dyn Fn(&str) -> IResult<&str, SHLD> = &parse_store_hl_direct;
 
         #[test]
         fn test_valid_input() {
             test_expects_success(
                 "001000101111111111111111",
                 "",
-                StoreHLDirect {
+                SHLD::StoreHLDirect {
                     low_addr: 0b11111111,
                     high_addr: 0b11111111,
                 },
@@ -58,7 +67,7 @@ mod tests {
             test_expects_success(
                 "0010001011111111111111111",
                 "1",
-                StoreHLDirect {
+                SHLD::StoreHLDirect {
                     low_addr: 0b11111111,
                     high_addr: 0b11111111,
                 },

@@ -6,12 +6,22 @@ use nom::{
 
 use crate::parsers::data::parse_byte;
 
-use super::LoadAccumulatorDirect;
+use super::DataTransfer;
 
-pub fn parse_load_accumulator_direct(input: &str) -> IResult<&str, LoadAccumulatorDirect> {
+#[derive(Debug, PartialEq)]
+pub enum LDA {
+    LoadAccumulatorDirect { low_addr: u8, high_addr: u8 },
+}
+
+pub fn parse_lda(input: &str) -> IResult<&str, DataTransfer> {
+    let (input, lda) = parse_load_accumulator_direct(input)?;
+    Ok((input, DataTransfer::LDA(lda)))
+}
+
+fn parse_load_accumulator_direct(input: &str) -> IResult<&str, LDA> {
     let (input, (low_addr, high_addr)) =
         preceded(tag("00111010"), pair(parse_byte, parse_byte))(input)?;
-    let result = LoadAccumulatorDirect {
+    let result = LDA::LoadAccumulatorDirect {
         low_addr,
         high_addr,
     };
@@ -24,19 +34,18 @@ mod tests {
         use nom::{error::ErrorKind, IResult};
 
         use crate::parsers::{
-            data_transfer::{lda::parse_load_accumulator_direct, LoadAccumulatorDirect},
+            data_transfer::lda::{parse_load_accumulator_direct, LDA},
             test_expects_error, test_expects_success,
         };
 
-        const TESTED_FUNCTION: &dyn Fn(&str) -> IResult<&str, LoadAccumulatorDirect> =
-            &parse_load_accumulator_direct;
+        const TESTED_FUNCTION: &dyn Fn(&str) -> IResult<&str, LDA> = &parse_load_accumulator_direct;
 
         #[test]
         fn test_valid_input() {
             test_expects_success(
                 "001110101111111111111111",
                 "",
-                LoadAccumulatorDirect {
+                LDA::LoadAccumulatorDirect {
                     low_addr: 0b11111111,
                     high_addr: 0b11111111,
                 },
@@ -59,7 +68,7 @@ mod tests {
             test_expects_success(
                 "0011101011111111111111111",
                 "1",
-                LoadAccumulatorDirect {
+                LDA::LoadAccumulatorDirect {
                     low_addr: 0b11111111,
                     high_addr: 0b11111111,
                 },

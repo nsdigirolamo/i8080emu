@@ -6,12 +6,22 @@ use nom::{
 
 use crate::parsers::data::parse_byte;
 
-use super::LoadHLDirect;
+use super::DataTransfer;
 
-pub fn parse_load_hl_direct(input: &str) -> IResult<&str, LoadHLDirect> {
+#[derive(Debug, PartialEq)]
+pub enum LHLD {
+    LoadHLDirect { low_addr: u8, high_addr: u8 },
+}
+
+pub fn parse_lhld(input: &str) -> IResult<&str, DataTransfer> {
+    let (input, lhld) = parse_load_hl_direct(input)?;
+    Ok((input, DataTransfer::LHLD(lhld)))
+}
+
+fn parse_load_hl_direct(input: &str) -> IResult<&str, LHLD> {
     let (input, (low_addr, high_addr)) =
         preceded(tag("00101010"), pair(parse_byte, parse_byte))(input)?;
-    let result = LoadHLDirect {
+    let result = LHLD::LoadHLDirect {
         low_addr,
         high_addr,
     };
@@ -24,18 +34,18 @@ mod tests {
         use nom::{error::ErrorKind, IResult};
 
         use crate::parsers::{
-            data_transfer::{lhld::parse_load_hl_direct, LoadHLDirect},
+            data_transfer::lhld::{parse_load_hl_direct, LHLD},
             test_expects_error, test_expects_success,
         };
 
-        const TESTED_FUNCTION: &dyn Fn(&str) -> IResult<&str, LoadHLDirect> = &parse_load_hl_direct;
+        const TESTED_FUNCTION: &dyn Fn(&str) -> IResult<&str, LHLD> = &parse_load_hl_direct;
 
         #[test]
         fn test_valid_input() {
             test_expects_success(
                 "001010101111111111111111",
                 "",
-                LoadHLDirect {
+                LHLD::LoadHLDirect {
                     low_addr: 0b11111111,
                     high_addr: 0b11111111,
                 },
@@ -58,7 +68,7 @@ mod tests {
             test_expects_success(
                 "0010101011111111111111111",
                 "1",
-                LoadHLDirect {
+                LHLD::LoadHLDirect {
                     low_addr: 0b11111111,
                     high_addr: 0b11111111,
                 },

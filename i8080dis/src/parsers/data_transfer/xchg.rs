@@ -1,10 +1,20 @@
 use nom::{bytes::complete::tag, IResult};
 
-use super::ExchangeHLtoDE;
+use super::DataTransfer;
 
-pub fn parse_exchange_hl_to_de(input: &str) -> IResult<&str, ExchangeHLtoDE> {
+#[derive(Debug, PartialEq)]
+pub enum XCHG {
+    ExchangeHLtoDE,
+}
+
+pub fn parse_xchg(input: &str) -> IResult<&str, DataTransfer> {
+    let (input, xchg) = parse_exchange_hl_to_de(input)?;
+    Ok((input, DataTransfer::XCHG(xchg)))
+}
+
+pub fn parse_exchange_hl_to_de(input: &str) -> IResult<&str, XCHG> {
     let (input, _) = tag("11101011")(input)?;
-    let result = ExchangeHLtoDE {};
+    let result = XCHG::ExchangeHLtoDE;
     Ok((input, result))
 }
 
@@ -12,17 +22,16 @@ pub fn parse_exchange_hl_to_de(input: &str) -> IResult<&str, ExchangeHLtoDE> {
 mod tests {
     mod parse_exchange_hl_to_de {
         use crate::parsers::{
-            data_transfer::{xchg::parse_exchange_hl_to_de, ExchangeHLtoDE},
+            data_transfer::xchg::{parse_exchange_hl_to_de, XCHG},
             test_expects_error, test_expects_success,
         };
         use nom::{error::ErrorKind, IResult};
 
-        const TESTED_FUNCTION: &dyn Fn(&str) -> IResult<&str, ExchangeHLtoDE> =
-            &parse_exchange_hl_to_de;
+        const TESTED_FUNCTION: &dyn Fn(&str) -> IResult<&str, XCHG> = &parse_exchange_hl_to_de;
 
         #[test]
         fn test_valid_input() {
-            test_expects_success("11101011", "", ExchangeHLtoDE {}, TESTED_FUNCTION);
+            test_expects_success("11101011", "", XCHG::ExchangeHLtoDE, TESTED_FUNCTION);
         }
 
         #[test]
@@ -37,7 +46,7 @@ mod tests {
 
         #[test]
         fn test_excess_input() {
-            test_expects_success("111010111", "1", ExchangeHLtoDE {}, TESTED_FUNCTION);
+            test_expects_success("111010111", "1", XCHG::ExchangeHLtoDE, TESTED_FUNCTION);
         }
 
         #[test]

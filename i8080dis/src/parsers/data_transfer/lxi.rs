@@ -4,17 +4,34 @@ use nom::{
     IResult,
 };
 
-use crate::parsers::{data::parse_byte, register::parse_register_pair};
+use crate::parsers::{
+    data::parse_byte,
+    register::{parse_register_pair, RegisterPair},
+};
 
-use super::LoadRegisterPairImmediate;
+use super::DataTransfer;
 
-pub fn parse_load_register_pair_immediate(input: &str) -> IResult<&str, LoadRegisterPairImmediate> {
+#[derive(Debug, PartialEq)]
+pub enum LXI {
+    LoadRegisterPairImmediate {
+        rp: RegisterPair,
+        low_data: u8,
+        high_data: u8,
+    },
+}
+
+pub fn parse_lxi(input: &str) -> IResult<&str, DataTransfer> {
+    let (input, lxi) = parse_load_register_pair_immediate(input)?;
+    Ok((input, DataTransfer::LXI(lxi)))
+}
+
+fn parse_load_register_pair_immediate(input: &str) -> IResult<&str, LXI> {
     let (input, (rp, low_data, high_data)) = tuple((
         delimited(tag("00"), parse_register_pair, tag("0001")),
         parse_byte,
         parse_byte,
     ))(input)?;
-    let result = LoadRegisterPairImmediate {
+    let result = LXI::LoadRegisterPairImmediate {
         rp,
         low_data,
         high_data,
@@ -26,13 +43,13 @@ pub fn parse_load_register_pair_immediate(input: &str) -> IResult<&str, LoadRegi
 mod tests {
     mod parse_load_hl_direct {
         use crate::parsers::{
-            data_transfer::{lxi::parse_load_register_pair_immediate, LoadRegisterPairImmediate},
+            data_transfer::lxi::{parse_load_register_pair_immediate, LXI},
             register::RegisterPair,
             test_expects_error, test_expects_success,
         };
         use nom::{error::ErrorKind, IResult};
 
-        const TESTED_FUNCTION: &dyn Fn(&str) -> IResult<&str, LoadRegisterPairImmediate> =
+        const TESTED_FUNCTION: &dyn Fn(&str) -> IResult<&str, LXI> =
             &parse_load_register_pair_immediate;
 
         #[test]
@@ -40,7 +57,7 @@ mod tests {
             test_expects_success(
                 "000000011111111111111111",
                 "",
-                LoadRegisterPairImmediate {
+                LXI::LoadRegisterPairImmediate {
                     rp: RegisterPair::BC,
                     low_data: 0b11111111,
                     high_data: 0b11111111,
@@ -64,7 +81,7 @@ mod tests {
             test_expects_success(
                 "0000000111111111111111111",
                 "1",
-                LoadRegisterPairImmediate {
+                LXI::LoadRegisterPairImmediate {
                     rp: RegisterPair::BC,
                     low_data: 0b11111111,
                     high_data: 0b11111111,

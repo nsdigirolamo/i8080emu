@@ -1,28 +1,45 @@
 use nom::{
+    branch::alt,
     bytes::complete::tag,
     sequence::{delimited, pair, preceded},
     IResult,
 };
 
-use crate::parsers::register::parse_register;
+use crate::parsers::register::{parse_register, Register};
 
-use super::{MoveFromMemory, MoveRegister, MoveToMemory};
+use super::DataTransfer;
 
-pub fn parse_move_register(input: &str) -> IResult<&str, MoveRegister> {
+#[derive(Debug, PartialEq)]
+pub enum MOV {
+    MoveRegister { r1: Register, r2: Register },
+    MoveFromMemory { r: Register },
+    MoveToMemory { r: Register },
+}
+
+pub fn parse_mov(input: &str) -> IResult<&str, DataTransfer> {
+    let (input, mov) = alt((
+        parse_move_register,
+        parse_move_from_memory,
+        parse_move_to_memory,
+    ))(input)?;
+    Ok((input, DataTransfer::MOV(mov)))
+}
+
+fn parse_move_register(input: &str) -> IResult<&str, MOV> {
     let (input, (r1, r2)) = preceded(tag("01"), pair(parse_register, parse_register))(input)?;
-    let result = MoveRegister { r1, r2 };
+    let result = MOV::MoveRegister { r1, r2 };
     Ok((input, result))
 }
 
-pub fn parse_move_from_memory(input: &str) -> IResult<&str, MoveFromMemory> {
+fn parse_move_from_memory(input: &str) -> IResult<&str, MOV> {
     let (input, r) = delimited(tag("01"), parse_register, tag("110"))(input)?;
-    let result = MoveFromMemory { r };
+    let result = MOV::MoveFromMemory { r };
     Ok((input, result))
 }
 
-pub fn parse_move_to_memory(input: &str) -> IResult<&str, MoveToMemory> {
+fn parse_move_to_memory(input: &str) -> IResult<&str, MOV> {
     let (input, r) = preceded(tag("01110"), parse_register)(input)?;
-    let result = MoveToMemory { r };
+    let result = MOV::MoveToMemory { r };
     Ok((input, result))
 }
 
@@ -30,20 +47,20 @@ pub fn parse_move_to_memory(input: &str) -> IResult<&str, MoveToMemory> {
 mod tests {
     mod parse_move_register {
         use crate::parsers::{
-            data_transfer::{mov::parse_move_register, MoveRegister},
+            data_transfer::mov::{parse_move_register, MOV},
             register::Register,
             test_expects_error, test_expects_success,
         };
         use nom::{error::ErrorKind, IResult};
 
-        const TESTED_FUNCTION: &dyn Fn(&str) -> IResult<&str, MoveRegister> = &parse_move_register;
+        const TESTED_FUNCTION: &dyn Fn(&str) -> IResult<&str, MOV> = &parse_move_register;
 
         #[test]
         fn test_valid_input() {
             test_expects_success(
                 "01111000",
                 "",
-                MoveRegister {
+                MOV::MoveRegister {
                     r1: Register::A,
                     r2: Register::B,
                 },
@@ -66,7 +83,7 @@ mod tests {
             test_expects_success(
                 "011110001",
                 "1",
-                MoveRegister {
+                MOV::MoveRegister {
                     r1: Register::A,
                     r2: Register::B,
                 },
@@ -92,21 +109,20 @@ mod tests {
 
     mod parse_move_from_memory {
         use crate::parsers::{
-            data_transfer::{mov::parse_move_from_memory, MoveFromMemory},
+            data_transfer::mov::{parse_move_from_memory, MOV},
             register::Register,
             test_expects_error, test_expects_success,
         };
         use nom::{error::ErrorKind, IResult};
 
-        const TESTED_FUNCTION: &dyn Fn(&str) -> IResult<&str, MoveFromMemory> =
-            &parse_move_from_memory;
+        const TESTED_FUNCTION: &dyn Fn(&str) -> IResult<&str, MOV> = &parse_move_from_memory;
 
         #[test]
         fn test_valid_input() {
             test_expects_success(
                 "01111110",
                 "",
-                MoveFromMemory { r: Register::A },
+                MOV::MoveFromMemory { r: Register::A },
                 TESTED_FUNCTION,
             );
         }
@@ -126,7 +142,7 @@ mod tests {
             test_expects_success(
                 "011111101",
                 "1",
-                MoveFromMemory { r: Register::A },
+                MOV::MoveFromMemory { r: Register::A },
                 TESTED_FUNCTION,
             );
         }
@@ -149,20 +165,20 @@ mod tests {
 
     mod parse_move_to_memory {
         use crate::parsers::{
-            data_transfer::{mov::parse_move_to_memory, MoveToMemory},
+            data_transfer::mov::{parse_move_to_memory, MOV},
             register::Register,
             test_expects_error, test_expects_success,
         };
         use nom::{error::ErrorKind, IResult};
 
-        const TESTED_FUNCTION: &dyn Fn(&str) -> IResult<&str, MoveToMemory> = &parse_move_to_memory;
+        const TESTED_FUNCTION: &dyn Fn(&str) -> IResult<&str, MOV> = &parse_move_to_memory;
 
         #[test]
         fn test_valid_input() {
             test_expects_success(
                 "01110111",
                 "",
-                MoveToMemory { r: Register::A },
+                MOV::MoveToMemory { r: Register::A },
                 TESTED_FUNCTION,
             );
         }
@@ -182,7 +198,7 @@ mod tests {
             test_expects_success(
                 "011101111",
                 "1",
-                MoveToMemory { r: Register::A },
+                MOV::MoveToMemory { r: Register::A },
                 TESTED_FUNCTION,
             );
         }

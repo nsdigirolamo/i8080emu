@@ -1,23 +1,38 @@
 use nom::{
+    branch::alt,
     bytes::complete::tag,
     sequence::{delimited, pair, preceded},
     IResult,
 };
 
-use crate::parsers::{data::parse_byte, register::parse_register};
+use crate::parsers::{
+    data::parse_byte,
+    register::{parse_register, Register},
+};
 
-use super::{MoveImmediate, MoveToMemoryImmediate};
+use super::DataTransfer;
 
-pub fn parse_move_immediate(input: &str) -> IResult<&str, MoveImmediate> {
+#[derive(Debug, PartialEq)]
+pub enum MVI {
+    MoveImmediate { r: Register, data: u8 },
+    MoveToMemoryImmediate { data: u8 },
+}
+
+pub fn parse_mvi(input: &str) -> IResult<&str, DataTransfer> {
+    let (input, mvi) = alt((parse_move_immediate, parse_move_to_memory_immediate))(input)?;
+    Ok((input, DataTransfer::MVI(mvi)))
+}
+
+fn parse_move_immediate(input: &str) -> IResult<&str, MVI> {
     let (input, (r, data)) =
         pair(delimited(tag("00"), parse_register, tag("110")), parse_byte)(input)?;
-    let result = MoveImmediate { r, data };
+    let result = MVI::MoveImmediate { r, data };
     Ok((input, result))
 }
 
-pub fn parse_move_to_memory_immediate(input: &str) -> IResult<&str, MoveToMemoryImmediate> {
+fn parse_move_to_memory_immediate(input: &str) -> IResult<&str, MVI> {
     let (input, data) = preceded(tag("00110110"), parse_byte)(input)?;
-    let result = MoveToMemoryImmediate { data };
+    let result = MVI::MoveToMemoryImmediate { data };
     Ok((input, result))
 }
 
@@ -25,21 +40,20 @@ pub fn parse_move_to_memory_immediate(input: &str) -> IResult<&str, MoveToMemory
 mod tests {
     mod parse_move_immediate {
         use crate::parsers::{
-            data_transfer::{mvi::parse_move_immediate, MoveImmediate},
+            data_transfer::mvi::{parse_move_immediate, MVI},
             register::Register,
             test_expects_error, test_expects_success,
         };
         use nom::{error::ErrorKind, IResult};
 
-        const TESTED_FUNCTION: &dyn Fn(&str) -> IResult<&str, MoveImmediate> =
-            &parse_move_immediate;
+        const TESTED_FUNCTION: &dyn Fn(&str) -> IResult<&str, MVI> = &parse_move_immediate;
 
         #[test]
         fn test_valid_input() {
             test_expects_success(
                 "0011111011111111",
                 "",
-                MoveImmediate {
+                MVI::MoveImmediate {
                     r: Register::A,
                     data: 0b11111111,
                 },
@@ -62,7 +76,7 @@ mod tests {
             test_expects_success(
                 "00111110111111111",
                 "1",
-                MoveImmediate {
+                MVI::MoveImmediate {
                     r: Register::A,
                     data: 0b11111111,
                 },
@@ -88,12 +102,12 @@ mod tests {
 
     mod parse_move_to_memory_immediate {
         use crate::parsers::{
-            data_transfer::{mvi::parse_move_to_memory_immediate, MoveToMemoryImmediate},
+            data_transfer::mvi::{parse_move_to_memory_immediate, MVI},
             test_expects_error, test_expects_success,
         };
         use nom::{error::ErrorKind, IResult};
 
-        const TESTED_FUNCTION: &dyn Fn(&str) -> IResult<&str, MoveToMemoryImmediate> =
+        const TESTED_FUNCTION: &dyn Fn(&str) -> IResult<&str, MVI> =
             &parse_move_to_memory_immediate;
 
         #[test]
@@ -101,7 +115,7 @@ mod tests {
             test_expects_success(
                 "0011011011111111",
                 "",
-                MoveToMemoryImmediate { data: 0b11111111 },
+                MVI::MoveToMemoryImmediate { data: 0b11111111 },
                 TESTED_FUNCTION,
             );
         }
@@ -121,7 +135,7 @@ mod tests {
             test_expects_success(
                 "00110110111111111",
                 "1",
-                MoveToMemoryImmediate { data: 0b11111111 },
+                MVI::MoveToMemoryImmediate { data: 0b11111111 },
                 TESTED_FUNCTION,
             );
         }

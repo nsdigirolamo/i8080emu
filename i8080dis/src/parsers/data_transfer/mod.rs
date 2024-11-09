@@ -1,83 +1,41 @@
-use super::register::{Register, RegisterPair};
+use nom::{branch::alt, IResult};
 
-pub mod lda;
-pub mod ldax;
-pub mod lhld;
-pub mod lxi;
-pub mod mov;
-pub mod mvi;
-pub mod shld;
-pub mod sta;
-pub mod stax;
-pub mod xchg;
+mod lda;
+mod ldax;
+mod lhld;
+mod lxi;
+mod mov;
+mod mvi;
+mod shld;
+mod sta;
+mod stax;
+mod xchg;
 
 #[derive(Debug, PartialEq)]
-pub struct MoveRegister {
-    pub r1: Register,
-    pub r2: Register,
+pub enum DataTransfer {
+    LDA(lda::LDA),
+    LDAX(ldax::LDAX),
+    LHLD(lhld::LHLD),
+    LXI(lxi::LXI),
+    MOV(mov::MOV),
+    MVI(mvi::MVI),
+    SHLD(shld::SHLD),
+    STA(sta::STA),
+    STAX(stax::STAX),
+    XCHG(xchg::XCHG),
 }
 
-#[derive(Debug, PartialEq)]
-pub struct MoveFromMemory {
-    pub r: Register,
+pub fn parse_data_transfer(input: &str) -> IResult<&str, DataTransfer> {
+    alt((
+        lda::parse_lda,
+        ldax::parse_ldax,
+        lhld::parse_lhld,
+        lxi::parse_lxi,
+        mov::parse_mov,
+        mvi::parse_mvi,
+        shld::parse_shld,
+        sta::parse_sta,
+        stax::parse_stax,
+        xchg::parse_xchg,
+    ))(input)
 }
-
-#[derive(Debug, PartialEq)]
-pub struct MoveToMemory {
-    pub r: Register,
-}
-
-#[derive(Debug, PartialEq)]
-pub struct MoveImmediate {
-    pub r: Register,
-    pub data: u8,
-}
-
-#[derive(Debug, PartialEq)]
-pub struct MoveToMemoryImmediate {
-    pub data: u8,
-}
-
-#[derive(Debug, PartialEq)]
-pub struct LoadRegisterPairImmediate {
-    pub rp: RegisterPair,
-    pub low_data: u8,
-    pub high_data: u8,
-}
-
-#[derive(Debug, PartialEq)]
-pub struct LoadAccumulatorDirect {
-    pub low_addr: u8,
-    pub high_addr: u8,
-}
-
-#[derive(Debug, PartialEq)]
-pub struct StoreAccumulatorDirect {
-    pub low_addr: u8,
-    pub high_addr: u8,
-}
-
-#[derive(Debug, PartialEq)]
-pub struct LoadHLDirect {
-    pub low_addr: u8,
-    pub high_addr: u8,
-}
-
-#[derive(Debug, PartialEq)]
-pub struct StoreHLDirect {
-    pub low_addr: u8,
-    pub high_addr: u8,
-}
-
-#[derive(Debug, PartialEq)]
-pub struct LoadAccumulatorIndirect {
-    pub rp: RegisterPair,
-}
-
-#[derive(Debug, PartialEq)]
-pub struct StoreAccumulatorIndirect {
-    pub rp: RegisterPair,
-}
-
-#[derive(Debug, PartialEq)]
-pub struct ExchangeHLtoDE {}

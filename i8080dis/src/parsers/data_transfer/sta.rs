@@ -6,12 +6,22 @@ use nom::{
 
 use crate::parsers::data::parse_byte;
 
-use super::StoreAccumulatorDirect;
+use super::DataTransfer;
 
-pub fn parse_store_accumulator_direct(input: &str) -> IResult<&str, StoreAccumulatorDirect> {
+#[derive(Debug, PartialEq)]
+pub enum STA {
+    StoreAccumulatorDirect { low_addr: u8, high_addr: u8 },
+}
+
+pub fn parse_sta(input: &str) -> IResult<&str, DataTransfer> {
+    let (input, sta) = parse_store_accumulator_direct(input)?;
+    Ok((input, DataTransfer::STA(sta)))
+}
+
+fn parse_store_accumulator_direct(input: &str) -> IResult<&str, STA> {
     let (input, (low_addr, high_addr)) =
         preceded(tag("00110010"), pair(parse_byte, parse_byte))(input)?;
-    let result = StoreAccumulatorDirect {
+    let result = STA::StoreAccumulatorDirect {
         low_addr,
         high_addr,
     };
@@ -21,14 +31,15 @@ pub fn parse_store_accumulator_direct(input: &str) -> IResult<&str, StoreAccumul
 #[cfg(test)]
 mod tests {
     mod parse_store_accumulator_direct {
-        use crate::parsers::data_transfer::{
-            sta::parse_store_accumulator_direct, StoreAccumulatorDirect,
-        };
-        use crate::parsers::{test_expects_error, test_expects_success};
         use nom::error::ErrorKind;
         use nom::IResult;
 
-        const TESTED_FUNCTION: &dyn Fn(&str) -> IResult<&str, StoreAccumulatorDirect> =
+        use crate::parsers::{
+            data_transfer::sta::{parse_store_accumulator_direct, STA},
+            test_expects_error, test_expects_success,
+        };
+
+        const TESTED_FUNCTION: &dyn Fn(&str) -> IResult<&str, STA> =
             &parse_store_accumulator_direct;
 
         #[test]
@@ -36,7 +47,7 @@ mod tests {
             test_expects_success(
                 "001100101111111111111111",
                 "",
-                StoreAccumulatorDirect {
+                STA::StoreAccumulatorDirect {
                     low_addr: 0b11111111,
                     high_addr: 0b11111111,
                 },
@@ -59,7 +70,7 @@ mod tests {
             test_expects_success(
                 "0011001011111111111111111",
                 "1",
-                StoreAccumulatorDirect {
+                STA::StoreAccumulatorDirect {
                     low_addr: 0b11111111,
                     high_addr: 0b11111111,
                 },

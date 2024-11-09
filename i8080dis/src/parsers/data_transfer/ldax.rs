@@ -1,12 +1,22 @@
 use nom::{bytes::complete::tag, sequence::delimited, IResult};
 
-use crate::parsers::register::parse_register_pair;
+use crate::parsers::register::{parse_register_pair, RegisterPair};
 
-use super::LoadAccumulatorIndirect;
+use super::DataTransfer;
 
-pub fn parse_load_accumulator_indirect(input: &str) -> IResult<&str, LoadAccumulatorIndirect> {
+#[derive(Debug, PartialEq)]
+pub enum LDAX {
+    LoadAccumulatorIndirect { rp: RegisterPair },
+}
+
+pub fn parse_ldax(input: &str) -> IResult<&str, DataTransfer> {
+    let (input, ldax) = parse_load_accumulator_indirect(input)?;
+    Ok((input, DataTransfer::LDAX(ldax)))
+}
+
+fn parse_load_accumulator_indirect(input: &str) -> IResult<&str, LDAX> {
     let (input, rp) = delimited(tag("00"), parse_register_pair, tag("1010"))(input)?;
-    let result = LoadAccumulatorIndirect { rp };
+    let result = LDAX::LoadAccumulatorIndirect { rp };
     Ok((input, result))
 }
 
@@ -16,12 +26,12 @@ mod tests {
         use nom::{error::ErrorKind, IResult};
 
         use crate::parsers::{
-            data_transfer::{ldax::parse_load_accumulator_indirect, LoadAccumulatorIndirect},
+            data_transfer::ldax::{parse_load_accumulator_indirect, LDAX},
             register::RegisterPair,
             test_expects_error, test_expects_success,
         };
 
-        const TESTED_FUNCTION: &dyn Fn(&str) -> IResult<&str, LoadAccumulatorIndirect> =
+        const TESTED_FUNCTION: &dyn Fn(&str) -> IResult<&str, LDAX> =
             &parse_load_accumulator_indirect;
 
         #[test]
@@ -29,7 +39,7 @@ mod tests {
             test_expects_success(
                 "00001010",
                 "",
-                LoadAccumulatorIndirect {
+                LDAX::LoadAccumulatorIndirect {
                     rp: RegisterPair::BC,
                 },
                 TESTED_FUNCTION,
@@ -56,7 +66,7 @@ mod tests {
             test_expects_success(
                 "000010101",
                 "1",
-                LoadAccumulatorIndirect {
+                LDAX::LoadAccumulatorIndirect {
                     rp: RegisterPair::BC,
                 },
                 TESTED_FUNCTION,
