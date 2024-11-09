@@ -7,10 +7,9 @@ fn main() {
 
     match command {
         "dis" => {
-            let instructions =
-                i8080dis::disassemble_binary(args[2].as_str());
+            let instructions = i8080dis::disassemble_binary(args[2].as_str());
             println!("{:#?}", instructions);
-        },
-        _ => println!("Invalid command.")
+        }
+        _ => println!("Invalid command."),
     }
 }

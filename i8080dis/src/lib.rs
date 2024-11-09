@@ -16,5 +16,5 @@ pub fn disassemble_binary(path: &str) -> Vec<Instruction> {
         .join("");
 
     let (_, instructions) = parse_instructions(&binary_string).unwrap();
-    return instructions;
+    instructions
 }
