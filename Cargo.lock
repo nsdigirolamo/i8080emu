@@ -3,17 +3,10 @@
 version = 3
 
 [[package]]
-name = "i8080dis"
-version = "0.1.0"
-dependencies = [
- "nom",
-]
-
-[[package]]
 name = "i8080emu"
 version = "0.1.0"
 dependencies = [
- "i8080dis",
+ "nom",
 ]
 
 [[package]]

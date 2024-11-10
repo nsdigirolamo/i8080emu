@@ -1,8 +1,7 @@
-[workspace]
+[package]
+name = "i8080emu"
+version = "0.1.0"
+edition = "2021"
 
-members = [
-    "i8080emu",
-    "i8080dis",
-]
-
-resolver = "2"
+[dependencies]
+nom = "7"
