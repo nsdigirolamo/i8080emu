@@ -1,13 +1,13 @@
-use std::{fs::File, io::Read, path::Path};
+use std::{error::Error, fs::File, io::Read, path::Path};
 
 use parsers::{parse_instructions, Instruction};
 
 pub mod parsers;
 
-pub fn disassemble_binary(path: &str) -> Vec<Instruction> {
-    let mut file = File::open(Path::new(path)).unwrap();
+pub fn disassemble_binary(path: &str) -> Result<Vec<Instruction>, Box<dyn Error>> {
+    let mut file = File::open(Path::new(path))?;
     let mut buffer = Vec::new();
-    file.read_to_end(&mut buffer).unwrap();
+    file.read_to_end(&mut buffer)?;
 
     let binary_string = buffer
         .iter()
@@ -15,6 +15,8 @@ pub fn disassemble_binary(path: &str) -> Vec<Instruction> {
         .collect::<Vec<String>>()
         .join("");
 
-    let (_, instructions) = parse_instructions(&binary_string).unwrap();
-    instructions
+    match parse_instructions(&binary_string) {
+        Ok((_, instructions)) => Ok(instructions),
+        Err(e) => Err(Box::new(e.to_owned())),
+    }
 }
