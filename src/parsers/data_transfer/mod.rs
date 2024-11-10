@@ -2,16 +2,16 @@ use nom::{branch::alt, IResult};
 
 use super::Instruction;
 
-mod lda;
-mod ldax;
-mod lhld;
-mod lxi;
-mod mov;
-mod mvi;
-mod shld;
-mod sta;
-mod stax;
-mod xchg;
+pub mod lda;
+pub mod ldax;
+pub mod lhld;
+pub mod lxi;
+pub mod mov;
+pub mod mvi;
+pub mod shld;
+pub mod sta;
+pub mod stax;
+pub mod xchg;
 
 #[derive(Debug, PartialEq)]
 pub enum DataTransfer {

@@ -1,6 +1,6 @@
-use nom::{bytes::complete::tag, sequence::delimited, IResult};
+use nom::{branch::alt, bytes::complete::tag, sequence::delimited, IResult};
 
-use crate::parsers::register::{parse_register_pair, RegisterPair};
+use crate::parsers::register::{parse_register_pair_bc, parse_register_pair_de, RegisterPair};
 
 use super::DataTransfer;
 
@@ -16,7 +16,11 @@ pub fn parse_stax(input: &str) -> IResult<&str, DataTransfer> {
 }
 
 fn parse_store_accumulator_indirect(input: &str) -> IResult<&str, STAX> {
-    let (input, rp) = delimited(tag("00"), parse_register_pair, tag("0010"))(input)?;
+    let (input, rp) = delimited(
+        tag("00"),
+        alt((parse_register_pair_bc, parse_register_pair_de)),
+        tag("0010"),
+    )(input)?;
     let result = STAX::StoreAccumulatorIndirect { rp };
     Ok((input, result))
 }
