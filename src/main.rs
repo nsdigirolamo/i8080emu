@@ -1,3 +1,4 @@
+pub mod emu;
 pub mod parsers;
 
 use std::{env, error::Error, fs::File, io::Read, path::Path};
