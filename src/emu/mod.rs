@@ -1,5 +1,7 @@
+pub mod arithmetic;
 pub mod data_transfer;
 
+use arithmetic::execute_arithmetic;
 use data_transfer::execute_data_transfer;
 
 use crate::parsers::{
@@ -8,9 +10,9 @@ use crate::parsers::{
 };
 
 /**
-  Concatenates two expressions of type `u8` into a single expression of type
-  `u16`: First parameter is the higher order `u8` expression.
-  - `(10101010, 11111111) -> 1010101011111111`
+    Concatenates two expressions of type `u8` into a single value of type `u16`.
+    The first parameter is the 8 higher order bits of the resulting `u16` value.
+    - `(10101010, 11111111) -> 1010101011111111`
 */
 #[macro_export]
 macro_rules! concat_u8_pair {
@@ -20,9 +22,10 @@ macro_rules! concat_u8_pair {
 }
 
 /**
-  Splits an expression of type `u16` into a tuple of two `u8` expressions. The
-  first returned expression is the higher order `u8` result.
-  - `1010101011111111 -> (10101010, 11111111)`
+    Splits an expression of type `u16` into a tuple of two `u8` values. The
+    first returned value is the 8 higher order bits of the original `u16`
+    expression.
+    - `1010101011111111 -> (10101010, 11111111)`
 */
 #[macro_export]
 macro_rules! split_u16 {
@@ -33,9 +36,9 @@ macro_rules! split_u16 {
 }
 
 /**
-  Splits an expression of type `u8` into a tuple of two `u8` expressions. The
-  first returned expression is the
-  - `10101111 -> (00001010, 00001111)`
+    Splits an expression of type `u8` into a tuple of two `u8` values. The first
+    returned value is the 4 higher order bits of the original `u8` expression.
+    - `10101111 -> (00001010, 00001111)`
 */
 #[macro_export]
 macro_rules! split_u8 {
@@ -45,21 +48,32 @@ macro_rules! split_u8 {
     }};
 }
 
-/** The 8080's six 16-bit registers. */
+/**
+    The 8080's six 16-bit registers.
+*/
 struct Registers {
-    pc: u16, // Program Counter
-    sp: u16, // Stack Pointer
-    b: u8,   // BC Register
+    pc: u16,
+    sp: u16,
+    b: u8,
     c: u8,
-    d: u8, // DE Register
+    d: u8,
     e: u8,
-    h: u8, // HL Register
+    h: u8,
     l: u8,
-    w: u8, // WZ Temporary Register
+    w: u8,
     z: u8,
 }
 
-/** The 8080's five control (AKA status) bits. */
+/**
+    The 8080's five control (AKA status) bits.
+    - `zero`: Set when an instruction's result is zero.
+    - `carry`: Set when an instruction' results in a carry-out.
+    - `sign`: Set when an instruction's result is negative.
+    - `parity`: Set when an instruction's resulting binary value has an even
+    number of ones.
+    - `auxiliary_carry`: Set when an instruction results in a carry-out of bit
+    three.
+*/
 struct Flags {
     zero: bool,
     carry: bool,
@@ -75,6 +89,9 @@ struct ArithmeticLogicUnit {
     temporary_register: u8,
 }
 
+/**
+   The internal state of the 8080.
+*/
 pub struct State {
     registers: Registers,
     alu: ArithmeticLogicUnit,
@@ -140,16 +157,11 @@ impl State {
     fn set_memory(&mut self, address: u16, data: u8) {
         self.memory[address as usize] = data;
     }
-
-    fn set_flags(&mut self, result: i8, carried: bool) {
-        self.alu.flags.carry = carried;
-        self.alu.flags.zero = result == 0;
-    }
 }
 
 pub fn execute_instruction(state: &mut State, instruction: Instruction) {
     match instruction {
-        Instruction::Arithmetic(_arithmetic) => todo!(),
+        Instruction::Arithmetic(arithmetic) => execute_arithmetic(state, arithmetic),
         Instruction::Branch(_branch) => todo!(),
         Instruction::Control(_control) => todo!(),
         Instruction::DataTransfer(data_transfer) => execute_data_transfer(state, data_transfer),
