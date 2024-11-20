@@ -54,7 +54,7 @@ pub fn execute_arithmetic(state: &mut State, arithmetic: Arithmetic) {
 /**
     Gets the condition flags from an operation involving the parameters.
 */
-fn get_flags(lhs: i8, rhs: i8, result: i8, carried: bool) -> Flags {
+pub fn get_flags(lhs: i8, rhs: i8, result: i8, carried: bool) -> Flags {
     Flags {
         carry: carried,
         zero: result == 0,

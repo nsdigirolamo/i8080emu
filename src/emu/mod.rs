@@ -1,5 +1,6 @@
 pub mod arithmetic;
 pub mod data_transfer;
+pub mod logical;
 
 use arithmetic::execute_arithmetic;
 use data_transfer::execute_data_transfer;
@@ -74,7 +75,7 @@ struct Registers {
     - `auxiliary_carry`: Set when an instruction results in a carry-out of bit
     three.
 */
-struct Flags {
+pub struct Flags {
     zero: bool,
     carry: bool,
     sign: bool,
@@ -165,6 +166,6 @@ pub fn execute_instruction(state: &mut State, instruction: Instruction) {
         Instruction::Branch(_branch) => todo!(),
         Instruction::Control(_control) => todo!(),
         Instruction::DataTransfer(data_transfer) => execute_data_transfer(state, data_transfer),
-        Instruction::Logical(_logical) => todo!(),
+        Instruction::Logical(logical) => logical::execute_logical(state, logical),
     }
 }
