@@ -1,18 +1,3 @@
-use aci::execute_aci;
-use adc::execute_adc;
-use add::execute_add;
-use adi::execute_adi;
-use daa::execute_daa;
-use dad::execute_dad;
-use dcr::execute_dcr;
-use dcx::execute_dcx;
-use inr::execute_inr;
-use inx::execute_inx;
-use sbb::execute_sbb;
-use sbi::execute_sbi;
-use sub::execute_sub;
-use sui::execute_sui;
-
 use crate::parsers::arithmetic::Arithmetic;
 
 use super::{Flags, State};
@@ -34,20 +19,20 @@ pub mod sui;
 
 pub fn execute_arithmetic(state: &mut State, arithmetic: Arithmetic) {
     match arithmetic {
-        Arithmetic::ACI(aci) => execute_aci(state, aci),
-        Arithmetic::ADC(adc) => execute_adc(state, adc),
-        Arithmetic::ADD(add) => execute_add(state, add),
-        Arithmetic::ADI(adi) => execute_adi(state, adi),
-        Arithmetic::DAA(daa) => execute_daa(state, daa),
-        Arithmetic::DAD(dad) => execute_dad(state, dad),
-        Arithmetic::DCR(dcr) => execute_dcr(state, dcr),
-        Arithmetic::DCX(dcx) => execute_dcx(state, dcx),
-        Arithmetic::INR(inr) => execute_inr(state, inr),
-        Arithmetic::INX(inx) => execute_inx(state, inx),
-        Arithmetic::SBB(sbb) => execute_sbb(state, sbb),
-        Arithmetic::SBI(sbi) => execute_sbi(state, sbi),
-        Arithmetic::SUB(sub) => execute_sub(state, sub),
-        Arithmetic::SUI(sui) => execute_sui(state, sui),
+        Arithmetic::ACI(aci) => aci::execute_aci(state, aci),
+        Arithmetic::ADC(adc) => adc::execute_adc(state, adc),
+        Arithmetic::ADD(add) => add::execute_add(state, add),
+        Arithmetic::ADI(adi) => adi::execute_adi(state, adi),
+        Arithmetic::DAA(daa) => daa::execute_daa(state, daa),
+        Arithmetic::DAD(dad) => dad::execute_dad(state, dad),
+        Arithmetic::DCR(dcr) => dcr::execute_dcr(state, dcr),
+        Arithmetic::DCX(dcx) => dcx::execute_dcx(state, dcx),
+        Arithmetic::INR(inr) => inr::execute_inr(state, inr),
+        Arithmetic::INX(inx) => inx::execute_inx(state, inx),
+        Arithmetic::SBB(sbb) => sbb::execute_sbb(state, sbb),
+        Arithmetic::SBI(sbi) => sbi::execute_sbi(state, sbi),
+        Arithmetic::SUB(sub) => sub::execute_sub(state, sub),
+        Arithmetic::SUI(sui) => sui::execute_sui(state, sui),
     }
 }
 
