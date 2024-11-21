@@ -11,7 +11,7 @@ fn main() {
     let command = args[1].as_str();
 
     match command {
-        "load" => load_program_to_memory(state, 0x10, args[2].as_str()),
+        "load" => load_program_to_memory(state, 16, args[2].as_str()),
         _ => println!("Invalid command."),
     }
 
@@ -25,11 +25,13 @@ fn load_program_to_memory(state: &mut State, starting_addr: u16, path_to_program
         Err(e) => panic!("{}", e.to_string()),
     };
 
-    if state.memory.len() < buffer.len() {
+    let address_size = (state.memory.len() as u16 - starting_addr) as usize;
+    if address_size < buffer.len() {
         panic!("The program is too large to load into memory.")
     }
 
-    for (index, byte) in buffer.into_iter().enumerate() {
-        state.set_memory(starting_addr + index as u16, byte);
+    for (index, data) in buffer.into_iter().enumerate() {
+        let address = starting_addr + index as u16;
+        state.set_memory(address, data);
     }
 }

@@ -103,7 +103,7 @@ pub struct ArithmeticLogicUnit {
 pub struct State {
     pub registers: Registers,
     pub alu: ArithmeticLogicUnit,
-    pub memory: [u8; 65536],
+    pub memory: [u8; 65535],
 }
 
 impl Default for State {
@@ -111,7 +111,7 @@ impl Default for State {
         State {
             registers: Default::default(),
             alu: Default::default(),
-            memory: [0; 65536],
+            memory: [0; 65535],
         }
     }
 }
