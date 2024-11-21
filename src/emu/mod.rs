@@ -111,7 +111,7 @@ impl Default for State {
         State {
             registers: Default::default(),
             alu: Default::default(),
-            memory: [0; 65536]
+            memory: [0; 65536],
         }
     }
 }

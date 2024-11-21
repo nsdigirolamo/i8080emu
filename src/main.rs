@@ -1,8 +1,8 @@
 pub mod emu;
 pub mod parsers;
 
-use std::{env, fs::File, io::Read, path::Path};
 use emu::State;
+use std::{env, fs::File, io::Read, path::Path};
 
 fn main() {
     let state = &mut Default::default();
