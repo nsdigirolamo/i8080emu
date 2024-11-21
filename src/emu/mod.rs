@@ -1,4 +1,5 @@
 pub mod arithmetic;
+pub mod branch;
 pub mod data_transfer;
 pub mod logical;
 
