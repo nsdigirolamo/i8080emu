@@ -1,37 +1,35 @@
 pub mod emu;
 pub mod parsers;
 
-use std::{env, error::Error, fs::File, io::Read, path::Path};
-
-use parsers::{parse_instructions, Instruction};
+use std::{env, fs::File, io::Read, path::Path};
+use emu::State;
 
 fn main() {
-    let args: Vec<String> = env::args().collect();
+    let state = &mut Default::default();
 
+    let args: Vec<String> = env::args().collect();
     let command = args[1].as_str();
 
     match command {
-        "dis" => match disassemble_binary(args[2].as_str()) {
-            Ok(instructions) => println!("{:#?}", instructions),
-            Err(e) => println!("{}", e.to_string()),
-        },
+        "load" => load_program_to_memory(state, 0x10, args[2].as_str()),
         _ => println!("Invalid command."),
     }
+
+    println!("{:?}", state.memory);
 }
 
-fn disassemble_binary(path: &str) -> Result<Vec<Instruction>, Box<dyn Error>> {
-    let mut file = File::open(Path::new(path))?;
+fn load_program_to_memory(state: &mut State, starting_addr: u16, path_to_program: &str) {
     let mut buffer = Vec::new();
-    file.read_to_end(&mut buffer)?;
+    let _ = match File::open(Path::new(path_to_program)) {
+        Ok(mut file) => file.read_to_end(&mut buffer),
+        Err(e) => panic!("{}", e.to_string()),
+    };
 
-    let binary_string = buffer
-        .iter()
-        .map(|byte| format!("{:08b}", byte))
-        .collect::<Vec<String>>()
-        .join("");
+    if state.memory.len() < buffer.len() {
+        panic!("The program is too large to load into memory.")
+    }
 
-    match parse_instructions(&binary_string) {
-        Ok((_, instructions)) => Ok(instructions),
-        Err(e) => Err(Box::new(e.to_owned())),
+    for (index, byte) in buffer.into_iter().enumerate() {
+        state.set_memory(starting_addr + index as u16, byte);
     }
 }

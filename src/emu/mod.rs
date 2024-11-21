@@ -53,17 +53,18 @@ macro_rules! split_u8 {
 /**
     The 8080's six 16-bit registers.
 */
-struct Registers {
-    pc: u16,
-    sp: u16,
-    b: u8,
-    c: u8,
-    d: u8,
-    e: u8,
-    h: u8,
-    l: u8,
-    w: u8,
-    z: u8,
+#[derive(Default)]
+pub struct Registers {
+    pub pc: u16,
+    pub sp: u16,
+    pub b: u8,
+    pub c: u8,
+    pub d: u8,
+    pub e: u8,
+    pub h: u8,
+    pub l: u8,
+    pub w: u8,
+    pub z: u8,
 }
 
 /**
@@ -76,32 +77,47 @@ struct Registers {
     - `auxiliary_carry`: Set when an instruction results in a carry-out of bit
     three.
 */
+#[derive(Default)]
 pub struct Flags {
-    zero: bool,
-    carry: bool,
-    sign: bool,
-    parity: bool,
-    auxiliary_carry: bool,
+    pub zero: bool,
+    pub carry: bool,
+    pub sign: bool,
+    pub parity: bool,
+    pub auxiliary_carry: bool,
 }
 
-struct ArithmeticLogicUnit {
-    accumulator: u8,
-    temporary_accumulator: u8,
-    flags: Flags,
-    temporary_register: u8,
+/**
+    The 8080's arithmetic logic unit (ALU).
+*/
+#[derive(Default)]
+pub struct ArithmeticLogicUnit {
+    pub accumulator: u8,
+    pub temporary_accumulator: u8,
+    pub flags: Flags,
+    pub temporary_register: u8,
 }
 
 /**
    The internal state of the 8080.
 */
 pub struct State {
-    registers: Registers,
-    alu: ArithmeticLogicUnit,
-    memory: [u8; 65536],
+    pub registers: Registers,
+    pub alu: ArithmeticLogicUnit,
+    pub memory: [u8; 65536],
+}
+
+impl Default for State {
+    fn default() -> State {
+        State {
+            registers: Default::default(),
+            alu: Default::default(),
+            memory: [0; 65536]
+        }
+    }
 }
 
 impl State {
-    fn get_register(&self, r: &Register) -> u8 {
+    pub fn get_register(&self, r: &Register) -> u8 {
         match r {
             Register::A => self.alu.accumulator,
             Register::B => self.registers.b,
@@ -113,7 +129,7 @@ impl State {
         }
     }
 
-    fn set_register(&mut self, r: &Register, data: u8) {
+    pub fn set_register(&mut self, r: &Register, data: u8) {
         match r {
             Register::A => self.alu.accumulator = data,
             Register::B => self.registers.b = data,
@@ -125,7 +141,7 @@ impl State {
         }
     }
 
-    fn get_register_pair(&self, rp: &RegisterPair) -> u16 {
+    pub fn get_register_pair(&self, rp: &RegisterPair) -> u16 {
         match rp {
             RegisterPair::BC => concat_u8_pair!(self.registers.b, self.registers.c),
             RegisterPair::DE => concat_u8_pair!(self.registers.d, self.registers.e),
@@ -134,7 +150,7 @@ impl State {
         }
     }
 
-    fn set_register_pair(&mut self, rp: &RegisterPair, high_data: u8, low_data: u8) {
+    pub fn set_register_pair(&mut self, rp: &RegisterPair, high_data: u8, low_data: u8) {
         match rp {
             RegisterPair::BC => {
                 self.registers.b = high_data;
@@ -152,11 +168,11 @@ impl State {
         }
     }
 
-    fn get_memory(&self, address: u16) -> u8 {
+    pub fn get_memory(&self, address: u16) -> u8 {
         self.memory[address as usize]
     }
 
-    fn set_memory(&mut self, address: u16, data: u8) {
+    pub fn set_memory(&mut self, address: u16, data: u8) {
         self.memory[address as usize] = data;
     }
 }
