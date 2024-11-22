@@ -13,20 +13,20 @@ type BitInput<'a> = (&'a [u8], usize);
 pub mod register;
 
 // // Instruction Parsers
-// pub mod arithmetic;
+pub mod arithmetic;
 // pub mod branch;
 // pub mod control;
 // pub mod data_transfer;
 // pub mod logical;
 
-// #[derive(Debug, PartialEq)]
-// pub enum Instruction {
-//     Arithmetic(arithmetic::Arithmetic),
-//     Branch(branch::Branch),
-//     Control(control::Control),
-//     DataTransfer(data_transfer::DataTransfer),
-//     Logical(logical::Logical),
-// }
+#[derive(Debug, PartialEq)]
+pub enum Instruction {
+    Arithmetic(arithmetic::Arithmetic),
+    // Branch(branch::Branch),
+    // Control(control::Control),
+    // DataTransfer(data_transfer::DataTransfer),
+    // Logical(logical::Logical),
+}
 
 // pub fn parse_instruction(input: &[u8]) -> IResult<&[u8], Instruction> {
 //     alt((
@@ -59,10 +59,10 @@ pub fn test_expects_success<
     assert_eq!(output, expected_output);
 }
 
-pub fn test_expects_error<T, U>(
-    input: T,
+pub fn test_expects_error<T, U, V>(
+    input: (&[T], U),
     expected_error_kind: ErrorKind,
-    tested_function: &dyn Fn(T) -> IResult<T, U>,
+    tested_function: &dyn Fn((&[T], U)) -> IResult<(&[T], U), V>,
 ) {
     let result = tested_function(input);
     assert!(result.is_err());

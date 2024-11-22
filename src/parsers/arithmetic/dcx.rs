@@ -1,6 +1,9 @@
-use nom::{bytes::complete::tag, sequence::delimited, IResult};
+use nom::{bits::complete::tag, sequence::delimited, IResult};
 
-use crate::parsers::register::{parse_register_pair, RegisterPair};
+use crate::parsers::{
+    register::{parse_register_pair, RegisterPair},
+    BitInput,
+};
 
 use super::Arithmetic;
 
@@ -9,14 +12,15 @@ pub enum DCX {
     DecrementRegisterPair { rp: RegisterPair },
 }
 
-pub fn parse_dcx(input: &str) -> IResult<&str, Arithmetic> {
+pub fn parse_dcx(input: BitInput) -> IResult<BitInput, Arithmetic> {
     let (input, dcx) = parse_decrement_register_pair(input)?;
     let result = Arithmetic::DCX(dcx);
     Ok((input, result))
 }
 
-fn parse_decrement_register_pair(input: &str) -> IResult<&str, DCX> {
-    let (input, rp) = delimited(tag("00"), parse_register_pair, tag("1011"))(input)?;
+fn parse_decrement_register_pair(input: BitInput) -> IResult<BitInput, DCX> {
+    let (input, rp) =
+        delimited(tag(0b00, 2usize), parse_register_pair, tag(0b1011, 4usize))(input)?;
     let result = DCX::DecrementRegisterPair { rp };
     Ok((input, result))
 }
@@ -24,20 +28,22 @@ fn parse_decrement_register_pair(input: &str) -> IResult<&str, DCX> {
 #[cfg(test)]
 mod tests {
     mod parse_decrement_register_pair {
+        use nom::{error::ErrorKind, IResult};
+
         use crate::parsers::{
             arithmetic::dcx::{parse_decrement_register_pair, DCX},
             register::RegisterPair,
-            test_expects_error, test_expects_success,
+            test_expects_error, test_expects_success, BitInput,
         };
-        use nom::{error::ErrorKind, IResult};
 
-        const TESTED_FUNCTION: &dyn Fn(&str) -> IResult<&str, DCX> = &parse_decrement_register_pair;
+        const TESTED_FUNCTION: &dyn Fn(BitInput) -> IResult<BitInput, DCX> =
+            &parse_decrement_register_pair;
 
         #[test]
-        fn test_valid_input_bc() {
+        fn test_valid_input() {
             test_expects_success(
-                "00001011",
-                "",
+                (&[0b0000_1011], 0usize),
+                (&[], 0usize),
                 DCX::DecrementRegisterPair {
                     rp: RegisterPair::BC,
                 },
@@ -46,71 +52,19 @@ mod tests {
         }
 
         #[test]
-        fn test_valid_input_de() {
-            test_expects_success(
-                "00011011",
-                "",
-                DCX::DecrementRegisterPair {
-                    rp: RegisterPair::DE,
-                },
-                TESTED_FUNCTION,
-            );
-        }
-
-        #[test]
-        fn test_valid_input_hl() {
-            test_expects_success(
-                "00101011",
-                "",
-                DCX::DecrementRegisterPair {
-                    rp: RegisterPair::HL,
-                },
-                TESTED_FUNCTION,
-            );
-        }
-
-        #[test]
-        fn test_valid_input_sp() {
-            test_expects_success(
-                "00111011",
-                "",
-                DCX::DecrementRegisterPair {
-                    rp: RegisterPair::SP,
-                },
-                TESTED_FUNCTION,
-            );
-        }
-
-        #[test]
         fn test_invalid_prefix() {
-            test_expects_error("10001011", ErrorKind::Tag, TESTED_FUNCTION);
-        }
-
-        #[test]
-        fn test_invalid_suffix() {
-            test_expects_error("00001010", ErrorKind::Tag, TESTED_FUNCTION);
-        }
-
-        #[test]
-        fn test_incomplete_input_prefix() {
-            test_expects_error("00", ErrorKind::Tag, TESTED_FUNCTION);
-        }
-
-        #[test]
-        fn test_incomplete_input_middle() {
-            test_expects_error("0000", ErrorKind::Tag, TESTED_FUNCTION);
-        }
-
-        #[test]
-        fn test_incomplete_input_suffix() {
-            test_expects_error("000010", ErrorKind::Tag, TESTED_FUNCTION);
+            test_expects_error(
+                (&[0b0100_1011], 0usize),
+                ErrorKind::TagBits,
+                TESTED_FUNCTION,
+            );
         }
 
         #[test]
         fn test_excess_input() {
             test_expects_success(
-                "000010111",
-                "1",
+                (&[0b0000_1011, 0b1000_0000], 0usize),
+                (&[0b1000_0000], 0usize),
                 DCX::DecrementRegisterPair {
                     rp: RegisterPair::BC,
                 },
@@ -120,17 +74,7 @@ mod tests {
 
         #[test]
         fn test_empty_input() {
-            test_expects_error("", ErrorKind::Tag, TESTED_FUNCTION);
-        }
-
-        #[test]
-        fn test_nonnumeric_input() {
-            test_expects_error("0000a011", ErrorKind::Tag, TESTED_FUNCTION);
-        }
-
-        #[test]
-        fn test_nonbinary_input() {
-            test_expects_error("00002011", ErrorKind::Tag, TESTED_FUNCTION);
+            test_expects_error((&[], 0usize), ErrorKind::Eof, TESTED_FUNCTION);
         }
     }
 }

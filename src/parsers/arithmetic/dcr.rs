@@ -1,6 +1,9 @@
-use nom::{branch::alt, bytes::complete::tag, sequence::delimited, IResult};
+use nom::{bits::complete::tag, branch::alt, sequence::delimited, IResult};
 
-use crate::parsers::register::{parse_register, Register};
+use crate::parsers::{
+    register::{parse_register, Register},
+    BitInput,
+};
 
 use super::Arithmetic;
 
@@ -10,20 +13,20 @@ pub enum DCR {
     DecrementMemory,
 }
 
-pub fn parse_dcr(input: &str) -> IResult<&str, Arithmetic> {
+pub fn parse_dcr(input: BitInput) -> IResult<BitInput, Arithmetic> {
     let (input, dcr) = alt((parse_decrement_register, parse_decrement_memory))(input)?;
     let result = Arithmetic::DCR(dcr);
     Ok((input, result))
 }
 
-fn parse_decrement_register(input: &str) -> IResult<&str, DCR> {
-    let (input, r) = delimited(tag("00"), parse_register, tag("101"))(input)?;
+fn parse_decrement_register(input: BitInput) -> IResult<BitInput, DCR> {
+    let (input, r) = delimited(tag(0b00, 2usize), parse_register, tag(0b101, 3usize))(input)?;
     let result = DCR::DecrementRegister { r };
     Ok((input, result))
 }
 
-fn parse_decrement_memory(input: &str) -> IResult<&str, DCR> {
-    let (input, _) = tag("00110101")(input)?;
+fn parse_decrement_memory(input: BitInput) -> IResult<BitInput, DCR> {
+    let (input, _) = tag(0b00110101, 8usize)(input)?;
     let result = DCR::DecrementMemory;
     Ok((input, result))
 }
@@ -36,111 +39,36 @@ mod tests {
         use crate::parsers::{
             arithmetic::dcr::{parse_decrement_register, DCR},
             register::Register,
-            test_expects_error, test_expects_success,
+            test_expects_error, test_expects_success, BitInput,
         };
 
-        const TESTED_FUNCTION: &dyn Fn(&str) -> IResult<&str, DCR> = &parse_decrement_register;
+        const TESTED_FUNCTION: &dyn Fn(BitInput) -> IResult<BitInput, DCR> =
+            &parse_decrement_register;
 
         #[test]
-        fn test_valid_input_b() {
+        fn test_valid_input() {
             test_expects_success(
-                "00000101",
-                "",
+                (&[0b0000_0101], 0usize),
+                (&[], 0usize),
                 DCR::DecrementRegister { r: Register::B },
                 TESTED_FUNCTION,
             );
         }
 
         #[test]
-        fn test_valid_input_c() {
-            test_expects_success(
-                "00001101",
-                "",
-                DCR::DecrementRegister { r: Register::C },
-                TESTED_FUNCTION,
-            );
-        }
-
-        #[test]
-        fn test_valid_input_d() {
-            test_expects_success(
-                "00010101",
-                "",
-                DCR::DecrementRegister { r: Register::D },
-                TESTED_FUNCTION,
-            );
-        }
-
-        #[test]
-        fn test_valid_input_e() {
-            test_expects_success(
-                "00011101",
-                "",
-                DCR::DecrementRegister { r: Register::E },
-                TESTED_FUNCTION,
-            );
-        }
-
-        #[test]
-        fn test_valid_input_h() {
-            test_expects_success(
-                "00100101",
-                "",
-                DCR::DecrementRegister { r: Register::H },
-                TESTED_FUNCTION,
-            );
-        }
-
-        #[test]
-        fn test_valid_input_l() {
-            test_expects_success(
-                "00101101",
-                "",
-                DCR::DecrementRegister { r: Register::L },
-                TESTED_FUNCTION,
-            );
-        }
-
-        #[test]
-        fn test_valid_input_a() {
-            test_expects_success(
-                "00111101",
-                "",
-                DCR::DecrementRegister { r: Register::A },
-                TESTED_FUNCTION,
-            );
-        }
-
-        #[test]
         fn test_invalid_prefix() {
-            test_expects_error("10000101", ErrorKind::Tag, TESTED_FUNCTION);
-        }
-
-        #[test]
-        fn test_invalid_suffix() {
-            test_expects_error("00000100", ErrorKind::Tag, TESTED_FUNCTION);
-        }
-
-        #[test]
-        fn test_incomplete_input_prefix() {
-            test_expects_error("00", ErrorKind::Tag, TESTED_FUNCTION);
-        }
-
-        #[test]
-        fn test_incomplete_input_middle() {
-            test_expects_error("0000", ErrorKind::Tag, TESTED_FUNCTION);
-        }
-
-        #[test]
-        fn test_incomplete_input_suffix() {
-            test_expects_error("000001", ErrorKind::Tag, TESTED_FUNCTION);
+            test_expects_error(
+                (&[0b0100_0101], 0usize),
+                ErrorKind::TagBits,
+                TESTED_FUNCTION,
+            );
         }
 
         #[test]
         fn test_excess_input() {
             test_expects_success(
-                "000001011",
-                "1",
+                (&[0b0000_0101, 0b1000_0000], 0usize),
+                (&[0b1000_0000], 0usize),
                 DCR::DecrementRegister { r: Register::B },
                 TESTED_FUNCTION,
             );
@@ -148,17 +76,7 @@ mod tests {
 
         #[test]
         fn test_empty_input() {
-            test_expects_error("", ErrorKind::Tag, TESTED_FUNCTION);
-        }
-
-        #[test]
-        fn test_nonnumeric_input() {
-            test_expects_error("0000a101", ErrorKind::Tag, TESTED_FUNCTION);
-        }
-
-        #[test]
-        fn test_nonbinary_input() {
-            test_expects_error("00002101", ErrorKind::Tag, TESTED_FUNCTION);
+            test_expects_error((&[], 0usize), ErrorKind::Eof, TESTED_FUNCTION);
         }
     }
 
@@ -167,44 +85,44 @@ mod tests {
 
         use crate::parsers::{
             arithmetic::dcr::{parse_decrement_memory, DCR},
-            test_expects_error, test_expects_success,
+            test_expects_error, test_expects_success, BitInput,
         };
 
-        const TESTED_FUNCTION: &dyn Fn(&str) -> IResult<&str, DCR> = &parse_decrement_memory;
+        const TESTED_FUNCTION: &dyn Fn(BitInput) -> IResult<BitInput, DCR> =
+            &parse_decrement_memory;
 
         #[test]
         fn test_valid_input() {
-            test_expects_success("00110101", "", DCR::DecrementMemory, TESTED_FUNCTION);
+            test_expects_success(
+                (&[0b0011_0101], 0usize),
+                (&[], 0usize),
+                DCR::DecrementMemory,
+                TESTED_FUNCTION,
+            );
         }
 
         #[test]
         fn test_invalid_prefix() {
-            test_expects_error("10110101", ErrorKind::Tag, TESTED_FUNCTION);
-        }
-
-        #[test]
-        fn test_incomplete_input() {
-            test_expects_error("0011010", ErrorKind::Tag, TESTED_FUNCTION);
+            test_expects_error(
+                (&[0b0010_0101], 0usize),
+                ErrorKind::TagBits,
+                TESTED_FUNCTION,
+            );
         }
 
         #[test]
         fn test_excess_input() {
-            test_expects_success("001101011", "1", DCR::DecrementMemory, TESTED_FUNCTION);
+            test_expects_success(
+                (&[0b0011_0101, 0b1000_0000], 0usize),
+                (&[0b1000_0000], 0usize),
+                DCR::DecrementMemory,
+                TESTED_FUNCTION,
+            );
         }
 
         #[test]
         fn test_empty_input() {
-            test_expects_error("", ErrorKind::Tag, TESTED_FUNCTION);
-        }
-
-        #[test]
-        fn test_nonnumeric_input() {
-            test_expects_error("0011010a", ErrorKind::Tag, TESTED_FUNCTION);
-        }
-
-        #[test]
-        fn test_nonbinary_input() {
-            test_expects_error("00110102", ErrorKind::Tag, TESTED_FUNCTION);
+            test_expects_error((&[], 0usize), ErrorKind::Eof, TESTED_FUNCTION);
         }
     }
 }

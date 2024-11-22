@@ -1,6 +1,9 @@
-use nom::{branch::alt, bytes::complete::tag, sequence::preceded, IResult};
+use nom::{bits::complete::tag, branch::alt, sequence::preceded, IResult};
 
-use crate::parsers::register::{parse_register, Register};
+use crate::parsers::{
+    register::{parse_register, Register},
+    BitInput,
+};
 
 use super::Arithmetic;
 
@@ -10,20 +13,20 @@ pub enum SUB {
     SubtractMemory,
 }
 
-pub fn parse_sub(input: &str) -> IResult<&str, Arithmetic> {
+pub fn parse_sub(input: BitInput) -> IResult<BitInput, Arithmetic> {
     let (input, sub) = alt((parse_subtract_register, parse_subtract_memory))(input)?;
     let result = Arithmetic::SUB(sub);
     Ok((input, result))
 }
 
-pub fn parse_subtract_register(input: &str) -> IResult<&str, SUB> {
-    let (input, r) = preceded(tag("10010"), parse_register)(input)?;
+pub fn parse_subtract_register(input: BitInput) -> IResult<BitInput, SUB> {
+    let (input, r) = preceded(tag(0b10010, 5usize), parse_register)(input)?;
     let result = SUB::SubtractRegister { r };
     Ok((input, result))
 }
 
-pub fn parse_subtract_memory(input: &str) -> IResult<&str, SUB> {
-    let (input, _) = tag("10010110")(input)?;
+pub fn parse_subtract_memory(input: BitInput) -> IResult<BitInput, SUB> {
+    let (input, _) = tag(0b10010110, 8usize)(input)?;
     let result = SUB::SubtractMemory;
     Ok((input, result))
 }
@@ -31,80 +34,22 @@ pub fn parse_subtract_memory(input: &str) -> IResult<&str, SUB> {
 #[cfg(test)]
 mod tests {
     mod parse_subtract_register {
+        use nom::{error::ErrorKind, IResult};
+
         use crate::parsers::{
             arithmetic::sub::{parse_subtract_register, SUB},
             register::Register,
-            test_expects_error, test_expects_success,
+            test_expects_error, test_expects_success, BitInput,
         };
-        use nom::{error::ErrorKind, IResult};
 
-        const TESTED_FUNCTION: &dyn Fn(&str) -> IResult<&str, SUB> = &parse_subtract_register;
-
-        #[test]
-        fn test_valid_input_b() {
-            test_expects_success(
-                "10010000",
-                "",
-                SUB::SubtractRegister { r: Register::B },
-                TESTED_FUNCTION,
-            );
-        }
+        const TESTED_FUNCTION: &dyn Fn(BitInput) -> IResult<BitInput, SUB> =
+            &parse_subtract_register;
 
         #[test]
-        fn test_valid_input_c() {
+        fn test_valid_input() {
             test_expects_success(
-                "10010001",
-                "",
-                SUB::SubtractRegister { r: Register::C },
-                TESTED_FUNCTION,
-            );
-        }
-
-        #[test]
-        fn test_valid_input_d() {
-            test_expects_success(
-                "10010010",
-                "",
-                SUB::SubtractRegister { r: Register::D },
-                TESTED_FUNCTION,
-            );
-        }
-
-        #[test]
-        fn test_valid_input_e() {
-            test_expects_success(
-                "10010011",
-                "",
-                SUB::SubtractRegister { r: Register::E },
-                TESTED_FUNCTION,
-            );
-        }
-
-        #[test]
-        fn test_valid_input_h() {
-            test_expects_success(
-                "10010100",
-                "",
-                SUB::SubtractRegister { r: Register::H },
-                TESTED_FUNCTION,
-            );
-        }
-
-        #[test]
-        fn test_valid_input_l() {
-            test_expects_success(
-                "10010101",
-                "",
-                SUB::SubtractRegister { r: Register::L },
-                TESTED_FUNCTION,
-            );
-        }
-
-        #[test]
-        fn test_valid_input_a() {
-            test_expects_success(
-                "10010111",
-                "",
+                (&[0b1001_0111], 0usize),
+                (&[], 0usize),
                 SUB::SubtractRegister { r: Register::A },
                 TESTED_FUNCTION,
             );
@@ -112,82 +57,71 @@ mod tests {
 
         #[test]
         fn test_invalid_prefix() {
-            test_expects_error("00010000", ErrorKind::Tag, TESTED_FUNCTION);
-        }
-
-        #[test]
-        fn test_incomplete_input() {
-            test_expects_error("10010", ErrorKind::Tag, TESTED_FUNCTION);
+            test_expects_error(
+                (&[0b0001_0111], 0usize),
+                ErrorKind::TagBits,
+                TESTED_FUNCTION,
+            );
         }
 
         #[test]
         fn test_excess_input() {
             test_expects_success(
-                "100100001",
-                "1",
-                SUB::SubtractRegister { r: Register::B },
+                (&[0b1001_0111, 0b1000_0000], 0usize),
+                (&[0b1000_0000], 0usize),
+                SUB::SubtractRegister { r: Register::A },
                 TESTED_FUNCTION,
             );
         }
 
         #[test]
         fn test_empty_input() {
-            test_expects_error("", ErrorKind::Tag, TESTED_FUNCTION);
-        }
-
-        #[test]
-        fn test_nonnumeric_input() {
-            test_expects_error("10010a00", ErrorKind::Tag, TESTED_FUNCTION);
-        }
-
-        #[test]
-        fn test_nonbinary_input() {
-            test_expects_error("10010200", ErrorKind::Tag, TESTED_FUNCTION);
+            test_expects_error((&[], 0usize), ErrorKind::Eof, TESTED_FUNCTION);
         }
     }
 
     mod parse_subtract_memory {
-        use crate::parsers::{
-            arithmetic::sub::{parse_subtract_memory, SUB},
-            test_expects_error, test_expects_success,
-        };
         use nom::{error::ErrorKind, IResult};
 
-        const TESTED_FUNCTION: &dyn Fn(&str) -> IResult<&str, SUB> = &parse_subtract_memory;
+        use crate::parsers::{
+            arithmetic::sub::{parse_subtract_memory, SUB},
+            test_expects_error, test_expects_success, BitInput,
+        };
+
+        const TESTED_FUNCTION: &dyn Fn(BitInput) -> IResult<BitInput, SUB> = &parse_subtract_memory;
 
         #[test]
         fn test_valid_input() {
-            test_expects_success("10010110", "", SUB::SubtractMemory, TESTED_FUNCTION);
+            test_expects_success(
+                (&[0b1001_0110], 0usize),
+                (&[], 0usize),
+                SUB::SubtractMemory,
+                TESTED_FUNCTION,
+            );
         }
 
         #[test]
         fn test_invalid_prefix() {
-            test_expects_error("00010110", ErrorKind::Tag, TESTED_FUNCTION);
-        }
-
-        #[test]
-        fn test_incomplete_input() {
-            test_expects_error("1001011", ErrorKind::Tag, TESTED_FUNCTION);
+            test_expects_error(
+                (&[0b0001_0110], 0usize),
+                ErrorKind::TagBits,
+                TESTED_FUNCTION,
+            );
         }
 
         #[test]
         fn test_excess_input() {
-            test_expects_success("100101101", "1", SUB::SubtractMemory, TESTED_FUNCTION);
+            test_expects_success(
+                (&[0b1001_0110, 0b1000_0000], 0usize),
+                (&[0b1000_0000], 0usize),
+                SUB::SubtractMemory,
+                TESTED_FUNCTION,
+            );
         }
 
         #[test]
         fn test_empty_input() {
-            test_expects_error("", ErrorKind::Tag, TESTED_FUNCTION);
-        }
-
-        #[test]
-        fn test_nonnumeric_input() {
-            test_expects_error("1001011a", ErrorKind::Tag, TESTED_FUNCTION);
-        }
-
-        #[test]
-        fn test_nonbinary_input() {
-            test_expects_error("10010112", ErrorKind::Tag, TESTED_FUNCTION);
+            test_expects_error((&[], 0usize), ErrorKind::Eof, TESTED_FUNCTION);
         }
     }
 }

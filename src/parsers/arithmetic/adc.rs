@@ -1,6 +1,9 @@
-use nom::{branch::alt, bytes::complete::tag, sequence::preceded, IResult};
+use nom::{bits::complete::tag, branch::alt, sequence::preceded, IResult};
 
-use crate::parsers::register::{parse_register, Register};
+use crate::parsers::{
+    register::{parse_register, Register},
+    BitInput,
+};
 
 use super::Arithmetic;
 
@@ -10,20 +13,20 @@ pub enum ADC {
     AddMemoryWithCarry,
 }
 
-pub fn parse_adc(input: &str) -> IResult<&str, Arithmetic> {
+pub fn parse_adc(input: BitInput) -> IResult<BitInput, Arithmetic> {
     let (input, adc) = alt((parse_add_register_with_carry, parse_add_memory_with_carry))(input)?;
     let result = Arithmetic::ADC(adc);
     Ok((input, result))
 }
 
-fn parse_add_register_with_carry(input: &str) -> IResult<&str, ADC> {
-    let (input, r) = preceded(tag("10001"), parse_register)(input)?;
+fn parse_add_register_with_carry(input: BitInput) -> IResult<BitInput, ADC> {
+    let (input, r) = preceded(tag(0b10001, 5usize), parse_register)(input)?;
     let result = ADC::AddRegisterWithCarry { r };
     Ok((input, result))
 }
 
-fn parse_add_memory_with_carry(input: &str) -> IResult<&str, ADC> {
-    let (input, _) = tag("10001110")(input)?;
+fn parse_add_memory_with_carry(input: BitInput) -> IResult<BitInput, ADC> {
+    let (input, _) = tag(0b10001110, 8usize)(input)?;
     let result = ADC::AddMemoryWithCarry;
     Ok((input, result))
 }
@@ -36,16 +39,17 @@ mod tests {
         use crate::parsers::{
             arithmetic::adc::{parse_add_register_with_carry, ADC},
             register::Register,
-            test_expects_error, test_expects_success,
+            test_expects_error, test_expects_success, BitInput,
         };
 
-        const TESTED_FUNCTION: &dyn Fn(&str) -> IResult<&str, ADC> = &parse_add_register_with_carry;
+        const TESTED_FUNCTION: &dyn Fn(BitInput) -> IResult<BitInput, ADC> =
+            &parse_add_register_with_carry;
 
         #[test]
         fn test_valid_input() {
             test_expects_success(
-                "10001111",
-                "",
+                (&[0b1000_1111], 0usize),
+                (&[], 0usize),
                 ADC::AddRegisterWithCarry { r: Register::A },
                 TESTED_FUNCTION,
             );
@@ -53,19 +57,18 @@ mod tests {
 
         #[test]
         fn test_invalid_prefix() {
-            test_expects_error("00001111", ErrorKind::Tag, TESTED_FUNCTION);
-        }
-
-        #[test]
-        fn test_incomplete_input() {
-            test_expects_error("10001", ErrorKind::Tag, TESTED_FUNCTION);
+            test_expects_error(
+                (&[0b0000_1111], 0usize),
+                ErrorKind::TagBits,
+                TESTED_FUNCTION,
+            );
         }
 
         #[test]
         fn test_excess_input() {
             test_expects_success(
-                "100011111",
-                "1",
+                (&[0b1000_1111, 0b1000_0000], 0usize),
+                (&[0b1000_0000], 0usize),
                 ADC::AddRegisterWithCarry { r: Register::A },
                 TESTED_FUNCTION,
             );
@@ -73,17 +76,7 @@ mod tests {
 
         #[test]
         fn test_empty_input() {
-            test_expects_error("", ErrorKind::Tag, TESTED_FUNCTION);
-        }
-
-        #[test]
-        fn test_nonnumeric_input() {
-            test_expects_error("1a001111", ErrorKind::Tag, TESTED_FUNCTION);
-        }
-
-        #[test]
-        fn test_nonbinary_input() {
-            test_expects_error("12001111", ErrorKind::Tag, TESTED_FUNCTION);
+            test_expects_error((&[], 0usize), ErrorKind::Eof, TESTED_FUNCTION);
         }
     }
 
@@ -92,44 +85,44 @@ mod tests {
 
         use crate::parsers::{
             arithmetic::adc::{parse_add_memory_with_carry, ADC},
-            test_expects_error, test_expects_success,
+            test_expects_error, test_expects_success, BitInput,
         };
 
-        const TESTED_FUNCTION: &dyn Fn(&str) -> IResult<&str, ADC> = &parse_add_memory_with_carry;
+        const TESTED_FUNCTION: &dyn Fn(BitInput) -> IResult<BitInput, ADC> =
+            &parse_add_memory_with_carry;
 
         #[test]
         fn test_valid_input() {
-            test_expects_success("10001110", "", ADC::AddMemoryWithCarry, TESTED_FUNCTION);
+            test_expects_success(
+                (&[0b1000_1110], 0usize),
+                (&[], 0usize),
+                ADC::AddMemoryWithCarry,
+                TESTED_FUNCTION,
+            );
         }
 
         #[test]
         fn test_invalid_prefix() {
-            test_expects_error("00001110", ErrorKind::Tag, TESTED_FUNCTION);
-        }
-
-        #[test]
-        fn test_incomplete_input() {
-            test_expects_error("10001", ErrorKind::Tag, TESTED_FUNCTION);
+            test_expects_error(
+                (&[0b0000_1110], 0usize),
+                ErrorKind::TagBits,
+                TESTED_FUNCTION,
+            );
         }
 
         #[test]
         fn test_excess_input() {
-            test_expects_success("100011101", "1", ADC::AddMemoryWithCarry, TESTED_FUNCTION);
+            test_expects_success(
+                (&[0b1000_1110, 0b1000_0000], 0usize),
+                (&[0b1000_0000], 0usize),
+                ADC::AddMemoryWithCarry,
+                TESTED_FUNCTION,
+            );
         }
 
         #[test]
         fn test_empty_input() {
-            test_expects_error("", ErrorKind::Tag, TESTED_FUNCTION);
-        }
-
-        #[test]
-        fn test_nonnumeric_input() {
-            test_expects_error("1a001110", ErrorKind::Tag, TESTED_FUNCTION);
-        }
-
-        #[test]
-        fn test_nonbinary_input() {
-            test_expects_error("12001110", ErrorKind::Tag, TESTED_FUNCTION);
+            test_expects_error((&[], 0usize), ErrorKind::Eof, TESTED_FUNCTION);
         }
     }
 }
