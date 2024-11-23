@@ -1,6 +1,6 @@
 use crate::{
-    concat_u8_pair,
     emu::State,
+    join_u8,
     parsers::{data_transfer::sta::STA, register::Register},
 };
 
@@ -10,7 +10,7 @@ pub fn execute_sta(state: &mut State, sta: STA) {
             low_addr,
             high_addr,
         } => {
-            let address = concat_u8_pair!(high_addr, low_addr);
+            let address = join_u8!(high_addr, low_addr);
             let data = state.get_memory(address);
             state.set_register(&Register::A, data);
         }
