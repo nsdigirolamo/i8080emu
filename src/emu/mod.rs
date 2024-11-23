@@ -1,5 +1,5 @@
 pub mod arithmetic;
-// pub mod branch;
+pub mod branch;
 pub mod data_transfer;
 pub mod logical;
 
@@ -9,6 +9,7 @@ use arithmetic::execute_arithmetic;
 use data_transfer::execute_data_transfer;
 
 use crate::parsers::{
+    condition::Condition,
     parse_instruction,
     register::{Register, RegisterPair},
     Instruction,
@@ -22,7 +23,7 @@ const MEMORY_SIZE: u16 = 65535;
     - `(10101010, 11111111) -> 1010101011111111`
 */
 #[macro_export]
-macro_rules! concat_u8_pair {
+macro_rules! join_u8 {
     ($high:expr, $low:expr) => {
         (($high as u16) << 8) | ($low as u16)
     };
@@ -148,9 +149,9 @@ impl State {
 
     pub fn get_register_pair(&self, rp: &RegisterPair) -> u16 {
         match rp {
-            RegisterPair::BC => concat_u8_pair!(self.registers.b, self.registers.c),
-            RegisterPair::DE => concat_u8_pair!(self.registers.d, self.registers.e),
-            RegisterPair::HL => concat_u8_pair!(self.registers.h, self.registers.l),
+            RegisterPair::BC => join_u8!(self.registers.b, self.registers.c),
+            RegisterPair::DE => join_u8!(self.registers.d, self.registers.e),
+            RegisterPair::HL => join_u8!(self.registers.h, self.registers.l),
             RegisterPair::SP => self.registers.sp,
         }
     }
@@ -169,8 +170,12 @@ impl State {
                 self.registers.h = high_data;
                 self.registers.l = low_data;
             }
-            RegisterPair::SP => self.registers.sp = concat_u8_pair!(high_data, low_data),
+            RegisterPair::SP => self.registers.sp = join_u8!(high_data, low_data),
         }
+    }
+
+    pub fn set_pc(&mut self, address: u16) {
+        self.registers.pc = address;
     }
 
     pub fn get_memory(&self, address: u16) -> u8 {
@@ -179,6 +184,19 @@ impl State {
 
     pub fn set_memory(&mut self, address: u16, data: u8) {
         self.memory[address as usize] = data;
+    }
+
+    pub fn check_condition(&mut self, condition: Condition) -> bool {
+        match condition {
+            Condition::NZ => !self.alu.flags.zero,
+            Condition::Z => self.alu.flags.zero,
+            Condition::NC => !self.alu.flags.carry,
+            Condition::C => self.alu.flags.carry,
+            Condition::PO => !self.alu.flags.parity,
+            Condition::PE => self.alu.flags.parity,
+            Condition::P => !self.alu.flags.sign,
+            Condition::M => self.alu.flags.sign,
+        }
     }
 
     pub fn load_program(&mut self, starting_addr: u16, path_to_program: &str) {
