@@ -1,4 +1,4 @@
-use nom::{branch::alt, error::ErrorKind, multi::many0, IResult};
+use nom::{branch::alt, error::ErrorKind, IResult};
 
 /**
     Input for bit parsers. The first element of the tuple is a byte slice of the
@@ -35,10 +35,6 @@ pub fn parse_instruction(input: BitInput) -> IResult<BitInput, Instruction> {
         data_transfer::parse_data_transfer,
         logical::parse_logical,
     ))(input)
-}
-
-pub fn parse_instructions(input: BitInput) -> IResult<BitInput, Vec<Instruction>> {
-    many0(parse_instruction)(input)
 }
 
 #[allow(clippy::type_complexity)]

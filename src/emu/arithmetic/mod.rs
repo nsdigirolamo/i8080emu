@@ -52,6 +52,7 @@ pub fn get_flags(lhs: i8, rhs: i8, result: i8, carried: bool) -> Flags {
 /**
     Checks to see if the auxiliary carry condition bit needs to be set.
 */
+#[allow(clippy::nonminimal_bool)]
 fn check_auxiliary_carry(lhs: u8, rhs: u8, result: u8) -> bool {
     /*
      * The auxiliary carry flag is set when there is a carry out of bit three:
