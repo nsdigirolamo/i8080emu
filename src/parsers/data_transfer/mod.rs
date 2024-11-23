@@ -1,6 +1,6 @@
 use nom::{branch::alt, IResult};
 
-use super::Instruction;
+use super::{BitInput, Instruction};
 
 pub mod lda;
 pub mod ldax;
@@ -27,7 +27,7 @@ pub enum DataTransfer {
     XCHG(xchg::XCHG),
 }
 
-pub fn parse_data_transfer(input: &str) -> IResult<&str, Instruction> {
+pub fn parse_data_transfer(input: BitInput) -> IResult<BitInput, Instruction> {
     let (input, data_transfer) = alt((
         lda::parse_lda,
         ldax::parse_ldax,
