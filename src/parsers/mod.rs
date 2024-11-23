@@ -15,7 +15,7 @@ pub mod register;
 // // Instruction Parsers
 pub mod arithmetic;
 pub mod branch;
-// pub mod control;
+pub mod control;
 // pub mod data_transfer;
 // pub mod logical;
 
@@ -23,7 +23,7 @@ pub mod branch;
 pub enum Instruction {
     Arithmetic(arithmetic::Arithmetic),
     Branch(branch::Branch),
-    // Control(control::Control),
+    Control(control::Control),
     // DataTransfer(data_transfer::DataTransfer),
     // Logical(logical::Logical),
 }
