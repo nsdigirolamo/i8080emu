@@ -1,6 +1,6 @@
 use nom::{branch::alt, IResult};
 
-use super::Instruction;
+use super::{BitInput, Instruction};
 
 pub mod ana;
 pub mod ani;
@@ -37,7 +37,7 @@ pub enum Logical {
     XRI(xri::XRI),
 }
 
-pub fn parse_logical(input: &str) -> IResult<&str, Instruction> {
+pub fn parse_logical(input: BitInput) -> IResult<BitInput, Instruction> {
     let (input, logical) = alt((
         ana::parse_ana,
         ani::parse_ani,

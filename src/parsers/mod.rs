@@ -7,17 +7,17 @@ use nom::{branch::alt, error::ErrorKind, multi::many0, IResult};
 */
 type BitInput<'a> = (&'a [u8], usize);
 
-// // Misc Parsers
+// Misc Parsers
 pub mod condition;
 // pub mod data;
 pub mod register;
 
-// // Instruction Parsers
+// Instruction Parsers
 pub mod arithmetic;
 pub mod branch;
 pub mod control;
 pub mod data_transfer;
-// pub mod logical;
+pub mod logical;
 
 #[derive(Debug, PartialEq)]
 pub enum Instruction {
@@ -25,7 +25,7 @@ pub enum Instruction {
     Branch(branch::Branch),
     Control(control::Control),
     DataTransfer(data_transfer::DataTransfer),
-    // Logical(logical::Logical),
+    Logical(logical::Logical),
 }
 
 pub fn parse_instruction(input: BitInput) -> IResult<BitInput, Instruction> {
@@ -34,7 +34,7 @@ pub fn parse_instruction(input: BitInput) -> IResult<BitInput, Instruction> {
         branch::parse_branch,
         control::parse_control,
         data_transfer::parse_data_transfer,
-        // logical::parse_logical,
+        logical::parse_logical,
     ))(input)
 }
 
