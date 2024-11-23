@@ -9,7 +9,6 @@ type BitInput<'a> = (&'a [u8], usize);
 
 // Misc Parsers
 pub mod condition;
-// pub mod data;
 pub mod register;
 
 // Instruction Parsers
