@@ -1,6 +1,6 @@
 use nom::{branch::alt, IResult};
 
-use super::Instruction;
+use super::{BitInput, Instruction};
 
 pub mod call;
 pub mod ccondition;
@@ -23,7 +23,7 @@ pub enum Branch {
     RST(rst::RST),
 }
 
-pub fn parse_branch(input: &str) -> IResult<&str, Instruction> {
+pub fn parse_branch(input: BitInput) -> IResult<BitInput, Instruction> {
     let (input, branch) = alt((
         call::parse_call,
         ccondition::parse_ccondition,

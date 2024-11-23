@@ -1,4 +1,4 @@
-use nom::{branch::alt, error::ErrorKind, multi::many0, IResult};
+use nom::{error::ErrorKind, IResult};
 
 /**
     Input for bit parsers. The first element of the tuple is a byte slice of the
@@ -8,13 +8,13 @@ use nom::{branch::alt, error::ErrorKind, multi::many0, IResult};
 type BitInput<'a> = (&'a [u8], usize);
 
 // // Misc Parsers
-// pub mod condition;
+pub mod condition;
 // pub mod data;
 pub mod register;
 
 // // Instruction Parsers
 pub mod arithmetic;
-// pub mod branch;
+pub mod branch;
 // pub mod control;
 // pub mod data_transfer;
 // pub mod logical;
@@ -22,7 +22,7 @@ pub mod arithmetic;
 #[derive(Debug, PartialEq)]
 pub enum Instruction {
     Arithmetic(arithmetic::Arithmetic),
-    // Branch(branch::Branch),
+    Branch(branch::Branch),
     // Control(control::Control),
     // DataTransfer(data_transfer::DataTransfer),
     // Logical(logical::Logical),
@@ -42,6 +42,7 @@ pub enum Instruction {
 //     many0(parse_instruction)(input)
 // }
 
+#[allow(clippy::type_complexity)]
 pub fn test_expects_success<
     T: PartialEq + std::fmt::Debug,
     U: PartialEq + std::fmt::Debug,
@@ -59,6 +60,7 @@ pub fn test_expects_success<
     assert_eq!(output, expected_output);
 }
 
+#[allow(clippy::type_complexity)]
 pub fn test_expects_error<T, U, V>(
     input: (&[T], U),
     expected_error_kind: ErrorKind,
