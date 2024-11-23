@@ -1,8 +1,14 @@
-use nom::{branch::alt, error::ErrorKind, multi::many0, IResult};
+use nom::{branch::alt, error::ErrorKind, IResult};
+
+/**
+    Input for bit parsers. The first element of the tuple is a byte slice of the
+    data that needs to be parsed. The second element of the tuple is the offset
+    into the slice where parsing begins.
+*/
+type BitInput<'a> = (&'a [u8], usize);
 
 // Misc Parsers
 pub mod condition;
-pub mod data;
 pub mod register;
 
 // Instruction Parsers
@@ -21,7 +27,7 @@ pub enum Instruction {
     Logical(logical::Logical),
 }
 
-pub fn parse_instruction(input: &str) -> IResult<&str, Instruction> {
+pub fn parse_instruction(input: BitInput) -> IResult<BitInput, Instruction> {
     alt((
         arithmetic::parse_arithmetic,
         branch::parse_branch,
@@ -31,15 +37,16 @@ pub fn parse_instruction(input: &str) -> IResult<&str, Instruction> {
     ))(input)
 }
 
-pub fn parse_instructions(input: &str) -> IResult<&str, Vec<Instruction>> {
-    many0(parse_instruction)(input)
-}
-
-pub fn test_expects_success<T: PartialEq + std::fmt::Debug, U: PartialEq + std::fmt::Debug>(
-    input: T,
-    expected_remaining: T,
-    expected_output: U,
-    tested_function: &dyn Fn(T) -> IResult<T, U>,
+#[allow(clippy::type_complexity)]
+pub fn test_expects_success<
+    T: PartialEq + std::fmt::Debug,
+    U: PartialEq + std::fmt::Debug,
+    V: PartialEq + std::fmt::Debug,
+>(
+    input: (&[T], U),
+    expected_remaining: (&[T], U),
+    expected_output: V,
+    tested_function: &dyn Fn((&[T], U)) -> IResult<(&[T], U), V>,
 ) {
     let result = tested_function(input);
     assert!(result.is_ok());
@@ -48,10 +55,11 @@ pub fn test_expects_success<T: PartialEq + std::fmt::Debug, U: PartialEq + std::
     assert_eq!(output, expected_output);
 }
 
-pub fn test_expects_error<T, U>(
-    input: T,
+#[allow(clippy::type_complexity)]
+pub fn test_expects_error<T, U, V>(
+    input: (&[T], U),
     expected_error_kind: ErrorKind,
-    tested_function: &dyn Fn(T) -> IResult<T, U>,
+    tested_function: &dyn Fn((&[T], U)) -> IResult<(&[T], U), V>,
 ) {
     let result = tested_function(input);
     assert!(result.is_err());

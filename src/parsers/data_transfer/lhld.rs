@@ -1,10 +1,10 @@
 use nom::{
-    bytes::complete::tag,
+    bits::complete::{tag, take},
     sequence::{pair, preceded},
     IResult,
 };
 
-use crate::parsers::data::parse_byte;
+use crate::parsers::BitInput;
 
 use super::DataTransfer;
 
@@ -13,15 +13,15 @@ pub enum LHLD {
     LoadHLDirect { low_addr: u8, high_addr: u8 },
 }
 
-pub fn parse_lhld(input: &str) -> IResult<&str, DataTransfer> {
+pub fn parse_lhld(input: BitInput) -> IResult<BitInput, DataTransfer> {
     let (input, lhld) = parse_load_hl_direct(input)?;
     let result = DataTransfer::LHLD(lhld);
     Ok((input, result))
 }
 
-fn parse_load_hl_direct(input: &str) -> IResult<&str, LHLD> {
+fn parse_load_hl_direct(input: BitInput) -> IResult<BitInput, LHLD> {
     let (input, (low_addr, high_addr)) =
-        preceded(tag("00101010"), pair(parse_byte, parse_byte))(input)?;
+        preceded(tag(0b00101010, 8usize), pair(take(8usize), take(8usize)))(input)?;
     let result = LHLD::LoadHLDirect {
         low_addr,
         high_addr,
@@ -36,19 +36,19 @@ mod tests {
 
         use crate::parsers::{
             data_transfer::lhld::{parse_load_hl_direct, LHLD},
-            test_expects_error, test_expects_success,
+            test_expects_error, test_expects_success, BitInput,
         };
 
-        const TESTED_FUNCTION: &dyn Fn(&str) -> IResult<&str, LHLD> = &parse_load_hl_direct;
+        const TESTED_FUNCTION: &dyn Fn(BitInput) -> IResult<BitInput, LHLD> = &parse_load_hl_direct;
 
         #[test]
         fn test_valid_input() {
             test_expects_success(
-                "001010101111111111111111",
-                "",
+                (&[0b0010_1010, 0b1111_1111, 0b1010_1010], 0usize),
+                (&[], 0usize),
                 LHLD::LoadHLDirect {
-                    low_addr: 0b11111111,
-                    high_addr: 0b11111111,
+                    low_addr: 0b1111_1111,
+                    high_addr: 0b1010_1010,
                 },
                 TESTED_FUNCTION,
             );
@@ -56,40 +56,37 @@ mod tests {
 
         #[test]
         fn test_invalid_prefix() {
-            test_expects_error("101010101111111111111111", ErrorKind::Tag, TESTED_FUNCTION);
-        }
-
-        #[test]
-        fn test_incomplete_input() {
-            test_expects_error("00101010", ErrorKind::Tag, TESTED_FUNCTION);
+            test_expects_error(
+                (&[0b0011_1010, 0b1111_1111, 0b1010_1010], 0usize),
+                ErrorKind::TagBits,
+                TESTED_FUNCTION,
+            );
         }
 
         #[test]
         fn test_excess_input() {
             test_expects_success(
-                "0010101011111111111111111",
-                "1",
+                (
+                    &[0b0010_1010, 0b1111_1111, 0b1010_1010, 0b1000_0000],
+                    0usize,
+                ),
+                (&[0b1000_0000], 0usize),
                 LHLD::LoadHLDirect {
-                    low_addr: 0b11111111,
-                    high_addr: 0b11111111,
+                    low_addr: 0b1111_1111,
+                    high_addr: 0b1010_1010,
                 },
                 TESTED_FUNCTION,
             );
         }
 
         #[test]
+        fn test_incomplete_input() {
+            test_expects_error((&[0b0010_1010], 0usize), ErrorKind::Eof, TESTED_FUNCTION);
+        }
+
+        #[test]
         fn test_empty_input() {
-            test_expects_error("", ErrorKind::Tag, TESTED_FUNCTION);
-        }
-
-        #[test]
-        fn test_nonnumeric_input() {
-            test_expects_error("001a10101111111111111111", ErrorKind::Tag, TESTED_FUNCTION);
-        }
-
-        #[test]
-        fn test_nonbinary_input() {
-            test_expects_error("001210101111111111111111", ErrorKind::Tag, TESTED_FUNCTION);
+            test_expects_error((&[], 0usize), ErrorKind::Eof, TESTED_FUNCTION);
         }
     }
 }
