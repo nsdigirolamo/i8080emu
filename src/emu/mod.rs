@@ -1,18 +1,13 @@
 pub mod arithmetic;
 pub mod branch;
+pub mod control;
 pub mod data_transfer;
 pub mod logical;
 
 use std::{fs::File, io::Read, path::Path};
 
-use arithmetic::execute_arithmetic;
-use data_transfer::execute_data_transfer;
-
 use crate::parsers::{
-    condition::Condition,
-    parse_instruction,
-    register::{Register, RegisterPair},
-    Instruction,
+    condition::Condition, parse_instruction, register::{Register, RegisterPair}, Instruction
 };
 
 const MEMORY_SIZE: u16 = 65535;
@@ -241,10 +236,10 @@ impl State {
 
     pub fn execute_instruction(&mut self, instruction: Instruction) {
         match instruction {
-            Instruction::Arithmetic(arithmetic) => execute_arithmetic(self, arithmetic),
-            Instruction::Branch(_branch) => todo!(),
-            Instruction::Control(_control) => todo!(),
-            Instruction::DataTransfer(data_transfer) => execute_data_transfer(self, data_transfer),
+            Instruction::Arithmetic(arithmetic) => arithmetic::execute_arithmetic(self, arithmetic),
+            Instruction::Branch(branch) => branch::execute_branch(self, branch),
+            Instruction::Control(control) => control::execute_control(self, control),
+            Instruction::DataTransfer(data_transfer) => data_transfer::execute_data_transfer(self, data_transfer),
             Instruction::Logical(logical) => logical::execute_logical(self, logical),
         }
     }
