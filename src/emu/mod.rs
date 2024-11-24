@@ -54,7 +54,7 @@ macro_rules! split_u8 {
 /**
     The 8080's six 16-bit registers.
 */
-#[derive(Default)]
+#[derive(Debug, Default)]
 pub struct Registers {
     pub pc: u16,
     pub sp: u16,
@@ -78,7 +78,7 @@ pub struct Registers {
     - `auxiliary_carry`: Set when an instruction results in a carry-out of bit
        three.
 */
-#[derive(Default)]
+#[derive(Debug, Default)]
 pub struct Flags {
     pub zero: bool,
     pub carry: bool,
@@ -90,7 +90,7 @@ pub struct Flags {
 /**
     The 8080's arithmetic logic unit (ALU).
 */
-#[derive(Default)]
+#[derive(Debug, Default)]
 pub struct ArithmeticLogicUnit {
     pub accumulator: u8,
     pub temporary_accumulator: u8,
@@ -105,6 +105,15 @@ pub struct State {
     pub registers: Registers,
     pub alu: ArithmeticLogicUnit,
     pub memory: [u8; MEMORY_SIZE as usize],
+}
+
+impl std::fmt::Debug for State {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("State")
+            .field("registers", &self.registers)
+            .field("alu", &self.alu)
+            .finish()
+    }
 }
 
 impl Default for State {
@@ -210,6 +219,7 @@ impl State {
             let address = starting_addr + index as u16;
             self.set_memory(address, data);
         }
+        self.registers.pc = starting_addr;
     }
 
     /**
@@ -224,12 +234,12 @@ impl State {
 
         // Parse the three bytes from the input.
         let (input, instruction) = match parse_instruction(input) {
-            Ok((_, instruction)) => (input, instruction),
+            Ok((input, instruction)) => (input, instruction),
             Err(e) => panic!("{}", e),
         };
 
         // Advance program counter depending on the parsed instruction.
-        self.registers.pc = pc as u16 - (input.0.len() - 3) as u16;
+        self.registers.pc = (pc as i16 - (input.0.len() as i16 - 3)) as u16;
         // Return the parsed instruction.
         instruction
     }
@@ -245,9 +255,36 @@ impl State {
     }
 
     pub fn start(&mut self) {
+        let mut instruction_count = 0;
         while self.registers.pc < MEMORY_SIZE {
+            // Print machine state.
+            println!(
+            "{:═^58}\n{:═^58}\n\
+            ┌────────────┬────────────┬──────────────────────────────┐\n\
+            │ PC: {:#06x} │ SP: {:#06x} │ Accumulator: {:#010b}      │\n\
+            ├────────────┴────────────┴┬─────────────────────────────┤\n\
+            │ BC: 0b_{:08b}_{:08b} │ DE: 0b_{:08b}_{:08b}    │\n\
+            │ HL: 0b_{:08b}_{:08b} │ WZ: 0b_{:08b}_{:08b}    │\n\
+            ├──────────┬───────────┬───┴──────┬──────────┬───────────┤\n\
+            │ Z: {:05} │ CY: {:05} │ S: {:05} │ P: {:05} │ AC: {:05} │\n\
+            ├──────────┴───────────┴──────────┴──────────┴───────────┤\n\
+            │ Memory Look Ahead: [ {:#06X}, {:#06X}, {:#06X}, {:#06X} ]  │ \n\
+            └────────────────────────────────────────────────────────┘",
+            format!(" Instruction {instruction_count:} "), " Pre-Instruction Machine State ",
+            self.registers.pc, self.registers.sp,
+            self.alu.accumulator, self.registers.b, self.registers.c,
+            self.registers.d, self.registers.e, self.registers.h,
+            self.registers.l, self.registers.w, self.registers.z,
+            self.alu.flags.zero, self.alu.flags.carry, self.alu.flags.sign,
+            self.alu.flags.parity, self.alu.flags.auxiliary_carry,
+            self.get_memory(self.registers.pc), self.get_memory(self.registers.pc + 1),
+            self.get_memory(self.registers.pc + 2), self.get_memory(self.registers.pc + 3),
+            );
+
             let instruction = self.fetch_instruction();
+            println!("{:#?}\n", instruction);
             self.execute_instruction(instruction);
+            instruction_count += 1;
         }
     }
 }

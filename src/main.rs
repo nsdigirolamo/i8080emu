@@ -12,10 +12,10 @@ fn main() {
     let command = args[1].as_str();
 
     match command {
-        "load" => state.load_program(16, args[2].as_str()),
-        "start" => state.start(),
+        "run" => {
+            state.load_program(16, args[2].as_str());
+            state.start();
+        },
         _ => println!("Invalid command."),
     }
-
-    println!("{:?}", state.memory);
 }
