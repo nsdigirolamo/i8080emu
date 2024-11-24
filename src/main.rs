@@ -15,7 +15,7 @@ fn main() {
         "run" => {
             state.load_program(16, args[2].as_str());
             state.start();
-        },
+        }
         _ => println!("Invalid command."),
     }
 }

@@ -2,10 +2,10 @@ use crate::parsers::control::Control;
 
 use super::{Flags, State};
 
-pub mod push;
 pub mod pop;
-pub mod xthl;
+pub mod push;
 pub mod sphl;
+pub mod xthl;
 
 pub fn execute_control(state: &mut State, control: Control) {
     match control {
@@ -24,19 +24,19 @@ pub fn execute_control(state: &mut State, control: Control) {
 
 pub fn flags_to_processor_status_word(flags: &Flags) -> u8 {
     0b00000010
-    | (flags.carry as u8)
-    | (2 << flags.parity as u8)
-    | (4 << flags.auxiliary_carry as u8)
-    | (6 << flags.zero as u8)
-    | (7 << flags.sign as u8)
+        | (flags.carry as u8)
+        | (2 << flags.parity as u8)
+        | (4 << flags.auxiliary_carry as u8)
+        | (6 << flags.zero as u8)
+        | (7 << flags.sign as u8)
 }
 
 pub fn processor_status_word_to_flags(processor_status_word: u8) -> Flags {
-    Flags{
-        zero:            (processor_status_word & 0b01000000) != 0,
-        carry:           (processor_status_word & 0b00000001) != 0,
-        sign:            (processor_status_word & 0b10000000) != 0,
-        parity:          (processor_status_word & 0b00000100) != 0,
+    Flags {
+        zero: (processor_status_word & 0b01000000) != 0,
+        carry: (processor_status_word & 0b00000001) != 0,
+        sign: (processor_status_word & 0b10000000) != 0,
+        parity: (processor_status_word & 0b00000100) != 0,
         auxiliary_carry: (processor_status_word & 0b00010000) != 0,
     }
 }

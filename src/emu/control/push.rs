@@ -11,7 +11,7 @@ pub fn execute_push(state: &mut State, push: PUSH) {
             state.set_memory(sp - 1, high_data);
             state.set_memory(sp - 2, low_data);
             state.registers.sp -= 2;
-        },
+        }
         PUSH::PushProcessorStatusWord => {
             let sp = state.registers.sp;
             let accumulator = state.alu.accumulator;
@@ -19,6 +19,6 @@ pub fn execute_push(state: &mut State, push: PUSH) {
             let data = flags_to_processor_status_word(&state.alu.flags);
             state.set_memory(sp - 2, data);
             state.registers.sp -= 2;
-        },
+        }
     }
 }

@@ -7,7 +7,10 @@ pub mod logical;
 use std::{fs::File, io::Read, path::Path};
 
 use crate::parsers::{
-    condition::Condition, parse_instruction, register::{Register, RegisterPair}, Instruction
+    condition::Condition,
+    parse_instruction,
+    register::{Register, RegisterPair},
+    Instruction,
 };
 
 const MEMORY_SIZE: usize = 65536;
@@ -292,7 +295,9 @@ impl State {
             Instruction::Arithmetic(arithmetic) => arithmetic::execute_arithmetic(self, arithmetic),
             Instruction::Branch(branch) => branch::execute_branch(self, branch),
             Instruction::Control(control) => control::execute_control(self, control),
-            Instruction::DataTransfer(data_transfer) => data_transfer::execute_data_transfer(self, data_transfer),
+            Instruction::DataTransfer(data_transfer) => {
+                data_transfer::execute_data_transfer(self, data_transfer)
+            }
             Instruction::Logical(logical) => logical::execute_logical(self, logical),
         }
     }
@@ -300,7 +305,10 @@ impl State {
     pub fn start(&mut self) {
         let mut instruction_count = 0;
         while usize::from(self.registers.pc) < self.memory.len() {
-            println!("{:═^58}", format!(" Instruction Number: {instruction_count} "));
+            println!(
+                "{:═^58}",
+                format!(" Instruction Number: {instruction_count} ")
+            );
             println!("{self:#?}");
             let instruction = self.fetch_instruction();
             println!("{instruction:#?}\n");

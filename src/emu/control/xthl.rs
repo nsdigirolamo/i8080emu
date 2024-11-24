@@ -1,4 +1,8 @@
-use crate::{emu::State, parsers::{control::xthl::XTHL, register::RegisterPair}, split_u16};
+use crate::{
+    emu::State,
+    parsers::{control::xthl::XTHL, register::RegisterPair},
+    split_u16,
+};
 
 pub fn execute_xthl(state: &mut State, xthl: XTHL) {
     match xthl {
@@ -16,6 +20,6 @@ pub fn execute_xthl(state: &mut State, xthl: XTHL) {
             state.set_memory(sp + 1, high_hl);
             // Put stack data into HL.
             state.set_register_pair(&RegisterPair::HL, high_data, low_data);
-        },
+        }
     }
 }

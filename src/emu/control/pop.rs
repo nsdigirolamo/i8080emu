@@ -10,7 +10,7 @@ pub fn execute_pop(state: &mut State, pop: POP) {
             let high_data = state.get_memory(sp + 1);
             state.set_register_pair(&rp, high_data, low_data);
             state.registers.sp += 2;
-        },
+        }
         POP::PopProcessorStatusWord => {
             let sp = state.registers.sp;
             let data = state.get_memory(sp);
@@ -19,6 +19,6 @@ pub fn execute_pop(state: &mut State, pop: POP) {
             let accumulator = state.get_memory(sp + 1);
             state.alu.accumulator = accumulator;
             state.registers.sp += 2;
-        },
+        }
     }
 }
