@@ -109,10 +109,32 @@ pub struct State {
 
 impl std::fmt::Debug for State {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("State")
-            .field("registers", &self.registers)
-            .field("alu", &self.alu)
-            .finish()
+        f.debug_struct(&format!("\
+            ┌────────────┬────────────┬──────────────────────────────┐\n\
+            │ PC: {:#06x} │ SP: {:#06x} │ Accumulator: {:#010b}      │\n\
+            ├────────────┴────────────┴┬─────────────────────────────┤\n\
+            │ BC: 0b_{:08b}_{:08b} │ DE: 0b_{:08b}_{:08b}    │\n\
+            │ HL: 0b_{:08b}_{:08b} │ WZ: 0b_{:08b}_{:08b}    │\n\
+            ├──────────┬───────────┬───┴──────┬──────────┬───────────┤\n\
+            │ Z: {:05} │ CY: {:05} │ S: {:05} │ P: {:05} │ AC: {:05} │\n\
+            ├──────────┴───────────┴──────────┴──────────┴───────────┤\n\
+            │ Memory Look Ahead: [ {:#06X}, {:#06X}, {:#06X}, {:#06X} ]  │ \n\
+            └────────────────────────────────────────────────────────┘",
+            self.registers.pc, self.registers.sp, self.alu.accumulator,
+            self.registers.b, self.registers.c,
+            self.registers.d, self.registers.e,
+            self.registers.h, self.registers.l,
+            self.registers.w, self.registers.z,
+            self.alu.flags.zero,
+            self.alu.flags.carry,
+            self.alu.flags.sign,
+            self.alu.flags.parity,
+            self.alu.flags.auxiliary_carry,
+            self.get_memory(self.registers.pc),
+            self.get_memory(self.registers.pc + 1),
+            self.get_memory(self.registers.pc + 2),
+            self.get_memory(self.registers.pc + 3),
+        )).finish()
     }
 }
 
@@ -257,32 +279,10 @@ impl State {
     pub fn start(&mut self) {
         let mut instruction_count = 0;
         while self.registers.pc < MEMORY_SIZE {
-            // Print machine state.
-            println!(
-            "{:═^58}\n{:═^58}\n\
-            ┌────────────┬────────────┬──────────────────────────────┐\n\
-            │ PC: {:#06x} │ SP: {:#06x} │ Accumulator: {:#010b}      │\n\
-            ├────────────┴────────────┴┬─────────────────────────────┤\n\
-            │ BC: 0b_{:08b}_{:08b} │ DE: 0b_{:08b}_{:08b}    │\n\
-            │ HL: 0b_{:08b}_{:08b} │ WZ: 0b_{:08b}_{:08b}    │\n\
-            ├──────────┬───────────┬───┴──────┬──────────┬───────────┤\n\
-            │ Z: {:05} │ CY: {:05} │ S: {:05} │ P: {:05} │ AC: {:05} │\n\
-            ├──────────┴───────────┴──────────┴──────────┴───────────┤\n\
-            │ Memory Look Ahead: [ {:#06X}, {:#06X}, {:#06X}, {:#06X} ]  │ \n\
-            └────────────────────────────────────────────────────────┘",
-            format!(" Instruction {instruction_count:} "), " Pre-Instruction Machine State ",
-            self.registers.pc, self.registers.sp,
-            self.alu.accumulator, self.registers.b, self.registers.c,
-            self.registers.d, self.registers.e, self.registers.h,
-            self.registers.l, self.registers.w, self.registers.z,
-            self.alu.flags.zero, self.alu.flags.carry, self.alu.flags.sign,
-            self.alu.flags.parity, self.alu.flags.auxiliary_carry,
-            self.get_memory(self.registers.pc), self.get_memory(self.registers.pc + 1),
-            self.get_memory(self.registers.pc + 2), self.get_memory(self.registers.pc + 3),
-            );
-
+            println!("{:═^58}", format!(" Instruction Number: {instruction_count} "));
+            println!("{self:#?}");
             let instruction = self.fetch_instruction();
-            println!("{:#?}\n", instruction);
+            println!("{instruction:#?}\n");
             self.execute_instruction(instruction);
             instruction_count += 1;
         }
