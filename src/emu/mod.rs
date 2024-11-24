@@ -10,7 +10,7 @@ use crate::parsers::{
     condition::Condition, parse_instruction, register::{Register, RegisterPair}, Instruction
 };
 
-const MEMORY_SIZE: u16 = 65535;
+const MEMORY_SIZE: usize = 65536;
 
 /**
     Concatenates two expressions of type `u8` into a single value of type `u16`.
@@ -54,7 +54,7 @@ macro_rules! split_u8 {
 /**
     The 8080's six 16-bit registers.
 */
-#[derive(Debug, Default)]
+#[derive(Debug)]
 pub struct Registers {
     pub pc: u16,
     pub sp: u16,
@@ -66,6 +66,23 @@ pub struct Registers {
     pub l: u8,
     pub w: u8,
     pub z: u8,
+}
+
+impl Default for Registers {
+    fn default() -> Registers {
+        Registers {
+            pc: 0,
+            sp: (MEMORY_SIZE - 1) as u16,
+            b: 0,
+            c: 0,
+            d: 0,
+            e: 0,
+            h: 0,
+            l: 0,
+            w: 0,
+            z: 0,
+        }
+    }
 }
 
 /**
@@ -104,7 +121,7 @@ pub struct ArithmeticLogicUnit {
 pub struct State {
     pub registers: Registers,
     pub alu: ArithmeticLogicUnit,
-    pub memory: [u8; MEMORY_SIZE as usize],
+    pub memory: [u8; MEMORY_SIZE],
 }
 
 impl std::fmt::Debug for State {
@@ -118,7 +135,7 @@ impl std::fmt::Debug for State {
             ├──────────┬───────────┬───┴──────┬──────────┬───────────┤\n\
             │ Z: {:05} │ CY: {:05} │ S: {:05} │ P: {:05} │ AC: {:05} │\n\
             ├──────────┴───────────┴──────────┴──────────┴───────────┤\n\
-            │ Memory Look Ahead: [ {:#06X}, {:#06X}, {:#06X}, {:#06X} ]  │ \n\
+            │ 8-byte Memory Look Ahead: [ {:02X} {:02X} {:02X} {:02X} {:02X} {:02X} {:02X} {:02X} ]  │ \n\
             └────────────────────────────────────────────────────────┘",
             self.registers.pc, self.registers.sp, self.alu.accumulator,
             self.registers.b, self.registers.c,
@@ -134,6 +151,10 @@ impl std::fmt::Debug for State {
             self.get_memory(self.registers.pc + 1),
             self.get_memory(self.registers.pc + 2),
             self.get_memory(self.registers.pc + 3),
+            self.get_memory(self.registers.pc + 4),
+            self.get_memory(self.registers.pc + 5),
+            self.get_memory(self.registers.pc + 6),
+            self.get_memory(self.registers.pc + 7)
         )).finish()
     }
 }
@@ -143,7 +164,7 @@ impl Default for State {
         State {
             registers: Default::default(),
             alu: Default::default(),
-            memory: [0; MEMORY_SIZE as usize],
+            memory: [0; MEMORY_SIZE],
         }
     }
 }
@@ -232,7 +253,7 @@ impl State {
             Err(e) => panic!("{}", e.to_string()),
         };
 
-        let address_size = (MEMORY_SIZE - starting_addr) as usize;
+        let address_size = self.memory.len() - starting_addr as usize;
         if address_size < buffer.len() {
             panic!("The program is too large to load into memory.")
         }
@@ -278,7 +299,7 @@ impl State {
 
     pub fn start(&mut self) {
         let mut instruction_count = 0;
-        while self.registers.pc < MEMORY_SIZE {
+        while usize::from(self.registers.pc) < self.memory.len() {
             println!("{:═^58}", format!(" Instruction Number: {instruction_count} "));
             println!("{self:#?}");
             let instruction = self.fetch_instruction();
