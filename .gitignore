@@ -1,6 +1,6 @@
 # Ignore generated files.
 target
-out*
+*.txt
 
 # Ignore external testing suite.
 cpu_tests
