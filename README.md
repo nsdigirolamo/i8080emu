@@ -3,7 +3,9 @@
 ## About
 
 A work-in-progress emulator for the 8-bit [Intel 8080](https://en.wikipedia.org/wiki/Intel_8080)
-microprocessor from the 1970s.
+microprocessor from the 1970s. To verify this emulator's correctness I'm
+currently using a test suite created by Frank D. Cringle and modified by
+Ian Bartholomew that you can find [here](https://altairclone.com/downloads/cpu_tests/).
 
 ## Resources
 
@@ -25,3 +27,8 @@ variety of publications related to Intel technologies.
 3. [emulator101.com](http://web.archive.org/web/20240522090447/http://emulator101.com/)
 is now defunct, but is available on the Wayback Machine and seems like an
 authoritative source of 8080 emulator information.
+
+### Other Emulators
+
+1. [8080](https://github.com/superzazu/8080/tree/master) by superzazu (GitHub)
+2. [i8080-javascript](https://github.com/chris-j-akers/i8080-javascript/tree/main) by chris-j-akers (GitHub)
