@@ -31,4 +31,7 @@ authoritative source of 8080 emulator information.
 ### Other Emulators
 
 1. [8080](https://github.com/superzazu/8080/tree/master) by superzazu (GitHub)
-2. [i8080-javascript](https://github.com/chris-j-akers/i8080-javascript/tree/main) by chris-j-akers (GitHub)
+is an Intel 8080 emulator written in C99.
+3. [i8080-javascript](https://github.com/chris-j-akers/i8080-javascript/tree/main)
+by chris-j-akers (GitHub) is an Intel 8080 emulator written in Javascript that
+you can use online [here](https://8080.cakers.io/).
