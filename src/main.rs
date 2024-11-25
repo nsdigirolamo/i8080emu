@@ -13,7 +13,8 @@ fn main() {
 
     match command {
         "run" => {
-            state.load_program(16, args[2].as_str());
+            state.load_program(args[2].as_str());
+            eprintln!("{:02X?}", state.memory);
             state.start();
         }
         _ => println!("Invalid command."),

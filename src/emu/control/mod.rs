@@ -2,6 +2,7 @@ use crate::parsers::control::Control;
 
 use super::{Flags, State};
 
+pub mod out;
 pub mod pop;
 pub mod push;
 pub mod sphl;
@@ -14,7 +15,7 @@ pub fn execute_control(state: &mut State, control: Control) {
         Control::HLT(_) => panic!("Instruction not supported: HLT"),
         Control::IN(_) => panic!("Instruction not supported: IN"),
         Control::NOP(_) => (),
-        Control::OUT(_) => panic!("Instruction not supported: OUT"),
+        Control::OUT(out) => out::execute_out(state, out),
         Control::POP(pop) => pop::execute_pop(state, pop),
         Control::PUSH(push) => push::execute_push(state, push),
         Control::SPHL(sphl) => sphl::execute_sphl(state, sphl),

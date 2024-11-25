@@ -57,7 +57,7 @@ macro_rules! split_u8 {
 /**
     The 8080's six 16-bit registers.
 */
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub struct Registers {
     pub pc: u16,
     pub sp: u16,
@@ -69,23 +69,6 @@ pub struct Registers {
     pub l: u8,
     pub w: u8,
     pub z: u8,
-}
-
-impl Default for Registers {
-    fn default() -> Registers {
-        Registers {
-            pc: 0,
-            sp: (MEMORY_SIZE - 1) as u16,
-            b: 0,
-            c: 0,
-            d: 0,
-            e: 0,
-            h: 0,
-            l: 0,
-            w: 0,
-            z: 0,
-        }
-    }
 }
 
 /**
@@ -228,6 +211,17 @@ impl State {
         self.registers.pc = address;
     }
 
+    pub fn push_to_stack(&mut self, data: u8) {
+        self.registers.sp = self.registers.sp.wrapping_sub(1);
+        self.memory[self.registers.sp as usize] = data;
+    }
+
+    pub fn pop_from_stack(&mut self) -> u8 {
+        let data = self.memory[self.registers.sp as usize];
+        self.registers.sp = self.registers.sp.wrapping_add(1);
+        data
+    }
+
     pub fn get_memory(&self, address: u16) -> u8 {
         self.memory[address as usize]
     }
@@ -249,7 +243,10 @@ impl State {
         }
     }
 
-    pub fn load_program(&mut self, starting_addr: u16, path_to_program: &str) {
+    pub fn load_program(&mut self, path_to_program: &str) {
+        // Test suite seems to expect to start at this address.
+        let starting_addr = 0x100;
+
         let mut buffer = Vec::new();
         let _ = match File::open(Path::new(path_to_program)) {
             Ok(mut file) => file.read_to_end(&mut buffer),
@@ -265,6 +262,21 @@ impl State {
             let address = starting_addr + index as u16;
             self.set_memory(address, data);
         }
+
+        // Output routine that seems to be expected by the test suite.
+        // Register pair BC contains address to characters. Prints until it
+        // encounters a '$' symbol
+        self.memory[0x0005] = 0b00011010; // LDAX BC - Load the content of the memory address in BC into accumulator.
+        self.memory[0x0006] = 0b11111110; // CPI 36 - Compare accumulator with value of '$'
+        self.memory[0x0007] = 0b00100100;
+        self.memory[0x0008] = 0b11001000; // Rcondition - Conditional return; if the accumulator stored '$' then return.
+        self.memory[0x0009] = 0b11010011; // OUT 0 - Otherwise, output data stored in accumulator
+        self.memory[0x000A] = 0b00000000;
+        self.memory[0x000B] = 0b00010011; // INX BC - Increment address in BC
+        self.memory[0x000C] = 0b11000011; // JMP 0x0005 - Jump back to beginning of the routine.
+        self.memory[0x000D] = 0b00000101;
+        self.memory[0x000E] = 0b00000000;
+
         self.registers.pc = starting_addr;
     }
 
@@ -305,13 +317,13 @@ impl State {
     pub fn start(&mut self) {
         let mut instruction_count = 0;
         while usize::from(self.registers.pc) < self.memory.len() {
-            println!(
+            eprintln!(
                 "{:═^58}",
                 format!(" Instruction Number: {instruction_count} ")
             );
-            println!("{self:#?}");
+            eprintln!("{self:#?}");
             let instruction = self.fetch_instruction();
-            println!("{instruction:#?}\n");
+            eprintln!("{instruction:#?}\n");
             self.execute_instruction(instruction);
             instruction_count += 1;
         }

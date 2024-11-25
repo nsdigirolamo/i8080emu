@@ -6,13 +6,10 @@ pub fn execute_call(state: &mut State, call: CALL) {
             low_addr,
             high_addr,
         } => {
-            let sp = state.registers.sp;
             // Push program counter to stack.
             let (high_pc, low_pc) = split_u16!(state.registers.pc);
-            state.set_memory(sp - 1, high_pc);
-            state.set_memory(sp - 2, low_pc);
-            // Push stack pointer.
-            state.registers.sp -= 2;
+            state.push_to_stack(high_pc);
+            state.push_to_stack(low_pc);
             // Set program counter to new address.
             let address = join_u8!(high_addr, low_addr);
             state.set_pc(address);
