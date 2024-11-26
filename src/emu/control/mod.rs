@@ -2,17 +2,20 @@ use crate::parsers::control::Control;
 
 use super::{Flags, State};
 
+pub mod di;
+pub mod ei;
 pub mod out;
 pub mod pop;
 pub mod push;
 pub mod sphl;
 pub mod xthl;
+pub mod hlt;
 
 pub fn execute_control(state: &mut State, control: Control) {
     match control {
-        Control::DI(_) => panic!("Instruction not supported: DI"),
-        Control::EI(_) => panic!("Instruction not supported: EI"),
-        Control::HLT(_) => panic!("Instruction not supported: HLT"),
+        Control::DI(di) => di::execute_di(state, di),
+        Control::EI(ei) => ei::execute_ei(state, ei),
+        Control::HLT(hlt) => hlt::execute_hlt(state, hlt),
         Control::IN(_) => panic!("Instruction not supported: IN"),
         Control::NOP(_) => (),
         Control::OUT(out) => out::execute_out(state, out),

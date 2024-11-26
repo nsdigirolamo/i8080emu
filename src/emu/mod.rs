@@ -4,7 +4,7 @@ pub mod control;
 pub mod data_transfer;
 pub mod logical;
 
-use std::{fs::File, io::Read, path::Path};
+use std::{fs::File, io::{self, Read, Write}, path::Path};
 
 use crate::parsers::{
     condition::Condition,
@@ -108,6 +108,9 @@ pub struct State {
     pub registers: Registers,
     pub alu: ArithmeticLogicUnit,
     pub memory: [u8; MEMORY_SIZE],
+    pub interrupt_incoming: bool,
+    pub interrupts_enabled: bool,
+    pub halted: bool,
 }
 
 impl std::fmt::Debug for State {
@@ -151,6 +154,9 @@ impl Default for State {
             registers: Default::default(),
             alu: Default::default(),
             memory: [0; MEMORY_SIZE],
+            interrupt_incoming: false,
+            interrupts_enabled: false,
+            halted: false,
         }
     }
 }
@@ -263,6 +269,9 @@ impl State {
             self.set_memory(address, data);
         }
 
+        // Test suite expects there to be a way to halt here.
+        self.memory[0x0000] = 0b1110110; // HLT
+
         // Output routine that seems to be expected by the test suite.
         // Register pair BC contains address to characters. Prints until it
         // encounters a '$' symbol
@@ -297,7 +306,7 @@ impl State {
         };
 
         // Advance program counter depending on the parsed instruction.
-        self.registers.pc = (pc as i16 - (input.0.len() as i16 - 3)) as u16;
+        self.registers.pc = pc.wrapping_sub(input.0.len().wrapping_sub(3)) as u16;
         // Return the parsed instruction.
         instruction
     }
@@ -316,7 +325,8 @@ impl State {
 
     pub fn start(&mut self) {
         let mut instruction_count = 0;
-        while usize::from(self.registers.pc) < self.memory.len() {
+
+        while !self.halted {
             eprintln!(
                 "{:═^58}",
                 format!(" Instruction Number: {instruction_count} ")
@@ -325,7 +335,14 @@ impl State {
             let instruction = self.fetch_instruction();
             eprintln!("{instruction:#?}\n");
             self.execute_instruction(instruction);
+
+            if self.interrupt_incoming {
+                self.interrupts_enabled = true;
+                self.interrupt_incoming = false;
+            }
             instruction_count += 1;
+            io::stderr().flush().expect("Failed to flush stderr");
+            io::stdout().flush().expect("Failed to flush stdout");
         }
     }
 }
