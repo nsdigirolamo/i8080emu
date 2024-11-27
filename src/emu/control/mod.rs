@@ -28,11 +28,11 @@ pub fn execute_control(state: &mut State, control: Control) {
 
 pub fn flags_to_processor_status_word(flags: &Flags) -> u8 {
     0b00000010
-        | (flags.carry as u8)
-        | (2 << flags.parity as u8)
-        | (4 << flags.auxiliary_carry as u8)
-        | (6 << flags.zero as u8)
-        | (7 << flags.sign as u8)
+        | flags.carry as u8
+        | (flags.parity as u8) << 2
+        | (flags.auxiliary_carry as u8) << 4
+        | (flags.zero as u8) << 6
+        | (flags.sign as u8) << 7
 }
 
 pub fn processor_status_word_to_flags(processor_status_word: u8) -> Flags {
