@@ -7,15 +7,18 @@ pub fn execute_rlc(state: &mut State, rlc: RLC) {
     match rlc {
         RLC::RotateLeft => {
             let data = state.get_register(&Register::A);
+            let old_carry = state.alu.flags.carry as u8;
 
+            // The new carry is the leftmost bit.
+            let rotated_carry = data & 0b10000000 != 0;
             // Rotate left.
             let rotated = data.rotate_left(1);
-            // Set the new carry as the rightmost bit.
-            let rotated_carry = rotated & 0b00000001;
+            // The old carry replaces the rightmost bit.
+            let rotated = (rotated & 0b11111110) | old_carry;
 
             // Only the carry flag is changed.
             state.set_register(&Register::A, rotated);
-            state.alu.flags.carry = rotated_carry != 0;
+            state.alu.flags.carry = rotated_carry;
         }
     }
 }
