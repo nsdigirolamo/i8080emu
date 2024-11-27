@@ -4,7 +4,11 @@ pub mod control;
 pub mod data_transfer;
 pub mod logical;
 
-use std::{fs::File, io::{self, Read, Write}, path::Path};
+use std::{
+    fs::File,
+    io::{self, Read, Write},
+    path::Path,
+};
 
 use crate::parsers::{
     condition::Condition,

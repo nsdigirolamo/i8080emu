@@ -4,12 +4,12 @@ use super::{Flags, State};
 
 pub mod di;
 pub mod ei;
+pub mod hlt;
 pub mod out;
 pub mod pop;
 pub mod push;
 pub mod sphl;
 pub mod xthl;
-pub mod hlt;
 
 pub fn execute_control(state: &mut State, control: Control) {
     match control {
