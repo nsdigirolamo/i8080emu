@@ -1,4 +1,5 @@
 pub mod arithmetic;
+pub mod bdos;
 pub mod branch;
 pub mod control;
 pub mod data_transfer;
@@ -9,6 +10,8 @@ use std::{
     io::{self, Read, Write},
     path::Path,
 };
+
+use bdos::load_bdos_functions;
 
 use crate::parsers::{
     condition::Condition,
@@ -128,7 +131,8 @@ impl std::fmt::Debug for State {
             ├──────────┬───────────┬───┴──────┬──────────┬───────────┤\n\
             │ Z: {:05} │ CY: {:05} │ S: {:05} │ P: {:05} │ AC: {:05} │\n\
             ├──────────┴───────────┴──────────┴──────────┴───────────┤\n\
-            │ 8-byte Memory Look Ahead: [ {:02X} {:02X} {:02X} {:02X} {:02X} {:02X} {:02X} {:02X} ]  │ \n\
+            │ 8-byte PC Look-Ahead: [ {:02X} {:02X} {:02X} {:02X} {:02X} {:02X} {:02X} {:02X} ]      │ \n\
+            │ 8-byte SP Look-Behind: [ {:02X} {:02X} {:02X} {:02X} {:02X} {:02X} {:02X} {:02X} ]     │ \n\
             └────────────────────────────────────────────────────────┘",
             self.registers.pc, self.registers.sp, self.alu.accumulator,
             self.registers.b, self.registers.c,
@@ -141,13 +145,21 @@ impl std::fmt::Debug for State {
             self.alu.flags.parity,
             self.alu.flags.auxiliary_carry,
             self.get_memory(self.registers.pc),
-            self.get_memory(self.registers.pc + 1),
-            self.get_memory(self.registers.pc + 2),
-            self.get_memory(self.registers.pc + 3),
-            self.get_memory(self.registers.pc + 4),
-            self.get_memory(self.registers.pc + 5),
-            self.get_memory(self.registers.pc + 6),
-            self.get_memory(self.registers.pc + 7)
+            self.get_memory(self.registers.pc.wrapping_add(1)),
+            self.get_memory(self.registers.pc.wrapping_add(2)),
+            self.get_memory(self.registers.pc.wrapping_add(3)),
+            self.get_memory(self.registers.pc.wrapping_add(4)),
+            self.get_memory(self.registers.pc.wrapping_add(5)),
+            self.get_memory(self.registers.pc.wrapping_add(6)),
+            self.get_memory(self.registers.pc.wrapping_add(7)),
+            self.get_memory(self.registers.sp),
+            self.get_memory(self.registers.sp.wrapping_add(1)),
+            self.get_memory(self.registers.sp.wrapping_add(2)),
+            self.get_memory(self.registers.sp.wrapping_add(3)),
+            self.get_memory(self.registers.sp.wrapping_add(4)),
+            self.get_memory(self.registers.sp.wrapping_add(5)),
+            self.get_memory(self.registers.sp.wrapping_add(6)),
+            self.get_memory(self.registers.sp.wrapping_add(7)),
         )).finish()
     }
 }
@@ -254,8 +266,7 @@ impl State {
     }
 
     pub fn load_program(&mut self, path_to_program: &str) {
-        // Test suite seems to expect to start at this address.
-        let starting_addr = 0x100;
+        let starting_addr = 0x0100; // Start of Transient Program Area (TPA).
 
         let mut buffer = Vec::new();
         let _ = match File::open(Path::new(path_to_program)) {
@@ -273,23 +284,8 @@ impl State {
             self.set_memory(address, data);
         }
 
-        // Test suite expects there to be a way to halt here.
-        self.memory[0x0000] = 0b1110110; // HLT
-
-        // Output routine that seems to be expected by the test suite.
-        // Register pair BC contains address to characters. Prints until it
-        // encounters a '$' symbol
-        self.memory[0x0005] = 0b00011010; // LDAX BC - Load the content of the memory address in BC into accumulator.
-        self.memory[0x0006] = 0b11111110; // CPI 36 - Compare accumulator with value of '$'
-        self.memory[0x0007] = 0b00100100;
-        self.memory[0x0008] = 0b11001000; // Rcondition - Conditional return; if the accumulator stored '$' then return.
-        self.memory[0x0009] = 0b11010011; // OUT 0 - Otherwise, output data stored in accumulator
-        self.memory[0x000A] = 0b00000000;
-        self.memory[0x000B] = 0b00010011; // INX BC - Increment address in BC
-        self.memory[0x000C] = 0b11000011; // JMP 0x0005 - Jump back to beginning of the routine.
-        self.memory[0x000D] = 0b00000101;
-        self.memory[0x000E] = 0b00000000;
-
+        self.memory[0x0000] = 0b01110110; // Halt at 0x0000
+        load_bdos_functions(self);
         self.registers.pc = starting_addr;
     }
 
@@ -301,7 +297,16 @@ impl State {
         // Instructions are a maximum size of three bytes, so we always read the
         // next three bytes from memory as our input.
         let pc = self.registers.pc as usize;
-        let input = (&self.memory[pc..pc + 3], 0usize);
+        let input: (&[u8], usize);
+        if 65535 < pc + 1 {
+            input = (&self.memory[pc..pc], 0usize);
+        } else if 65535 < pc + 2 {
+            input = (&self.memory[pc..pc + 1], 0usize);
+        } else if 65535 < pc + 3 {
+            input = (&self.memory[pc..pc + 2], 0usize);
+        } else {
+            input = (&self.memory[pc..pc + 3], 0usize);
+        }
 
         // Parse the three bytes from the input.
         let (input, instruction) = match parse_instruction(input) {
