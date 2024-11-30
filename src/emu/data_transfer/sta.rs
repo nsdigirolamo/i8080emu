@@ -11,8 +11,8 @@ pub fn execute_sta(state: &mut State, sta: STA) {
             high_addr,
         } => {
             let address = join_u8!(high_addr, low_addr);
-            let data = state.get_memory(address);
-            state.set_register(&Register::A, data);
+            let data = state.get_register(&Register::A);
+            state.set_memory(address, data);
         }
     }
 }

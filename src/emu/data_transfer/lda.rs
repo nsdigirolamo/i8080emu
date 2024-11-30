@@ -7,7 +7,7 @@ pub fn execute_lda(state: &mut State, lda: LDA) {
             high_addr,
         } => {
             let address = join_u8!(high_addr, low_addr);
-            state.alu.accumulator = state.memory[address as usize];
+            state.alu.accumulator = state.get_memory(address);
         }
     }
 }
