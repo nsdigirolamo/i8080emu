@@ -7,8 +7,8 @@ pub fn execute_stax(state: &mut State, stax: STAX) {
     match stax {
         STAX::StoreAccumulatorIndirect { rp } => {
             let address = state.get_register_pair(&rp);
-            let data = state.get_memory(address);
-            state.set_register(&Register::A, data);
+            let data = state.get_register(&Register::A);
+            state.set_memory(address, data);
         }
     }
 }
