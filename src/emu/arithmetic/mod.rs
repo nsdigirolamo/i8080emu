@@ -39,13 +39,13 @@ pub fn execute_arithmetic(state: &mut State, arithmetic: Arithmetic) {
 /**
     Gets the condition flags from an operation involving the parameters.
 */
-pub fn get_flags(lhs: i8, rhs: i8, result: i8, carried: bool) -> Flags {
+pub fn get_flags(lhs: u8, rhs: u8, result: u8, carried: bool) -> Flags {
     Flags {
         carry: carried,
         zero: result == 0,
         sign: (result >> 7) != 0,
         parity: result.count_ones() % 2 == 0,
-        auxiliary_carry: check_auxiliary_carry(lhs as u8, rhs as u8, result as u8),
+        auxiliary_carry: check_auxiliary_carry(lhs, rhs, result),
     }
 }
 
@@ -78,32 +78,17 @@ fn check_auxiliary_carry(lhs: u8, rhs: u8, result: u8) -> bool {
 }
 
 /**
-   Performs an add operation on the parameters. Returns the result of the
-   operation and its corresponding condition flags.
+   Performs an overflowing subtraction operation on the parameters. Returns the
+   result of the operation and its corresponding condition flags.
 */
-fn add_with_carry(lhs: i8, rhs: i8, carry: i8) -> (i8, Flags) {
-    helper_with_carry(lhs, rhs, carry, i8::overflowing_add)
-}
-
-/**
-   Performs a subtraction operation on the parameters. Returns the result of the
-   operation and its corresponding condition flags.
-*/
-fn sub_with_carry(lhs: i8, rhs: i8, carry: i8) -> (i8, Flags) {
-    helper_with_carry(lhs, rhs, carry, i8::overflowing_sub)
-}
-
-fn helper_with_carry<F>(lhs: i8, rhs: i8, carry: i8, overflowing_operation: F) -> (i8, Flags)
-where
-    F: Fn(i8, i8) -> (i8, bool),
-{
+fn sub_with_carry(lhs: i8, rhs: i8, carry: bool) -> (i8, Flags) {
     // Setup.
     let mut final_result: i8;
     let mut final_carry: bool;
     let mut final_auxiliary_carry;
 
-    // Add the lhs and rhs.
-    let (result, carried) = overflowing_operation(lhs, rhs);
+    // Subtract the lhs and rhs.
+    let (result, carried) = lhs.overflowing_sub(rhs);
     let auxiliary_carry = check_auxiliary_carry(lhs as u8, rhs as u8, result as u8);
 
     // Adjust the final values to reflect the above calculation.
@@ -111,9 +96,50 @@ where
     final_carry = carried;
     final_auxiliary_carry = auxiliary_carry;
 
-    // Add the final result with the carry.
-    let (result, carried) = overflowing_operation(final_result, carry);
+    // Subtract the final result with the carry.
+    let (result, carried) = final_result.overflowing_sub(carry as i8);
     let auxiliary_carry = check_auxiliary_carry(final_result as u8, carry as u8, result as u8);
+
+    // Adjust the final values to reflect the above calculation (again).
+    final_result = result;
+    final_carry = final_carry || carried;
+    final_auxiliary_carry = final_auxiliary_carry || auxiliary_carry;
+
+    // Return.
+    (
+        final_result,
+        Flags {
+            carry: final_carry,
+            zero: final_result == 0,
+            sign: (final_result >> 7) != 0,
+            parity: final_result.count_ones() % 2 == 0,
+            auxiliary_carry: final_auxiliary_carry,
+        },
+    )
+}
+
+/**
+   Performs an overflowing addition operation on the parameters. Returns the
+   result of the operation and its corresponding condition flags.
+*/
+fn add_with_carry(lhs: u8, rhs: u8, carry: bool) -> (u8, Flags) {
+    // Setup.
+    let mut final_result: u8;
+    let mut final_carry: bool;
+    let mut final_auxiliary_carry;
+
+    // Add the lhs and rhs.
+    let (result, carried) = lhs.overflowing_add(rhs);
+    let auxiliary_carry = check_auxiliary_carry(lhs, rhs, result);
+
+    // Adjust the final values to reflect the above calculation.
+    final_result = result;
+    final_carry = carried;
+    final_auxiliary_carry = auxiliary_carry;
+
+    // Add the final result with the carry.
+    let (result, carried) = final_result.overflowing_add(carry as u8);
+    let auxiliary_carry = check_auxiliary_carry(final_result, carry as u8, result);
 
     // Adjust the final values to reflect the above calculation (again).
     final_result = result;

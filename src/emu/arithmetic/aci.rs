@@ -8,9 +8,10 @@ use super::add_with_carry;
 pub fn execute_aci(state: &mut State, aci: ACI) {
     match aci {
         ACI::AddImmediateWithCarry { data } => {
-            let lhs = state.get_register(&Register::A) as i8;
-            let rhs = data as i8;
-            let carry = state.alu.flags.carry as i8;
+            // Only subtraction uses two's complement, so these are unsigned.
+            let lhs = state.get_register(&Register::A);
+            let rhs = data;
+            let carry = state.alu.flags.carry;
 
             let (result, flags) = add_with_carry(lhs, rhs, carry);
 
