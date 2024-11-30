@@ -17,7 +17,7 @@ pub fn execute_sbi(state: &mut State, sbi: SBI) {
 
             state.set_register(&Register::A, result as u8);
             // Subtraction sets the carry bit if there is no carry.
-            state.alu.flags = Flags{
+            state.alu.flags = Flags {
                 zero: flags.zero,
                 carry: !flags.carry,
                 sign: flags.sign,

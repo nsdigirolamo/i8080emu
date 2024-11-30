@@ -14,9 +14,9 @@ pub fn execute_sui(state: &mut State, sui: SUI) {
             let (result, carried) = lhs.overflowing_add(rhs);
             let flags = get_flags(lhs, rhs, result, carried);
 
-            state.set_register(&Register::A, result as u8);
+            state.set_register(&Register::A, result);
             // Subtraction sets the carry bit if there is no carry.
-            state.alu.flags = Flags{
+            state.alu.flags = Flags {
                 zero: flags.zero,
                 carry: !flags.carry,
                 sign: flags.sign,

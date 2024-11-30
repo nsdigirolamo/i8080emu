@@ -15,7 +15,7 @@ pub fn execute_aci(state: &mut State, aci: ACI) {
 
             let (result, flags) = add_with_carry(lhs, rhs, carry);
 
-            state.set_register(&Register::A, result as u8);
+            state.set_register(&Register::A, result);
             state.alu.flags = flags;
         }
     }

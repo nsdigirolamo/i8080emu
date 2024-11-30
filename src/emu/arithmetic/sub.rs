@@ -20,7 +20,7 @@ pub fn execute_sub(state: &mut State, sub: SUB) {
 
             state.set_register(&Register::A, result as u8);
             // Subtraction sets the carry bit if there is no carry.
-            state.alu.flags = Flags{
+            state.alu.flags = Flags {
                 zero: flags.zero,
                 carry: !flags.carry,
                 sign: flags.sign,
@@ -39,7 +39,7 @@ pub fn execute_sub(state: &mut State, sub: SUB) {
 
             state.set_register(&Register::A, result as u8);
             // Subtraction sets the carry bit if there is no carry.
-            state.alu.flags = Flags{
+            state.alu.flags = Flags {
                 zero: flags.zero,
                 carry: !flags.carry,
                 sign: flags.sign,

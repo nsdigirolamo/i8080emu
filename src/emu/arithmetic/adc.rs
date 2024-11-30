@@ -18,7 +18,7 @@ pub fn execute_adc(state: &mut State, adc: ADC) {
 
             let (result, flags) = add_with_carry(lhs, rhs, carry);
 
-            state.set_register(&Register::A, result as u8);
+            state.set_register(&Register::A, result);
             state.alu.flags = flags;
         }
         ADC::AddMemoryWithCarry => {
@@ -30,7 +30,7 @@ pub fn execute_adc(state: &mut State, adc: ADC) {
 
             let (result, flags) = add_with_carry(lhs, rhs, carry);
 
-            state.set_register(&Register::A, result as u8);
+            state.set_register(&Register::A, result);
             state.alu.flags = flags;
         }
     }
