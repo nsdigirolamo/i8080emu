@@ -16,6 +16,7 @@ fn main() {
             state.load_program(args[2].as_str());
             eprintln!("{:02X?}", state.memory);
             state.start();
+            println!();
         }
         _ => println!("Invalid command."),
     }
