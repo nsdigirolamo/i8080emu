@@ -10,12 +10,12 @@ pub fn execute_daa(state: &mut State, daa: DAA) {
     match daa {
         DAA::DecimalAdjustAccumulator => {
             let mut data = state.get_register(&Register::A);
-            let mut flags = Flags{
+            let mut flags = Flags {
                 zero: data != 0,
                 carry: false,
                 sign: (data >> 7) != 0,
                 parity: data.count_ones() % 2 == 0,
-                auxiliary_carry: false
+                auxiliary_carry: false,
             };
 
             // Step 1
