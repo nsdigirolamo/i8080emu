@@ -5,7 +5,6 @@ use crate::{
 
 use super::get_flags;
 
-// TODO: This executor is almost certainly written incorrectly. Test it please.
 pub fn execute_daa(state: &mut State, daa: DAA) {
     match daa {
         DAA::DecimalAdjustAccumulator => {
@@ -29,7 +28,6 @@ pub fn execute_daa(state: &mut State, daa: DAA) {
 
             // Save for later because step 2 could clear this value.
             let aux_carry = flags.auxiliary_carry;
-            eprintln!("{:#?}", state.alu.flags);
 
             // Step 2
             if 9 < (data >> 4) || state.alu.flags.carry {
