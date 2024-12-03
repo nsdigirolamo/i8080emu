@@ -5,11 +5,7 @@ pub mod control;
 pub mod data_transfer;
 pub mod logical;
 
-use std::{
-    fs::File,
-    io::Read,
-    path::Path,
-};
+use std::{fs::File, io::Read, path::Path};
 
 use bdos::load_bdos_functions;
 
@@ -346,7 +342,6 @@ impl State {
             //     eprintln!("{self:#?}");
             //     eprintln!("{instruction:#?}\n");
             // }
-
 
             self.execute_instruction(instruction);
 

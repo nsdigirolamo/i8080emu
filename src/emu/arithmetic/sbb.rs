@@ -19,7 +19,7 @@ pub fn execute_sbb(state: &mut State, sbb: SBB) {
 
             let (result, flags) = sub_with_carry(lhs, rhs, carry);
 
-            state.set_register(&Register::A, result as u8);
+            state.set_register(&Register::A, result);
             // Subtraction sets the carry bit if there is no carry.
             state.alu.flags = Flags {
                 zero: flags.zero,
@@ -37,7 +37,7 @@ pub fn execute_sbb(state: &mut State, sbb: SBB) {
 
             let (result, flags) = sub_with_carry(lhs, rhs, carry);
 
-            state.set_register(&Register::A, result as u8);
+            state.set_register(&Register::A, result);
             // Subtraction sets the carry bit if there is no carry.
             state.alu.flags = Flags {
                 zero: flags.zero,

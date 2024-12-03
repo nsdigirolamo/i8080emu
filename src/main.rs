@@ -5,7 +5,6 @@ use emu::State;
 pub mod emu;
 pub mod parsers;
 
-
 fn main() {
     let state: &mut State = &mut Default::default();
 

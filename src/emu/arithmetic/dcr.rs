@@ -14,7 +14,7 @@ pub fn execute_dcr(state: &mut State, dcr: DCR) {
             let (result, carried) = lhs.overflowing_add(rhs);
             let flags = get_flags(lhs, rhs, result, carried);
 
-            state.set_register(&r, result as u8);
+            state.set_register(&r, result);
             state.alu.flags = Flags {
                 zero: flags.zero,
                 carry: state.alu.flags.carry, // Carry flag isn't affected.

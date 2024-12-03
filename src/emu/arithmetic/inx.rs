@@ -7,7 +7,7 @@ pub fn execute_inx(state: &mut State, inx: INX) {
             let rhs = 0b00000000_00000001;
 
             let (result, _) = lhs.overflowing_add(rhs);
-            let (high_result, low_result) = split_u16!(result as u16);
+            let (high_result, low_result) = split_u16!(result);
 
             // No condition flags are affected.
             state.set_register_pair(&rp, high_result, low_result);
