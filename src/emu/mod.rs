@@ -7,7 +7,7 @@ pub mod logical;
 
 use std::{
     fs::File,
-    io::{self, Read, Write},
+    io::Read,
     path::Path,
 };
 
@@ -336,13 +336,18 @@ impl State {
         let mut instruction_count = 0;
 
         while !self.halted {
-            eprintln!(
-                "{:═^58}",
-                format!(" Instruction Number: {instruction_count} ")
-            );
-            eprintln!("{self:#?}");
             let instruction = self.fetch_instruction();
-            eprintln!("{instruction:#?}\n");
+
+            // if 33971311 - 10 < instruction_count {
+            //     eprintln!(
+            //         "{:═^58}",
+            //         format!(" Instruction Number: {instruction_count} ")
+            //     );
+            //     eprintln!("{self:#?}");
+            //     eprintln!("{instruction:#?}\n");
+            // }
+
+
             self.execute_instruction(instruction);
 
             if self.interrupt_incoming {
@@ -350,8 +355,8 @@ impl State {
                 self.interrupt_incoming = false;
             }
             instruction_count += 1;
-            io::stderr().flush().expect("Failed to flush stderr");
-            io::stdout().flush().expect("Failed to flush stdout");
         }
+
+        println!("\nInstruction Count: {instruction_count:}");
     }
 }

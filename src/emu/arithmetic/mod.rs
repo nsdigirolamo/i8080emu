@@ -79,17 +79,18 @@ fn check_auxiliary_carry(lhs: u8, rhs: u8, result: u8) -> bool {
 
 /**
    Performs an overflowing subtraction operation on the parameters. Returns the
-   result of the operation and its corresponding condition flags.
+   result of the operation and its corresponding condition flags. The `rhs`
+   argument should be negated using two's complement.
 */
-fn sub_with_carry(lhs: i8, rhs: i8, carry: bool) -> (i8, Flags) {
+fn sub_with_carry(lhs: u8, rhs: u8, carry: bool) -> (u8, Flags) {
     // Setup.
-    let mut final_result: i8;
+    let mut final_result: u8;
     let mut final_carry: bool;
     let mut final_auxiliary_carry;
 
     // Subtract the lhs and rhs.
-    let (result, carried) = lhs.overflowing_sub(rhs);
-    let auxiliary_carry = check_auxiliary_carry(lhs as u8, rhs as u8, result as u8);
+    let (result, carried) = lhs.overflowing_add(rhs);
+    let auxiliary_carry = check_auxiliary_carry(lhs, rhs, result);
 
     // Adjust the final values to reflect the above calculation.
     final_result = result;
@@ -97,8 +98,9 @@ fn sub_with_carry(lhs: i8, rhs: i8, carry: bool) -> (i8, Flags) {
     final_auxiliary_carry = auxiliary_carry;
 
     // Subtract the final result with the carry.
-    let (result, carried) = final_result.overflowing_sub(carry as i8);
-    let auxiliary_carry = check_auxiliary_carry(final_result as u8, carry as u8, result as u8);
+    let rhs = if carry { 0b11111111 } else { 0b00000000 }; // Two's complement -1 if carry exists.
+    let (result, carried) = final_result.overflowing_add(rhs);
+    let auxiliary_carry = check_auxiliary_carry(final_result, rhs, result);
 
     // Adjust the final values to reflect the above calculation (again).
     final_result = result;

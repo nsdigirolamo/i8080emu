@@ -1,3 +1,5 @@
+use std::ops::Not;
+
 use crate::{
     emu::{Flags, State},
     parsers::{
@@ -12,9 +14,8 @@ pub fn execute_sbb(state: &mut State, sbb: SBB) {
     match sbb {
         SBB::SubtractRegisterWithBorrow { r } => {
             let carry = state.alu.flags.carry;
-            // Subtraction uses two's complement, so these are signed.
-            let lhs = state.get_register(&Register::A) as i8;
-            let rhs = state.get_register(&r) as i8;
+            let lhs = state.get_register(&Register::A);
+            let rhs = state.get_register(&r).not().wrapping_add(1); // Two's complement negation.
 
             let (result, flags) = sub_with_carry(lhs, rhs, carry);
 
@@ -31,9 +32,8 @@ pub fn execute_sbb(state: &mut State, sbb: SBB) {
         SBB::SubtractMemoryWithBorrow => {
             let address = state.get_register_pair(&RegisterPair::HL);
             let carry = state.alu.flags.carry;
-            // Subtraction uses two's complement, so these are signed.
-            let lhs = state.get_register(&Register::A) as i8;
-            let rhs = state.get_memory(address) as i8;
+            let lhs = state.get_register(&Register::A);
+            let rhs = state.get_memory(address).not().wrapping_add(1); // Two's complement negation.
 
             let (result, flags) = sub_with_carry(lhs, rhs, carry);
 

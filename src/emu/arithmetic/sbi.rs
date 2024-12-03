@@ -1,3 +1,5 @@
+use std::ops::Not;
+
 use crate::{
     emu::{Flags, State},
     parsers::{arithmetic::sbi::SBI, register::Register},
@@ -9,13 +11,12 @@ pub fn execute_sbi(state: &mut State, sbi: SBI) {
     match sbi {
         SBI::SubtractImmediateWithBorrow { data } => {
             let carry = state.alu.flags.carry;
-            // Subtraction uses two's complement, so these are signed.
-            let lhs = state.get_register(&Register::A) as i8;
-            let rhs = data as i8;
+            let lhs = state.get_register(&Register::A);
+            let rhs = data.not().wrapping_add(1); // Two's complement negation.
 
             let (result, flags) = sub_with_carry(lhs, rhs, carry);
 
-            state.set_register(&Register::A, result as u8);
+            state.set_register(&Register::A, result);
             // Subtraction sets the carry bit if there is no carry.
             state.alu.flags = Flags {
                 zero: flags.zero,

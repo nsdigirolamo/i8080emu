@@ -8,9 +8,8 @@ use super::get_flags;
 pub fn execute_inr(state: &mut State, inr: INR) {
     match inr {
         INR::IncrementRegister { r } => {
-            // Only subtraction uses two's complement, so these are unsigned.
             let lhs = state.get_register(&r);
-            let rhs = 1_u8;
+            let rhs = 0b000000001;
 
             let (result, carried) = lhs.overflowing_add(rhs);
             let flags = get_flags(lhs, rhs, result, carried);
@@ -26,9 +25,8 @@ pub fn execute_inr(state: &mut State, inr: INR) {
         }
         INR::IncrementMemory => {
             let address = state.get_register_pair(&RegisterPair::HL);
-            // Only subtraction uses two's complement, so these are unsigned.
             let lhs = state.get_memory(address);
-            let rhs = 1_u8;
+            let rhs = 0b000000001;
 
             let (result, carried) = lhs.overflowing_add(rhs);
             let flags = get_flags(lhs, rhs, result, carried);
