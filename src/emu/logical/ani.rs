@@ -1,5 +1,5 @@
 use crate::{
-    emu::State,
+    emu::{Flags, State},
     parsers::{logical::ani::ANI, register::Register},
 };
 
@@ -15,7 +15,17 @@ pub fn execute_ani(state: &mut State, ani: ANI) {
             let flags = get_flags(result);
 
             state.set_register(&Register::A, result);
-            state.alu.flags = flags;
+
+            // Logical AND instructions are a special case where they set the
+            // auxiliary carry flag to reflect the logical OR of bit 3 of the
+            // values involved in the AND operation.
+            state.alu.flags = Flags {
+                zero: flags.zero,
+                carry: flags.carry,
+                sign: flags.sign,
+                parity: flags.parity,
+                auxiliary_carry: (lhs | rhs) & 0b00001000 != 0,
+            };
         }
     }
 }
