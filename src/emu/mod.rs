@@ -329,7 +329,7 @@ impl State {
     }
 
     pub fn start(&mut self) {
-        let mut instruction_count = 0;
+        let mut instruction_count: u32 = 0;
 
         while !self.halted {
             let instruction = self.fetch_instruction();
