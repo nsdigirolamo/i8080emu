@@ -51,10 +51,31 @@ macro_rules! split_u16 {
 */
 #[macro_export]
 macro_rules! split_u8 {
-    ($value:expr) => {{
+    ($value:expr) => {
         let value: u8 = $value;
         (value >> 4, value & 0b00001111)
-    }};
+    };
+}
+
+#[macro_export]
+macro_rules! z_flag {
+    ($value:expr) => {
+        $value == 0
+    };
+}
+
+#[macro_export]
+macro_rules! s_flag {
+    ($value:expr) => {
+        ($value & 0b10000000) != 0
+    };
+}
+
+#[macro_export]
+macro_rules! p_flag {
+    ($value:expr) => {
+        $value.count_ones() % 2 == 0
+    };
 }
 
 /**
@@ -334,14 +355,12 @@ impl State {
         while !self.halted {
             let instruction = self.fetch_instruction();
 
-            // if 33971311 - 10 < instruction_count {
-            //     eprintln!(
-            //         "{:═^58}",
-            //         format!(" Instruction Number: {instruction_count} ")
-            //     );
-            //     eprintln!("{self:#?}");
-            //     eprintln!("{instruction:#?}\n");
-            // }
+            // eprintln!(
+            //     "{:═^58}",
+            //     format!(" Instruction Number: {instruction_count} ")
+            // );
+            // eprintln!("{self:#?}");
+            // eprintln!("{instruction:#?}\n");
 
             self.execute_instruction(instruction);
 

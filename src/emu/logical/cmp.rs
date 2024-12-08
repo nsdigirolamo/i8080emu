@@ -1,9 +1,10 @@
+use std::ops::Not;
+
 use crate::{
-    emu::{arithmetic, State},
-    parsers::{
+    emu::{Flags, State}, p_flag, parsers::{
         logical::cmp::CMP,
         register::{Register, RegisterPair},
-    },
+    }, s_flag, z_flag
 };
 
 pub fn execute_cmp(state: &mut State, cmp: CMP) {
@@ -12,22 +13,32 @@ pub fn execute_cmp(state: &mut State, cmp: CMP) {
             let lhs = state.get_register(&Register::A);
             let rhs = state.get_register(&r);
 
-            let (result, carried) = lhs.overflowing_sub(rhs);
-            let flags = arithmetic::get_flags(lhs, rhs, result, carried);
+            let result = lhs.wrapping_sub(rhs);
 
             // The accumulator remains unchanged.
-            state.alu.flags = flags;
+            state.alu.flags = Flags{
+                zero: z_flag!(result),
+                carry: result >> 7 != 0,
+                sign: s_flag!(result),
+                parity: p_flag!(result),
+                auxiliary_carry: ((state.alu.accumulator ^ result ^ rhs).not() & 0x10) != 0,
+            };
         }
         CMP::CompareMemory => {
             let address = state.get_register_pair(&RegisterPair::HL);
             let lhs = state.get_register(&Register::A);
             let rhs = state.get_memory(address);
 
-            let (result, carried) = lhs.overflowing_sub(rhs);
-            let flags = arithmetic::get_flags(lhs, rhs, result, carried);
+            let result = lhs.wrapping_sub(rhs);
 
             // The accumulator remains unchanged.
-            state.alu.flags = flags;
+            state.alu.flags = Flags{
+                zero: z_flag!(result),
+                carry: result >> 7 != 0,
+                sign: s_flag!(result),
+                parity: p_flag!(result),
+                auxiliary_carry: ((state.alu.accumulator ^ result ^ rhs).not() & 0x10) != 0,
+            };
         }
     }
 }

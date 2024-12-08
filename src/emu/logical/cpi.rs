@@ -1,6 +1,7 @@
+use std::ops::Not;
+
 use crate::{
-    emu::{arithmetic, State},
-    parsers::{logical::cpi::CPI, register::Register},
+    emu::{Flags, State}, p_flag, parsers::{logical::cpi::CPI, register::Register}, s_flag, z_flag
 };
 
 pub fn execute_cpi(state: &mut State, cpi: CPI) {
@@ -9,11 +10,16 @@ pub fn execute_cpi(state: &mut State, cpi: CPI) {
             let lhs = state.get_register(&Register::A);
             let rhs = data;
 
-            let (result, carried) = lhs.overflowing_sub(rhs);
-            let flags = arithmetic::get_flags(lhs, rhs, result, carried);
+            let result = lhs.wrapping_sub(rhs);
 
             // The accumulator remains unchanged.
-            state.alu.flags = flags;
+            state.alu.flags = Flags{
+                zero: z_flag!(result),
+                carry: lhs < rhs,
+                sign: s_flag!(result),
+                parity: p_flag!(result),
+                auxiliary_carry: ((state.alu.accumulator ^ result ^ rhs).not() & 0x10) != 0,
+            };
         }
     }
 }

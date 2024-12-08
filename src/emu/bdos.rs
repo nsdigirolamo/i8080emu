@@ -3,7 +3,7 @@ use crate::split_u16;
 use super::State;
 
 /**
-    Increase address. Adds one to the argument then returns.
+    Increment address. Adds one to the argument then returns.
 */
 macro_rules! inca {
     ($addr:expr) => {{

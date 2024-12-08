@@ -6,32 +6,28 @@ use crate::{
     },
 };
 
-use super::add_with_carry;
+use super::do_add;
 
 pub fn execute_adc(state: &mut State, adc: ADC) {
     match adc {
         ADC::AddRegisterWithCarry { r } => {
-            let carry = state.alu.flags.carry;
-            // Only subtraction uses two's complement, so these are unsigned.
             let lhs = state.get_register(&Register::A);
             let rhs = state.get_register(&r);
+            let carry = state.alu.flags.carry;
 
-            let (result, flags) = add_with_carry(lhs, rhs, carry);
+            let result = do_add(state, lhs, rhs, carry);
 
             state.set_register(&Register::A, result);
-            state.alu.flags = flags;
         }
         ADC::AddMemoryWithCarry => {
             let address = state.get_register_pair(&RegisterPair::HL);
-            let carry = state.alu.flags.carry;
-            // Only subtraction uses two's complement, so these are unsigned.
             let lhs = state.get_register(&Register::A);
             let rhs = state.get_memory(address);
+            let carry = state.alu.flags.carry;
 
-            let (result, flags) = add_with_carry(lhs, rhs, carry);
+            let result = do_add(state, lhs, rhs, carry);
 
             state.set_register(&Register::A, result);
-            state.alu.flags = flags;
         }
     }
 }

@@ -3,20 +3,18 @@ use crate::{
     parsers::{arithmetic::aci::ACI, register::Register},
 };
 
-use super::add_with_carry;
+use super::do_add;
 
 pub fn execute_aci(state: &mut State, aci: ACI) {
     match aci {
         ACI::AddImmediateWithCarry { data } => {
-            // Only subtraction uses two's complement, so these are unsigned.
             let lhs = state.get_register(&Register::A);
             let rhs = data;
             let carry = state.alu.flags.carry;
 
-            let (result, flags) = add_with_carry(lhs, rhs, carry);
+            let result = do_add(state, lhs, rhs, carry);
 
             state.set_register(&Register::A, result);
-            state.alu.flags = flags;
         }
     }
 }
