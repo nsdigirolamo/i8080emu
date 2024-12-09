@@ -1,7 +1,10 @@
 use std::ops::Not;
 
 use crate::{
-    emu::{Flags, State}, p_flag, parsers::{logical::cpi::CPI, register::Register}, s_flag, z_flag
+    emu::{Flags, State},
+    p_flag,
+    parsers::{logical::cpi::CPI, register::Register},
+    s_flag, z_flag,
 };
 
 pub fn execute_cpi(state: &mut State, cpi: CPI) {
@@ -13,7 +16,7 @@ pub fn execute_cpi(state: &mut State, cpi: CPI) {
             let result = lhs.wrapping_sub(rhs);
 
             // The accumulator remains unchanged.
-            state.alu.flags = Flags{
+            state.alu.flags = Flags {
                 zero: z_flag!(result),
                 carry: lhs < rhs,
                 sign: s_flag!(result),

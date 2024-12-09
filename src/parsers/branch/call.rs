@@ -1,5 +1,8 @@
 use nom::{
-    bits::complete::{tag, take}, branch::alt, sequence::{pair, preceded}, IResult
+    bits::complete::{tag, take},
+    branch::alt,
+    sequence::{pair, preceded},
+    IResult,
 };
 
 use crate::parsers::BitInput;
@@ -18,17 +21,16 @@ pub fn parse_call(input: BitInput) -> IResult<BitInput, Branch> {
 }
 
 fn parse_call_instruction(input: BitInput) -> IResult<BitInput, CALL> {
-    let (input, (low_addr, high_addr)) =
-        preceded(
-            alt((
-                tag(0b11001101, 8usize),
-                // Below are undocumented operation codes.
-                tag(0b11011101, 8usize),
-                tag(0b11101101, 8usize),
-                tag(0b11111101, 8usize),
-            )),
-            pair(take(8usize), take(8usize))
-        )(input)?;
+    let (input, (low_addr, high_addr)) = preceded(
+        alt((
+            tag(0b11001101, 8usize),
+            // Below are undocumented operation codes.
+            tag(0b11011101, 8usize),
+            tag(0b11101101, 8usize),
+            tag(0b11111101, 8usize),
+        )),
+        pair(take(8usize), take(8usize)),
+    )(input)?;
     let result = CALL::Call {
         low_addr,
         high_addr,

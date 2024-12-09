@@ -25,7 +25,7 @@ fn parse_no_op(input: BitInput) -> IResult<BitInput, NOP> {
         tag(0b00100000, 8usize),
         tag(0b00101000, 8usize),
         tag(0b00110000, 8usize),
-        tag(0b00111000, 8usize)
+        tag(0b00111000, 8usize),
     ))(input)?;
     let result = NOP::NoOp;
     Ok((input, result))

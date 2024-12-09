@@ -1,5 +1,8 @@
 use crate::{
-    emu::{Flags, State}, p_flag, parsers::{arithmetic::inr::INR, register::RegisterPair}, s_flag, z_flag
+    emu::{Flags, State},
+    p_flag,
+    parsers::{arithmetic::inr::INR, register::RegisterPair},
+    s_flag, z_flag,
 };
 
 pub fn execute_inr(state: &mut State, inr: INR) {
@@ -8,7 +11,7 @@ pub fn execute_inr(state: &mut State, inr: INR) {
             let result = state.get_register(&r).wrapping_add(1);
 
             state.set_register(&r, result);
-            state.alu.flags = Flags{
+            state.alu.flags = Flags {
                 zero: z_flag!(result),
                 carry: state.alu.flags.carry, // Carry is unchanged.
                 sign: s_flag!(result),
@@ -21,7 +24,7 @@ pub fn execute_inr(state: &mut State, inr: INR) {
             let result = state.get_memory(address).wrapping_add(1);
 
             state.set_memory(address, result);
-            state.alu.flags = Flags{
+            state.alu.flags = Flags {
                 zero: z_flag!(result),
                 carry: state.alu.flags.carry, // Carry is unchanged.
                 sign: s_flag!(result),

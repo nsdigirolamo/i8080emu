@@ -1,10 +1,13 @@
 use std::ops::Not;
 
 use crate::{
-    emu::{Flags, State}, p_flag, parsers::{
+    emu::{Flags, State},
+    p_flag,
+    parsers::{
         logical::cmp::CMP,
         register::{Register, RegisterPair},
-    }, s_flag, z_flag
+    },
+    s_flag, z_flag,
 };
 
 pub fn execute_cmp(state: &mut State, cmp: CMP) {
@@ -16,7 +19,7 @@ pub fn execute_cmp(state: &mut State, cmp: CMP) {
             let result = lhs.wrapping_sub(rhs);
 
             // The accumulator remains unchanged.
-            state.alu.flags = Flags{
+            state.alu.flags = Flags {
                 zero: z_flag!(result),
                 carry: result >> 7 != 0,
                 sign: s_flag!(result),
@@ -32,7 +35,7 @@ pub fn execute_cmp(state: &mut State, cmp: CMP) {
             let result = lhs.wrapping_sub(rhs);
 
             // The accumulator remains unchanged.
-            state.alu.flags = Flags{
+            state.alu.flags = Flags {
                 zero: z_flag!(result),
                 carry: result >> 7 != 0,
                 sign: s_flag!(result),

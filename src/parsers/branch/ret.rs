@@ -19,7 +19,7 @@ fn parse_return(input: BitInput) -> IResult<BitInput, RET> {
     let (input, _) = alt((
         tag(0b11001001, 8usize),
         // Below is an undocumented operation code.
-        tag(0b11011001, 8usize)
+        tag(0b11011001, 8usize),
     ))(input)?;
     let result = RET::Return;
     Ok((input, result))
