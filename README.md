@@ -7,6 +7,48 @@ microprocessor from the 1970s. To verify this emulator's correctness I'm
 currently using a test suite created by Frank D. Cringle and modified by
 Ian Bartholomew that you can find [here](https://altairclone.com/downloads/cpu_tests/).
 
+## Build
+
+You will need [`cargo`](https://doc.rust-lang.org/cargo/getting-started/installation.html)
+installed on your machine to build the emulator from source. Once you've cloned
+the repository, navigate to its root directory and run the following command:
+
+```sh
+cargo build --release
+```
+
+## Run
+
+To run a program on the emulator, use the `run` command followed by the path
+to the program:
+
+```sh
+i8080emu run /path-to-program/program.COM
+```
+
+## Test
+
+You will need to download the tests before you can run them. If you have `curl`
+installed on your machine, you can download the tests with the following
+command:
+
+```sh
+curl \
+-O https://altairclone.com/downloads/cpu_tests/8080PRE.COM \
+-O https://altairclone.com/downloads/cpu_tests/TST8080.COM \
+-O https://altairclone.com/downloads/cpu_tests/CPUTEST.COM \
+-O https://altairclone.com/downloads/cpu_tests/8080EXM.COM
+```
+
+Then, run a test as outlined above:
+
+```sh
+i8080emu run 8080PRE.COM
+```
+
+The longest test suite is `8080EXM.COM`, which takes around 25 minutes to run.
+The other suites should only take a few seconds each.
+
 ## Resources
 
 ### Documents
