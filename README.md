@@ -31,8 +31,11 @@ authoritative source of 8080 emulator information.
 
 ### Other Emulators
 
-1. [8080](https://github.com/superzazu/8080/tree/master) by superzazu (GitHub)
-is an Intel 8080 emulator written in C99.
-3. [i8080-javascript](https://github.com/chris-j-akers/i8080-javascript/tree/main)
+1. [8080](https://github.com/superzazu/8080) by superzazu (GitHub)
+is an Intel 8080 emulator written in C.
+2. [i8080-core](https://github.com/begoon/i8080-core) by begoon (GitHub) is an
+Intel 8080 emulator written in C specifically for the KR580VM80A, which was a
+Russian clone of the Intel 8080.
+3. [i8080-javascript](https://github.com/chris-j-akers/i8080-javascript)
 by chris-j-akers (GitHub) is an Intel 8080 emulator written in Javascript that
 you can use online [here](https://8080.cakers.io/).
