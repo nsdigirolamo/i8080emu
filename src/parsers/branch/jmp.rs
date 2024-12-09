@@ -1,7 +1,5 @@
 use nom::{
-    bits::complete::{tag, take},
-    sequence::{pair, preceded},
-    IResult,
+    bits::complete::{tag, take}, branch::alt, sequence::{pair, preceded}, IResult
 };
 
 use crate::parsers::BitInput;
@@ -21,7 +19,14 @@ pub fn parse_jmp(input: BitInput) -> IResult<BitInput, Branch> {
 
 fn parse_jump(input: BitInput) -> IResult<BitInput, JMP> {
     let (input, (low_addr, high_addr)) =
-        preceded(tag(0b11000011, 8usize), pair(take(8usize), take(8usize)))(input)?;
+        preceded(
+            alt((
+                tag(0b11000011, 8usize),
+                // Below is an undocumented operation code.
+                tag(0b11001011, 8usize)
+            )),
+            pair(take(8usize), take(8usize))
+        )(input)?;
     let result = JMP::Jump {
         low_addr,
         high_addr,

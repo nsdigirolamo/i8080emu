@@ -1,4 +1,4 @@
-use nom::{bits::complete::tag, IResult};
+use nom::{bits::complete::tag, branch::alt, IResult};
 
 use crate::parsers::BitInput;
 
@@ -16,7 +16,17 @@ pub fn parse_nop(input: BitInput) -> IResult<BitInput, Control> {
 }
 
 fn parse_no_op(input: BitInput) -> IResult<BitInput, NOP> {
-    let (input, _) = tag(0b00000000, 8usize)(input)?;
+    let (input, _) = alt((
+        tag(0b00000000, 8usize),
+        // Below are undocumented operation codes.
+        tag(0b00001000, 8usize),
+        tag(0b00010000, 8usize),
+        tag(0b00011000, 8usize),
+        tag(0b00100000, 8usize),
+        tag(0b00101000, 8usize),
+        tag(0b00110000, 8usize),
+        tag(0b00111000, 8usize)
+    ))(input)?;
     let result = NOP::NoOp;
     Ok((input, result))
 }

@@ -1,4 +1,4 @@
-use nom::{bits::complete::tag, IResult};
+use nom::{bits::complete::tag, branch::alt, IResult};
 
 use crate::parsers::BitInput;
 
@@ -16,7 +16,11 @@ pub fn parse_ret(input: BitInput) -> IResult<BitInput, Branch> {
 }
 
 fn parse_return(input: BitInput) -> IResult<BitInput, RET> {
-    let (input, _) = tag(0b11001001, 8usize)(input)?;
+    let (input, _) = alt((
+        tag(0b11001001, 8usize),
+        // Below is an undocumented operation code.
+        tag(0b11011001, 8usize)
+    ))(input)?;
     let result = RET::Return;
     Ok((input, result))
 }
