@@ -26,8 +26,8 @@ downloads for many different things: manuals, ROMs, CPU tests, etc.
 2. [mark-ogden.uk](https://mark-ogden.uk/files/intel/publications/) provides a
 variety of publications related to Intel technologies.
 3. [emulator101.com](http://web.archive.org/web/20240522090447/http://emulator101.com/)
-is now defunct, but is available on the Wayback Machine and seems like an
-authoritative source of 8080 emulator information.
+is now defunct, but is available on the Wayback Machine and seems like a good
+source of 8080 emulator information.
 
 ### Other Emulators
 
