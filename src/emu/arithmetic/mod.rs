@@ -1,5 +1,3 @@
-use std::ops::Not;
-
 use crate::{p_flag, parsers::arithmetic::Arithmetic, s_flag, z_flag};
 
 use super::{Flags, State};
@@ -42,41 +40,27 @@ pub fn execute_arithmetic(state: &mut State, arithmetic: Arithmetic) {
     Checks to see if a carry occurred at the given bit.
 */
 #[allow(clippy::nonminimal_bool)]
-fn check_carry(lhs: u8, rhs: u8, result: u8, bit_index: u8) -> bool {
-    let lhs_bit_exists = lhs & (1 << bit_index) != 0;
-    let rhs_bit_exists = rhs & (1 << bit_index) != 0;
-    let result_bit_exists = result & (1 << bit_index) != 0;
-
-    (lhs_bit_exists && rhs_bit_exists)
-        || (lhs_bit_exists && !result_bit_exists)
-        || (rhs_bit_exists && !result_bit_exists)
+fn check_carry(lhs: u8, rhs: u8, carry: bool, bit_index: u8) -> bool {
+    let result: u16 = lhs as u16 + rhs as u16 + carry as u16;
+    let carry: u16 = result ^ lhs as u16 ^ rhs as u16;
+    carry & (1 << bit_index) != 0
 }
 
 fn do_add(state: &mut State, lhs: u8, rhs: u8, carry: bool) -> u8 {
     let result = lhs.wrapping_add(rhs).wrapping_add(carry as u8);
     state.alu.flags = Flags {
         zero: z_flag!(result),
-        carry: check_carry(lhs, rhs, result, 7),
+        carry: check_carry(lhs, rhs, carry, 8),
         sign: s_flag!(result),
         parity: p_flag!(result),
-        auxiliary_carry: check_carry(lhs, rhs, result, 3),
+        auxiliary_carry: check_carry(lhs, rhs, carry, 4),
     };
 
     result
 }
 
 fn do_subtract(state: &mut State, lhs: u8, rhs: u8, carry: bool) -> u8 {
-    let rhs = rhs.wrapping_add(carry as u8); // Add carry to RHS before subtraction.
-    let rhs = rhs.not().wrapping_add(1); // Two's complement negation.
-
-    let result = lhs.wrapping_add(rhs);
-    state.alu.flags = Flags {
-        zero: z_flag!(result),
-        carry: !check_carry(lhs, rhs, result, 7), // Carry is only set if there is no carry-out.
-        sign: s_flag!(result),
-        parity: p_flag!(result),
-        auxiliary_carry: check_carry(lhs, rhs, result, 3),
-    };
-
+    let result = do_add(state, lhs, !rhs, !carry);
+    state.alu.flags.carry = !state.alu.flags.carry;
     result
 }
