@@ -8,17 +8,15 @@ pub fn execute_xthl(state: &mut State, xthl: XTHL) {
     match xthl {
         XTHL::ExchangeStackTopWithHL => {
             let sp = state.registers.sp;
-            // Get data off the stack.
+            // Retrieve stack data.
             let low_data = state.get_memory(sp);
             let high_data = state.get_memory(sp.wrapping_add(1));
-            // Get data out of HL.
+            // Retrieve HL data.
             let hl = state.get_register_pair(&RegisterPair::HL);
             let (high_hl, low_hl) = split_u16!(hl);
-
-            // Put HL data into stack.
+            // Swap the two, sp doesn't advance.
             state.set_memory(sp, low_hl);
             state.set_memory(sp.wrapping_add(1), high_hl);
-            // Put stack data into HL.
             state.set_register_pair(&RegisterPair::HL, high_data, low_data);
         }
     }

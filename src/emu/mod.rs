@@ -38,10 +38,9 @@ macro_rules! join_u8 {
 */
 #[macro_export]
 macro_rules! split_u16 {
-    ($value:expr) => {{
-        let value: u16 = $value;
-        ((value >> 8) as u8, value as u8)
-    }};
+    ($value:expr) => {
+        (($value >> 8) as u8, $value as u8)
+    };
 }
 
 /**
@@ -52,8 +51,7 @@ macro_rules! split_u16 {
 #[macro_export]
 macro_rules! split_u8 {
     ($value:expr) => {
-        let value: u8 = $value;
-        (value >> 4, value & 0b00001111)
+        ($value >> 4, $value & 0b00001111)
     };
 }
 
@@ -350,8 +348,6 @@ impl State {
     }
 
     pub fn start(&mut self) {
-        let mut instruction_count: u32 = 0;
-
         while !self.halted {
             let instruction = self.fetch_instruction();
 
@@ -368,9 +364,6 @@ impl State {
                 self.interrupts_enabled = true;
                 self.interrupt_incoming = false;
             }
-            instruction_count += 1;
         }
-
-        println!("\nInstruction Count: {instruction_count:}");
     }
 }

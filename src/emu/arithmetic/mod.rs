@@ -39,7 +39,6 @@ pub fn execute_arithmetic(state: &mut State, arithmetic: Arithmetic) {
 /**
     Checks to see if a carry occurred at the given bit.
 */
-#[allow(clippy::nonminimal_bool)]
 fn check_carry(lhs: u8, rhs: u8, carry: bool, bit_index: u8) -> bool {
     let result: u16 = lhs as u16 + rhs as u16 + carry as u16;
     let carry: u16 = result ^ lhs as u16 ^ rhs as u16;
@@ -60,6 +59,11 @@ fn do_add(state: &mut State, lhs: u8, rhs: u8, carry: bool) -> u8 {
 }
 
 fn do_subtract(state: &mut State, lhs: u8, rhs: u8, carry: bool) -> u8 {
+    /*
+        [This](https://github.com/superzazu/8080/blob/274ffd700b81baabea99b0963bc1260b67132185/i8080.c#L181)
+        implementation by superzazu on GitHub was a helpful resource to get this
+        function working.
+    */
     let result = do_add(state, lhs, !rhs, !carry);
     state.alu.flags.carry = !state.alu.flags.carry;
     result
