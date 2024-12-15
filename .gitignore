@@ -1,6 +1,7 @@
 # Ignore generated files.
 target
 *.txt
+*.COM
 
 # Ignore external testing suite.
 cpu_tests
