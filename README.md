@@ -2,10 +2,9 @@
 
 ## About
 
-A work-in-progress emulator for the 8-bit [Intel 8080](https://en.wikipedia.org/wiki/Intel_8080)
-microprocessor from the 1970s. To verify this emulator's correctness I'm
-currently using a test suite created by Frank D. Cringle and modified by
-Ian Bartholomew that you can find [here](https://altairclone.com/downloads/cpu_tests/).
+This is an emulator for the 8-bit [Intel 8080](https://en.wikipedia.org/wiki/Intel_8080)
+microprocessor from the 1970s. This emulator passes a comprehensive suite of
+tests that you can use to verify its equivalence with a real Intel 8080 chip.
 
 ## Build
 
@@ -19,8 +18,8 @@ cargo build --release
 
 ## Run
 
-To run a program on the emulator, use the `run` command followed by the path
-to the program:
+If you have a program compiled for the Intel 8080, this emulater will be able
+to run it using the `run` command:
 
 ```sh
 i8080emu run /path-to-program/program.COM
@@ -40,16 +39,32 @@ curl \
 -O https://altairclone.com/downloads/cpu_tests/8080EXM.COM
 ```
 
-Then, run a test as outlined above:
+Then, run a test of your choosing with the `run` command:
 
 ```sh
-i8080emu run 8080PRE.COM
+i8080emu run CPUTEST.COM
 ```
 
-The longest test suite is `8080EXM.COM`, which takes around 25 minutes to run.
-The other suites should only take a few seconds each.
+Any printing during the course of the program's execution will be directed to
+your terminal's standard output:
+
+```text
+DIAGNOSTICS II V1.2 - CPU TEST
+COPYRIGHT (C) 1981 - SUPERSOFT ASSOCIATES
+
+ABCDEFGHIJKLMNOPQRSTUVWXYZ
+CPU IS 8080/8085
+BEGIN TIMING TEST
+END TIMING TEST
+CPU TESTS OK
+```
+
+The longest test suite is `8080EXM.COM`, which takes around 30 minutes to run.
+The other test files only take a few seconds each.
 
 ## Resources
+
+Below are resources that were helpful during the development of this emulator.
 
 ### Documents
 
@@ -64,12 +79,7 @@ The other suites should only take a few seconds each.
 ### Sites
 
 1. [altairclone.com](https://altairclone.com/downloads/) provides a variety of
-downloads for many different things: manuals, ROMs, CPU tests, etc.
-2. [mark-ogden.uk](https://mark-ogden.uk/files/intel/publications/) provides a
-variety of publications related to Intel technologies.
-3. [emulator101.com](http://web.archive.org/web/20240522090447/http://emulator101.com/)
-is now defunct, but is available on the Wayback Machine and seems like a good
-source of 8080 emulator information.
+downloads related to the Intel 8080: manuals, ROMs, CPU tests, etc.
 
 ### Other Emulators
 
